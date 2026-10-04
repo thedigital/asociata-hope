@@ -65,6 +65,13 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [ ] Gestion des comptes depuis l'admin (aujourd'hui uniquement en ligne de commande).
 - [ ] Recette complète de l'admin avec l'association : création, modification, photos, changement d'URL, anomalies.
 
+### Collectes de fonds
+- [ ] **Système de collectes de fonds.** Une collecte est soit permanente (sans limite de temps), soit temporaire (limitée en durée et en montant). Elle porte sur l'un de ces quatre périmètres :
+  - globale ;
+  - un besoin précis (des croquettes pour chiens, par exemple) ;
+  - un animal donné (une opération, par exemple) ;
+  - un événement en cours (Noël 2026, par exemple).
+
 ### Contenu et traductions
 - [ ] Relecture complète des textes anglais et français issus des traductions automatiques de Wix (déjà décidé).
 - [ ] Relecture de l'allemand par un germanophone : les 114 pages sont nouvelles et n'ont aucune référence sur le site réel.
@@ -117,6 +124,7 @@ Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et fra
 ### Design
 - [x] Refonte fidèle à la charte Wix (4 octobre 2026) : titres plus marqués, texte plus lisible, composants harmonisés, bandeau d'accueil en vert profond, photo à côté du texte sur six pages, photos réparties dans le texte sur `/proiect-2022`, même présentation dans les quatre langues.
 - [ ] Choisir la direction graphique définitive : cinq pistes sont présentées dans un artefact (https://claude.ai/artifact/XW2oNzJxWH2QzAgKUpDuA8, privé, à partager depuis la page). La piste 1 est celle du code.
+- [ ] **Système de thèmes modifiable depuis l'admin.** Le rendu actuel devient le thème « classic » (identifiant `classic`), qui reste le thème par défaut. L'admin permet de choisir le thème du site public et de le modifier.
 - [ ] Faire valider par l'association les photos d'illustration choisies pour les six pages de texte (`PAGE_ILLUSTRATIONS` dans `src/lib/site.ts`).
 - [ ] Contrôle visuel restant : contact, in memoriam, listes de chats et de parrainages, et l'ensemble du site sur mobile (seules quelques pages ont été vues en largeur mobile).
 
