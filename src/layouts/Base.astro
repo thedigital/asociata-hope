@@ -8,7 +8,7 @@ import '../styles/global.css';
 import Flag from '../components/Flag.astro';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, localizePath, type Locale } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
-import { NAV, SITE } from '../lib/site.ts';
+import { NAV, SITE, type PageKey } from '../lib/site.ts';
 
 interface Props {
   locale: Locale;
@@ -31,6 +31,12 @@ const origin = Astro.site!.origin;
 const absolute = (target: Locale) => origin + localizePath(path, target).replace(/^\/$/, '');
 const href = (page: string) => localizePath(page, locale);
 const isCurrent = (page: string) => path === page || path.startsWith(`${page}/`);
+// Footer link columns: every page of the menu, grouped by what the visitor wants to do.
+const footerLinks: { title: string; pages: PageKey[] }[] = [
+  { title: ui.footer.adopt, pages: ['adoptii-caini', 'adoptii-pisici', 'adoptii-virtuale-caini', 'adoptii-virtuale-pisici', 'cum-pot-adopta'] },
+  { title: ui.footer.help, pages: ['doneaza', 'redirectioneaza', 'voluntariat', 'ai-gasit-un-animal'] },
+  { title: ui.nav.info, pages: ['despre-noi', 'proiect-2022', 'raport-2024', 'ghid-de-crestere-si-ingrijire-pisici', 'in-memoriam'] },
+];
 // Line icons of the closing tiles, drawn like the icons of the donation page (24px grid, stroke only).
 const cta = [
   {
@@ -173,17 +179,11 @@ const cta = [
 
     <footer class="site-footer">
       <div class="site-footer__inner">
-        <a href={href('/')} aria-label={ui.home}>
-          <img src="/logo.webp" alt={SITE.legalName} width="149" height="55" loading="lazy" />
-        </a>
-        <div>
-          <h2>{ui.footer.contact}</h2>
-          <p><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
-          <p><a href={href('/termeni-si-conditii')}>{ui.pages['termeni-si-conditii']}</a></p>
-        </div>
-        <div>
-          <h2>{ui.footer.socials}</h2>
-          <ul class="social-links">
+        <div class="site-footer__brand">
+          <a class="site-footer__logo" href={href('/')} aria-label={ui.home}>
+            <img src="/logo.webp" alt={SITE.legalName} width="149" height="55" loading="lazy" />
+          </a>
+          <ul class="social-links" aria-label={ui.footer.socials}>
             <li>
               <a href={SITE.social.facebook} rel="noopener" target="_blank" aria-label="Facebook">
                 <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46H15.2c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12Z"/></svg>
@@ -194,6 +194,28 @@ const cta = [
                 <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M12 2.2c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.2 12 2.2Zm0 3.07a6.73 6.73 0 1 0 0 13.46 6.73 6.73 0 0 0 0-13.46Zm0 11.1a4.37 4.37 0 1 1 0-8.74 4.37 4.37 0 0 1 0 8.74Zm7-11.37a1.57 1.57 0 1 0 0 3.14 1.57 1.57 0 0 0 0-3.14Z"/></svg>
               </a>
             </li>
+          </ul>
+        </div>
+        {
+          footerLinks.map((column) => (
+            <div>
+              <h2>{column.title}</h2>
+              <ul>
+                {column.pages.map((page) => (
+                  <li>
+                    <a href={href(`/${page}`)}>{ui.pages[page]}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+        <div>
+          <h2>{ui.footer.contact}</h2>
+          <ul>
+            <li><a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+            <li><a href={href('/contact')}>{ui.pages.contact}</a></li>
+            <li><a href={href('/termeni-si-conditii')}>{ui.pages['termeni-si-conditii']}</a></li>
           </ul>
         </div>
       </div>

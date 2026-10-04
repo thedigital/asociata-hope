@@ -533,9 +533,10 @@ a:hover {
   background: linear-gradient(118deg, var(--teal-dark), var(--teal) 38%, var(--green-deep));
 }
 
-/* Paw prints of the logo, lighter behind the title. Shared with the title band of the other pages. */
+/* Paw prints of the logo, lighter behind the title. Shared with the title band of the other pages and the footer. */
 .hero::before,
-.page-hero::before {
+.page-hero::before,
+.site-footer::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -2554,6 +2555,8 @@ fieldset[aria-invalid='true'] {
   display: grid;
   gap: clamp(1rem, 2vw, 1.5rem);
   padding: clamp(2.5rem, 6vw, 4.5rem) max(var(--gutter), (100% - 1240px) / 2);
+  /* Room for the curved edge of the footer, which is cut into this band. */
+  padding-bottom: calc(clamp(2.5rem, 6vw, 4.5rem) + var(--arc));
   background: var(--surface);
   border-top: 1px solid var(--line);
 }
@@ -2727,42 +2730,108 @@ fieldset[aria-invalid='true'] {
   }
 }
 
+/* Footer: the ground of the title bands closes the page, its curved upper edge cut into the tiles above. */
 .site-footer {
-  padding: clamp(2rem, 5vw, 3rem) var(--gutter) 1.5rem;
-  background: var(--surface);
-  border-top: 1px solid var(--line);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: calc(-1 * var(--arc));
+  padding: calc(clamp(2.5rem, 6vw, 4rem) + var(--arc) / 2) var(--gutter) 1.5rem;
+  border-radius: 50% 50% 0 0 / var(--arc) var(--arc) 0 0;
+  background: linear-gradient(118deg, var(--teal-dark), var(--teal) 38%, var(--green-deep));
+  color: rgb(255 255 255 / 0.85);
   font-size: 0.95rem;
 }
 
-/* Columns take the width of their content, so the e-mail address stays on one line. */
+.site-footer::before {
+  mask-image: linear-gradient(#000, rgb(0 0 0 / 0.3));
+}
+
+/* Soft light in the lower corner. */
+.site-footer::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  right: -10%;
+  bottom: -60%;
+  width: min(760px, 110%);
+  aspect-ratio: 1.4;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(214 240 190 / 0.2), transparent);
+}
+
+/* Small screens: the logo on its own row, then the link columns two by two. */
 .site-footer__inner {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 2rem clamp(2rem, 5vw, 4rem);
-  width: min(100%, var(--width));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem clamp(1.25rem, 3vw, 2.5rem);
+  width: min(100%, 1240px);
   margin-inline: auto;
 }
 
+.site-footer__brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  grid-column: 1 / -1;
+}
+
+/* The logo has dark letters: it keeps a white plate on the dark ground. */
+.site-footer__logo {
+  display: block;
+  padding: 0.8rem 1.1rem;
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  box-shadow: 0 10px 30px rgb(4 26 14 / 0.25);
+}
+
+.site-footer__logo img {
+  max-width: none;
+}
+
 .site-footer h2 {
-  margin: 0 0 0.6rem;
-  color: var(--teal);
+  margin: 0 0 0.9rem;
+  color: var(--sand);
+  font-family: inherit;
   font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.site-footer__inner > div {
-  max-width: 28ch;
+.site-footer__inner > div > ul:not(.social-links) {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+  list-style: none;
 }
 
-.site-footer p {
-  margin: 0 0 0.35rem;
+/* The underline is drawn from the left when a link is pointed at. */
+.site-footer__inner > div > ul:not(.social-links) a {
+  background: linear-gradient(var(--sand), var(--sand)) 0 100% / 0 1px no-repeat;
+  color: inherit;
+  text-decoration: none;
+  transition: background-size 0.25s, color 0.15s;
 }
 
+.site-footer__inner > div > ul:not(.social-links) a:hover {
+  background-size: 100% 1px;
+  color: #fff;
+}
+
+/* The e-mail address stays on one line: on narrow screens its column takes the whole row. */
 .site-footer a[href^='mailto:'] {
   white-space: nowrap;
+}
+
+@media (max-width: 559px) {
+  .site-footer__inner > :last-child {
+    grid-column: 1 / -1;
+  }
 }
 
 .social-links {
@@ -2779,13 +2848,15 @@ fieldset[aria-invalid='true'] {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--green-pale);
-  transition: background-color 0.15s, color 0.15s;
+  background: rgb(255 255 255 / 0.12);
+  color: #fff;
+  transition: background-color 0.15s, transform 0.15s;
 }
 
 .social-links a:hover {
-  background: var(--teal);
+  background: var(--orange);
   color: #fff;
+  transform: translateY(-2px);
 }
 
 .social-links svg {
@@ -2794,13 +2865,34 @@ fieldset[aria-invalid='true'] {
 }
 
 .site-footer__legal {
-  width: min(100%, var(--width));
-  margin: 2rem auto 0 !important;
+  width: min(100%, 1240px);
+  margin: clamp(2rem, 5vw, 3rem) auto 0;
   padding-top: 1.25rem;
-  border-top: 2px solid var(--green);
-  color: var(--muted);
+  border-top: 1px solid rgb(255 255 255 / 0.16);
+  color: rgb(255 255 255 / 0.7);
   font-size: var(--text-small);
   text-align: center;
+}
+
+/* From 860px the four link columns share one row under the logo; from 1100px the logo joins them. */
+@media (min-width: 860px) {
+  .site-footer__inner {
+    grid-template-columns: repeat(4, auto);
+    justify-content: space-between;
+  }
+}
+
+@media (min-width: 1100px) {
+  .site-footer__inner {
+    grid-template-columns: repeat(5, auto);
+  }
+
+  .site-footer__brand {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    grid-column: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

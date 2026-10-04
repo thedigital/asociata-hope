@@ -106,7 +106,7 @@ export type Ui = {
   and: string;
   years: (n: number) => string;
   months: (n: number) => string;
-  footer: { contact: string; socials: string; rights: string };
+  footer: { adopt: string; help: string; contact: string; socials: string; rights: string };
   contactPage: { intro: string; email: string; about: (name: string) => string };
   notFound: { title: string; text: string; back: string };
 };
@@ -266,7 +266,7 @@ const ro: Ui = {
   and: 'si',
   years: (n) => roCount(n, 'an', 'ani'),
   months: (n) => roCount(n, 'luna', 'luni'),
-  footer: { contact: 'Contact', socials: 'Retele sociale', rights: 'Toate drepturile rezervate.' },
+  footer: { adopt: 'Adoptii', help: 'Ajuta-ne', contact: 'Contact', socials: 'Retele sociale', rights: 'Toate drepturile rezervate.' },
   contactPage: {
     intro: 'Pentru adoptii, adoptii virtuale, voluntariat sau orice alta intrebare, scrieti-ne. Va raspundem cat mai repede.',
     email: 'Scrieti-ne pe e-mail',
@@ -425,7 +425,7 @@ const en: Ui = {
   and: 'and',
   years: (n) => plural(n, 'year', 'years'),
   months: (n) => plural(n, 'month', 'months'),
-  footer: { contact: 'Contact', socials: 'Social media', rights: 'All rights reserved.' },
+  footer: { adopt: 'Adoption', help: 'Help us', contact: 'Contact', socials: 'Social media', rights: 'All rights reserved.' },
   contactPage: {
     intro: 'For adoptions, sponsorships, volunteering or any other question, write to us. We will reply as soon as we can.',
     email: 'Email us',
@@ -584,7 +584,7 @@ const fr: Ui = {
   and: 'et',
   years: (n) => plural(n, 'an', 'ans'),
   months: (n) => `${n} mois`,
-  footer: { contact: 'Contact', socials: 'Réseaux sociaux', rights: 'Tous droits réservés.' },
+  footer: { adopt: 'Adoption', help: 'Nous aider', contact: 'Contact', socials: 'Réseaux sociaux', rights: 'Tous droits réservés.' },
   contactPage: {
     intro: 'Pour une adoption, un parrainage, du bénévolat ou toute autre question, écrivez-nous. Nous vous répondrons dès que possible.',
     email: 'Nous écrire par e-mail',
@@ -743,7 +743,7 @@ const de: Ui = {
   and: 'und',
   years: (n) => plural(n, 'Jahr', 'Jahre'),
   months: (n) => plural(n, 'Monat', 'Monate'),
-  footer: { contact: 'Kontakt', socials: 'Soziale Netzwerke', rights: 'Alle Rechte vorbehalten.' },
+  footer: { adopt: 'Adoption', help: 'Helfen', contact: 'Kontakt', socials: 'Soziale Netzwerke', rights: 'Alle Rechte vorbehalten.' },
   contactPage: {
     intro: 'Für Adoptionen, Patenschaften, ehrenamtliche Mitarbeit oder andere Fragen schreiben Sie uns. Wir antworten so schnell wie möglich.',
     email: 'E-Mail schreiben',
