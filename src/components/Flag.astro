@@ -1,0 +1,51 @@
+---
+import type { Locale } from '../i18n/config.ts';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+{/* Inline SVG rather than emoji: flag emoji do not render on Windows. */}
+<svg class="flag" viewBox="0 0 60 40" width="21" height="14" aria-hidden="true">
+  {
+    locale === 'ro' && (
+      <>
+        <rect width="20" height="40" fill="#002b7f" />
+        <rect x="20" width="20" height="40" fill="#fcd116" />
+        <rect x="40" width="20" height="40" fill="#ce1126" />
+      </>
+    )
+  }
+  {
+    locale === 'fr' && (
+      <>
+        <rect width="20" height="40" fill="#0055a4" />
+        <rect x="20" width="20" height="40" fill="#fff" />
+        <rect x="40" width="20" height="40" fill="#ef4135" />
+      </>
+    )
+  }
+  {
+    locale === 'de' && (
+      <>
+        <rect width="60" height="13.4" fill="#000" />
+        <rect y="13.3" width="60" height="13.4" fill="#dd0000" />
+        <rect y="26.6" width="60" height="13.4" fill="#ffce00" />
+      </>
+    )
+  }
+  {
+    locale === 'en' && (
+      <>
+        <rect width="60" height="40" fill="#012169" />
+        <path d="M0 0l60 40M60 0L0 40" stroke="#fff" stroke-width="8" />
+        <path d="M0 0l60 40M60 0L0 40" stroke="#c8102e" stroke-width="3" />
+        <path d="M30 0v40M0 20h60" stroke="#fff" stroke-width="13" />
+        <path d="M30 0v40M0 20h60" stroke="#c8102e" stroke-width="7" />
+      </>
+    )
+  }
+</svg>

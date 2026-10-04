@@ -4,6 +4,7 @@ import '@fontsource/poppins/400.css';
 import '@fontsource/poppins/500.css';
 import '@fontsource/poppins/600.css';
 import '../styles/global.css';
+import Flag from '../components/Flag.astro';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, localizePath, type Locale } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import { NAV, SITE } from '../lib/site.ts';
@@ -106,17 +107,24 @@ const cta = [
                 )
               }
             </ul>
-            <ul class="language-switcher" aria-label="Language">
-              {
-                ENABLED_LOCALES.map((l) => (
-                  <li>
-                    <a href={alternates ? localizePath(path, l) : localizePath('/', l)} lang={l} hreflang={l} aria-current={l === locale ? 'true' : undefined} title={LOCALE_NAMES[l]}>
-                      {l.toUpperCase()}
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
+            <div class="site-nav__group language-menu">
+              <button type="button" aria-haspopup="true">
+                <Flag locale={locale} />
+                {LOCALE_NAMES[locale]}
+              </button>
+              <ul>
+                {
+                  ENABLED_LOCALES.map((l) => (
+                    <li>
+                      <a href={alternates ? localizePath(path, l) : localizePath('/', l)} lang={l} hreflang={l} aria-current={l === locale ? 'true' : undefined}>
+                        <Flag locale={l} />
+                        {LOCALE_NAMES[l]}
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
           </nav>
         </details>
 
@@ -177,8 +185,15 @@ const cta = [
 
     <script is:inline>
       // Dropdown groups open on click as well as on hover/focus.
-      document.querySelectorAll('.site-nav__group > button').forEach((button) => {
-        button.addEventListener('click', () => button.parentElement.classList.toggle('is-open'));
+      const groups = document.querySelectorAll('.site-nav__group');
+      groups.forEach((group) => {
+        group.querySelector('button').addEventListener('click', () => {
+          groups.forEach((other) => other !== group && other.classList.remove('is-open'));
+          group.classList.toggle('is-open');
+        });
+      });
+      document.addEventListener('click', (event) => {
+        groups.forEach((group) => !group.contains(event.target) && group.classList.remove('is-open'));
       });
     </script>
   </body>

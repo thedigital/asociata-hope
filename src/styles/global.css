@@ -162,6 +162,12 @@ a:hover {
   margin-left: auto;
 }
 
+.site-header__donate {
+  padding: 0.55rem 1rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
 .nav-toggle > summary {
   display: grid;
   gap: 5px;
@@ -228,21 +234,27 @@ a:hover {
   border-left: 2px solid var(--line);
 }
 
-.language-switcher {
+.flag {
+  flex: none;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgb(1 21 2 / 0.15);
+}
+
+.language-menu {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.language-menu > button,
+.language-menu a {
   display: flex;
-  gap: 0.25rem;
-  margin-top: 0.75rem !important;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.language-switcher a {
-  padding: 0.25rem 0.55rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
-}
-
-.language-switcher a[aria-current] {
-  background: var(--teal);
-  color: #fff;
+.language-menu a[aria-current] {
+  color: var(--orange-dark);
 }
 
 @media (min-width: 1180px) {
@@ -295,8 +307,21 @@ a:hover {
     white-space: nowrap;
   }
 
-  .language-switcher a {
-    padding-inline: 0.4rem;
+  .language-menu {
+    position: relative;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .language-menu ul {
+    left: auto;
+    right: -0.5rem;
+    min-width: 170px;
+  }
+
+  .language-menu a {
+    font-size: 0.85rem;
   }
 
   .site-header__donate {
@@ -327,9 +352,6 @@ a:hover {
     display: block;
   }
 
-  .language-switcher {
-    margin-top: 0 !important;
-  }
 }
 
 /* Page title band */
