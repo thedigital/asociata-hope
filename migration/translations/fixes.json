@@ -1,0 +1,71 @@
+[
+  {
+    "key": "adoptii-caini/bashful-si-grumpy",
+    "locale": "fr",
+    "replace": [
+      [
+        "Timide et Grognon",
+        "Bashful et Grumpy"
+      ],
+      [
+        "Timide & Grognon",
+        "Bashful & Grumpy"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/tiger",
+    "locale": "fr",
+    "replace": [
+      [
+        "Tigre",
+        "Tiger"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/daphne",
+    "locale": "fr",
+    "replace": [
+      [
+        "Daphné",
+        "Daphne"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/sunny",
+    "locale": "ro",
+    "startAt": "Sunny este un motan"
+  },
+  {
+    "key": "adoptii-virtuale-pisici/sunny",
+    "locale": "en",
+    "startAt": "Sunny is a gentle"
+  },
+  {
+    "key": "adoptii-virtuale-pisici/sunny",
+    "locale": "fr",
+    "startAt": "Sunny est un chat doux"
+  },
+  {
+    "key": "*",
+    "locale": "fr",
+    "replace": [
+      [
+        "Moustiquaires de protection solides aux fenêtres, installées",
+        "Filets de protection solides aux fenêtres, posés"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/moustache",
+    "locale": "fr",
+    "replace": [
+      [
+        "Moustache avec moustiquaires solides aux fenêtres, installées avant son arrivée",
+        "Filets de protection solides aux fenêtres, posés avant l'arrivée de Moustache"
+      ]
+    ]
+  }
+]

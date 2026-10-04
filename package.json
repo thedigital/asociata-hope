@@ -18,7 +18,9 @@
     "crawl": "node scripts/migration/crawl.ts",
     "import:animals": "node scripts/migration/import-animals.ts",
     "import:pages": "node scripts/migration/import-pages.ts",
-    "import:memoriam": "node scripts/migration/import-memoriam.ts"
+    "import:memoriam": "node scripts/migration/import-memoriam.ts",
+    "import:translations": "node scripts/migration/import-translations.ts",
+    "seo:fill": "node scripts/fill-seo.ts"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.6",

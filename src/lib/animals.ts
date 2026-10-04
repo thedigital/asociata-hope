@@ -58,8 +58,16 @@ export function getAnimal({ species, adoptionType }: Collection, slug: string, l
   if (!animal) return null;
   const photos = db.select().from(animalPhotos).where(eq(animalPhotos.animalId, animal.id)).orderBy(asc(animalPhotos.sortOrder)).all();
   const translations = db.select().from(animalTranslations).where(eq(animalTranslations.animalId, animal.id)).all();
-  // A missing translation falls back to the Romanian original rather than an empty page.
-  const translation = translations.find((t) => t.locale === locale) ?? translations.find((t) => t.locale === DEFAULT_LOCALE) ?? null;
+  // SEO fields come from the page language only. A missing description falls back to the
+  // Romanian original rather than an empty page; `locale` tells which language the text is in.
+  const own = translations.find((t) => t.locale === locale);
+  const source = own?.description ? own : translations.find((t) => t.locale === DEFAULT_LOCALE);
+  const translation = {
+    locale: source?.locale ?? locale,
+    description: source?.description ?? '',
+    seoTitle: own?.seoTitle ?? null,
+    seoDescription: own?.seoDescription ?? null,
+  };
   return {
     ...animal,
     photos,

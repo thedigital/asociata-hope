@@ -4,10 +4,10 @@ export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = 'ro';
 
 /**
- * Languages actually served. German stays off until its content is translated: an enabled
- * language is linked from every page (hreflang, sitemap, language switcher).
+ * Languages actually served. An enabled language is linked from every page (hreflang, sitemap,
+ * language switcher), so only enable one whose pages and animal texts are translated.
  */
-export const ENABLED_LOCALES: readonly Locale[] = ['ro', 'en', 'fr'];
+export const ENABLED_LOCALES: readonly Locale[] = ['ro', 'en', 'fr', 'de'];
 /** Served to visitors whose browser language is not one of the enabled ones. */
 export const FALLBACK_LOCALE: Locale = 'en';
 export const LOCALE_NAMES: Record<Locale, string> = { ro: 'Română', en: 'English', fr: 'Français', de: 'Deutsch' };
