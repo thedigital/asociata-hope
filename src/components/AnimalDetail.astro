@@ -1,0 +1,134 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { localizePath } from '../i18n/config.ts';
+import { formatAge, gendered, joinList, useUi } from '../i18n/ui.ts';
+import type { Collection, getAnimal } from '../lib/animals.ts';
+import { imageUrl, srcset } from '../lib/media.ts';
+
+interface Props {
+  collection: Collection;
+  animal: NonNullable<ReturnType<typeof getAnimal>>;
+  locale: Locale;
+}
+
+const { collection, animal, locale } = Astro.props;
+const ui = useUi(locale);
+const listUrl = localizePath(`/${collection.path}`, locale);
+const isVirtual = collection.adoptionType === 'virtual';
+
+// Lower-case every label but the first, as in a sentence: "Docile and affectionate".
+const sentence = (labels: string[]) => joinList(labels.map((label, i) => (i ? label.toLowerCase() : label)), ui.and);
+const health = (['vaccinated', 'sterilized', 'dewormed'] as const).filter((key) => animal[key]).map((key) => gendered(ui.health[key], animal.sex));
+const facts = [
+  [ui.animal.age, animal.ageMonths === null ? null : formatAge(ui, animal.ageMonths)],
+  [ui.animal.size, animal.size ? gendered(ui.size[animal.size], animal.sex) : null],
+  [ui.animal.color, animal.color ? ui.color[animal.color] : null],
+  [ui.animal.sex, animal.sex ? ui.sex[animal.sex] : null],
+  [ui.animal.behavior, animal.traits.length ? sentence(animal.traits.map((t) => gendered(ui.traits[t], animal.sex))) : null],
+  [ui.animal.health, health.length ? sentence(health) : null],
+].filter(([, value]) => value);
+
+const paragraphs = (animal.translation?.description ?? '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+const [main, ...others] = animal.photos;
+---
+
+<article class="animal">
+  <div class="animal__inner">
+    <a class="animal__back" href={listUrl}>‹ {ui.animal.back}</a>
+
+    <div class="animal__gallery">
+      {
+        main && (
+          <a class="animal__photo" href={imageUrl('animals', main.file, 1200)}>
+            <img
+              id="animal-photo"
+              src={imageUrl('animals', main.file, 800)}
+              srcset={srcset('animals', main.file, [400, 800, 1200])}
+              sizes="(min-width: 900px) 480px, 100vw"
+              alt={main.alt || animal.name}
+              width={main.width ?? 800}
+              height={main.height ?? 800}
+              fetchpriority="high"
+            />
+          </a>
+        )
+      }
+      {
+        others.length > 0 && (
+          <ul class="animal__thumbs">
+            {animal.photos.map((photo, index) => (
+              <li>
+                <a href={imageUrl('animals', photo.file, 1200)} data-file={photo.file} aria-current={index === 0 ? 'true' : undefined}>
+                  <img src={imageUrl('animals', photo.file, 160)} alt={photo.alt || ui.animal.photoOf(animal.name, index + 1)} width="160" height="160" loading="lazy" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      {
+        animal.videoFile && (
+          <video class="animal__video" controls preload="none" poster={main ? imageUrl('animals', main.file, 800) : undefined}>
+            <source src={`/media/videos/${animal.videoFile}`} type="video/mp4" />
+          </video>
+        )
+      }
+    </div>
+
+    <div class="animal__card">
+      {isVirtual && <p class="animal__badge">{ui.animal.virtualAdoption}</p>}
+      <h1>{animal.name}</h1>
+      <dl>
+        {
+          facts.map(([label, value]) => (
+            <div>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <div class="animal__description" lang={animal.translation?.locale}>
+        {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      {
+        animal.videoUrl && (
+          <p>
+            <a href={animal.videoUrl} rel="noopener" target="_blank">
+              ▶ Video
+            </a>
+          </p>
+        )
+      }
+      <div class="animal__actions">
+        {isVirtual && <a class="button" href={localizePath('/doneaza', locale)}>{ui.animal.sponsor}</a>}
+        <a class={isVirtual ? 'button button--sand' : 'button'} href={`${localizePath('/contact', locale)}?animal=${encodeURIComponent(animal.name)}`}>{ui.animal.contact}</a>
+        <a class="button button--sand" href={listUrl}>{ui.animal.seeOthers[animal.species]}</a>
+      </div>
+    </div>
+  </div>
+</article>
+
+<script is:inline>
+  // Thumbnails swap the main picture in place; without JavaScript they open the full-size image.
+  (() => {
+    const main = document.getElementById('animal-photo');
+    const thumbs = document.querySelectorAll('.animal__thumbs a');
+    if (!main) return;
+    thumbs.forEach((thumb) => {
+      thumb.addEventListener('click', (event) => {
+        event.preventDefault();
+        const file = thumb.dataset.file;
+        const url = (width) => `/media/animals/${width}/${file}`;
+        main.srcset = [400, 800, 1200].map((w) => `${url(w)} ${w}w`).join(', ');
+        main.src = url(800);
+        main.alt = thumb.querySelector('img').alt;
+        main.removeAttribute('width');
+        main.removeAttribute('height');
+        main.parentElement.href = url(1200);
+        thumbs.forEach((other) => other.removeAttribute('aria-current'));
+        thumb.setAttribute('aria-current', 'true');
+      });
+    });
+  })();
+</script>

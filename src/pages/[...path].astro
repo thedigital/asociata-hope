@@ -1,0 +1,126 @@
+---
+import { and, eq } from 'drizzle-orm';
+import AnimalDetail from '../components/AnimalDetail.astro';
+import AnimalList from '../components/AnimalList.astro';
+import Home from '../components/Home.astro';
+import { db, schema } from '../db/client.ts';
+import { DEFAULT_LOCALE, ENABLED_LOCALES, localizePath, splitLocale } from '../i18n/config.ts';
+import { formatAge, useUi } from '../i18n/ui.ts';
+import Base from '../layouts/Base.astro';
+import { findCollection, getAnimal, listAnimals } from '../lib/animals.ts';
+import { imageUrl } from '../lib/media.ts';
+import { CONTENT_PAGES, SITE, type ContentPage, type PageKey } from '../lib/site.ts';
+
+/**
+ * Single entry point of the public site. URLs are the Wix ones: an optional language prefix,
+ * then the same path in every language.
+ */
+const { locale, path } = splitLocale(Astro.url.pathname);
+const ui = useUi(locale);
+const segments = path.split('/').filter(Boolean);
+const enabled = ENABLED_LOCALES.includes(locale);
+const collection = enabled && segments.length <= 2 ? findCollection(segments[0] ?? '') : undefined;
+const titleOf = (name: string) => `${name} | ${SITE.name}`;
+const truncate = (text: string, max = 158) => (text.length <= max ? text : `${text.slice(0, text.lastIndexOf(' ', max))}…`);
+
+function loadPage(slug: ContentPage) {
+  const rows = db
+    .select({ locale: schema.pageTranslations.locale, body: schema.pageTranslations.body, seoTitle: schema.pageTranslations.seoTitle, seoDescription: schema.pageTranslations.seoDescription })
+    .from(schema.pageTranslations)
+    .innerJoin(schema.pages, eq(schema.pages.id, schema.pageTranslations.pageId))
+    .where(and(eq(schema.pages.slug, slug)))
+    .all();
+  return rows.find((r) => r.locale === locale) ?? rows.find((r) => r.locale === DEFAULT_LOCALE) ?? null;
+}
+
+const animal = collection && segments.length === 2 ? getAnimal(collection, segments[1], locale) : null;
+const animals = collection && segments.length === 1 ? listAnimals(collection) : null;
+const page = enabled && segments.length === 1 && (CONTENT_PAGES as readonly string[]).includes(segments[0]) ? loadPage(segments[0] as ContentPage) : null;
+const isHome = enabled && segments.length === 0;
+const isContact = enabled && segments.length === 1 && segments[0] === 'contact';
+const found = isHome || isContact || animal || animals || page;
+if (!found) Astro.response.status = 404;
+
+const key = segments[0] as PageKey;
+const filtered = animals !== null && [...Astro.url.searchParams.values()].some(Boolean);
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'AnimalShelter',
+  name: SITE.legalName,
+  url: Astro.site!.origin,
+  logo: `${Astro.site!.origin}/logo.webp`,
+  email: SITE.email,
+  address: { '@type': 'PostalAddress', addressCountry: 'RO', addressLocality: 'București' },
+  sameAs: Object.values(SITE.social),
+};
+
+let title = titleOf(ui.notFound.title);
+let description = ui.seo.description;
+let image: string | undefined;
+if (isHome) title = ui.seo.homeTitle;
+else if (animal && collection) {
+  const facts = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMonths), animal.sex ? ui.sex[animal.sex] : null].filter(Boolean).join(', ');
+  title = animal.translation?.seoTitle || `${animal.name} | ${ui.pages[collection.path as PageKey]} | ${SITE.name}`;
+  description = animal.translation?.seoDescription || truncate(`${animal.name}${facts ? ` (${facts})` : ''} – ${(animal.translation?.description ?? '').replace(/\s+/g, ' ')}`);
+  if (animal.photos[0]) image = imageUrl('animals', animal.photos[0].file, 1200);
+} else if (animals || isContact) title = titleOf(ui.pages[key]);
+else if (page) {
+  title = page.seoTitle || titleOf(ui.pages[key]);
+  description = page.seoDescription || description;
+}
+const contactAnimal = isContact ? Astro.url.searchParams.get('animal')?.slice(0, 60) : null;
+---
+
+<Base locale={enabled ? locale : DEFAULT_LOCALE} path={path} title={title} description={description} image={image} noindex={!found || filtered} alternates={Boolean(found)} jsonLd={isHome ? [organization] : []}>
+  {isHome && <Home locale={locale} />}
+  {animals && collection && <AnimalList collection={collection} animals={animals} locale={locale} filters={Astro.url.searchParams} />}
+  {animal && collection && <AnimalDetail collection={collection} animal={animal} locale={locale} />}
+  {
+    page && (
+      <>
+        <section class="page-hero">
+          <h1>{ui.pages[key]}</h1>
+        </section>
+        <div class="container prose" set:html={page.body} />
+      </>
+    )
+  }
+  {
+    isContact && (
+      <>
+        <section class="page-hero">
+          <h1>{ui.pages.contact}</h1>
+        </section>
+        <div class="container prose contact">
+          {contactAnimal && <p class="contact__about">{ui.contactPage.about(contactAnimal)}</p>}
+          <p>{ui.contactPage.intro}</p>
+          <p>
+            <a class="button" href={`mailto:${SITE.email}${contactAnimal ? `?subject=${encodeURIComponent(contactAnimal)}` : ''}`}>
+              {ui.contactPage.email}
+            </a>
+          </p>
+          <p>
+            <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          </p>
+        </div>
+      </>
+    )
+  }
+  {
+    !found && (
+      <>
+        <section class="page-hero">
+          <h1>{ui.notFound.title}</h1>
+        </section>
+        <div class="container prose">
+          <p>{ui.notFound.text}</p>
+          <p>
+            <a class="button" href={localizePath('/', enabled ? locale : DEFAULT_LOCALE)}>
+              {ui.notFound.back}
+            </a>
+          </p>
+        </div>
+      </>
+    )
+  }
+</Base>

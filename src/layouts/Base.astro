@@ -1,0 +1,213 @@
+---
+import '@fontsource/poppins/300.css';
+import '@fontsource/poppins/400.css';
+import '@fontsource/poppins/500.css';
+import '@fontsource/poppins/600.css';
+import '../styles/global.css';
+import { DEFAULT_LOCALE, ENABLED_LOCALES, FALLBACK_LOCALE, HREFLANG, LOCALE_NAMES, localizePath, type Locale } from '../i18n/config.ts';
+import { useUi } from '../i18n/ui.ts';
+import { NAV, SITE } from '../lib/site.ts';
+
+interface Props {
+  locale: Locale;
+  /** Path without language prefix, e.g. `/adoptii-caini/lizzie`. */
+  path: string;
+  title: string;
+  description: string;
+  /** Root-relative image used for social sharing. */
+  image?: string;
+  noindex?: boolean;
+  /** False for pages that only exist in one language (404). */
+  alternates?: boolean;
+  jsonLd?: Record<string, unknown>[];
+}
+
+const { locale, path, title, description, image = '/media/pages/1200/313291_9419d3ada2c44ed7a96a12b568a4523b_mv2.jpg', noindex = false, alternates = true, jsonLd = [] } = Astro.props;
+const ui = useUi(locale);
+const origin = Astro.site!.origin;
+// The home page canonical has no trailing slash, as on the Wix site.
+const absolute = (target: Locale) => origin + localizePath(path, target).replace(/^\/$/, '');
+const href = (page: string) => localizePath(page, locale);
+const isCurrent = (page: string) => path === page || path.startsWith(`${page}/`);
+const alternateUrls = Object.fromEntries(ENABLED_LOCALES.map((l) => [l, localizePath(path, l)]));
+const banners = Object.fromEntries(ENABLED_LOCALES.map((l) => [l, useUi(l).languageBanner]));
+const cta = [
+  { ...ui.cta.dogs, href: href('/adoptii-caini') },
+  { ...ui.cta.cats, href: href('/adoptii-pisici') },
+  { ...ui.cta.donate, href: href('/doneaza') },
+  { ...ui.cta.volunteer, href: href('/voluntariat') },
+];
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    {alternates && <link rel="canonical" href={absolute(locale)} />}
+    {
+      alternates && (
+        <>
+          <link rel="alternate" hreflang="x-default" href={absolute(DEFAULT_LOCALE)} />
+          {ENABLED_LOCALES.map((l) => (
+            <link rel="alternate" hreflang={HREFLANG[l]} href={absolute(l)} />
+          ))}
+        </>
+      )
+    }
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={origin + image} />
+    <meta property="og:url" content={absolute(locale)} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {jsonLd.map((data) => <script is:inline type="application/ld+json" set:html={JSON.stringify(data)} />)}
+  </head>
+  <body>
+    <a class="skip-link" href="#content">{ui.skip}</a>
+
+    <div class="language-banner" id="language-banner" hidden>
+      <p></p>
+      <a class="button button--small"></a>
+      <button type="button" aria-label=""><span aria-hidden="true">×</span></button>
+    </div>
+
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="site-header__logo" href={href('/')} aria-label={ui.home}>
+          <img src="/logo.webp" alt={SITE.legalName} width="149" height="55" />
+        </a>
+
+        <details class="nav-toggle">
+          <summary aria-label={ui.menu}><span></span><span></span><span></span></summary>
+          <nav class="site-nav" aria-label={ui.menu}>
+            <ul>
+              {
+                NAV.map((item) =>
+                  'page' in item ? (
+                    <li>
+                      <a href={href(`/${item.page}`)} aria-current={isCurrent(`/${item.page}`) ? 'page' : undefined}>
+                        {ui.pages[item.page]}
+                      </a>
+                    </li>
+                  ) : (
+                    <li class="site-nav__group">
+                      <button type="button" aria-haspopup="true">
+                        {ui.nav[item.group]}
+                      </button>
+                      <ul>
+                        {item.items.map((page) => (
+                          <li>
+                            <a href={href(`/${page}`)} aria-current={isCurrent(`/${page}`) ? 'page' : undefined}>
+                              {ui.pages[page]}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ),
+                )
+              }
+            </ul>
+            <ul class="language-switcher" aria-label="Language">
+              {
+                ENABLED_LOCALES.map((l) => (
+                  <li>
+                    <a href={alternates ? localizePath(path, l) : localizePath('/', l)} lang={l} hreflang={l} aria-current={l === locale ? 'true' : undefined} title={LOCALE_NAMES[l]}>
+                      {l.toUpperCase()}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+        </details>
+
+        <a class="button site-header__donate" href={href('/doneaza')}>{ui.donate}</a>
+      </div>
+    </header>
+
+    <main id="content">
+      <slot />
+    </main>
+
+    <section class="cta-tiles" aria-label={ui.menu}>
+      {
+        cta.map((tile) => (
+          <div class="cta-tiles__tile">
+            <h2>{tile.title}</h2>
+            <p>{tile.text}</p>
+            <a class="button" href={tile.href}>
+              {tile.button}
+            </a>
+          </div>
+        ))
+      }
+    </section>
+
+    <footer class="site-footer">
+      <div class="site-footer__inner">
+        <a href={href('/')} aria-label={ui.home}>
+          <img src="/logo.webp" alt={SITE.legalName} width="149" height="55" loading="lazy" />
+        </a>
+        <div>
+          <h2>{ui.footer.address}</h2>
+          <p>{SITE.legalName}</p>
+        </div>
+        <div>
+          <h2>{ui.footer.contact}</h2>
+          <p><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+          <p><a href={href('/termeni-si-conditii')}>{ui.pages['termeni-si-conditii']}</a></p>
+        </div>
+        <div>
+          <h2>{ui.footer.socials}</h2>
+          <ul class="social-links">
+            <li>
+              <a href={SITE.social.facebook} rel="noopener" target="_blank" aria-label="Facebook">
+                <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46H15.2c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12Z"/></svg>
+              </a>
+            </li>
+            <li>
+              <a href={SITE.social.instagram} rel="noopener" target="_blank" aria-label="Instagram">
+                <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M12 2.2c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.2 12 2.2Zm0 3.07a6.73 6.73 0 1 0 0 13.46 6.73 6.73 0 0 0 0-13.46Zm0 11.1a4.37 4.37 0 1 1 0-8.74 4.37 4.37 0 0 1 0 8.74Zm7-11.37a1.57 1.57 0 1 0 0 3.14 1.57 1.57 0 0 0 0-3.14Z"/></svg>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <p class="site-footer__legal">© {new Date().getFullYear()} {SITE.name}. {ui.footer.rights}</p>
+    </footer>
+
+    <script is:inline define:vars={{ locale, alternateUrls, banners, fallback: FALLBACK_LOCALE }}>
+      // Suggest the visitor's browser language (never redirect: each URL keeps its own language).
+      (() => {
+        const banner = document.getElementById('language-banner');
+        let dismissed = false;
+        try { dismissed = localStorage.getItem('language-banner') === 'dismissed'; } catch {}
+        if (!banner || dismissed) return;
+        const wanted = (navigator.languages || [navigator.language]).map((l) => l.slice(0, 2).toLowerCase());
+        const target = wanted.find((l) => l in alternateUrls) || fallback;
+        if (target === locale || !(target in alternateUrls)) return;
+        const [text, link, close] = banner.children;
+        text.textContent = banners[target].text;
+        link.textContent = banners[target].action;
+        link.href = alternateUrls[target];
+        link.lang = banner.lang = target;
+        close.setAttribute('aria-label', banners[target].dismiss);
+        const dismiss = () => { banner.hidden = true; try { localStorage.setItem('language-banner', 'dismissed'); } catch {} };
+        close.addEventListener('click', dismiss);
+        link.addEventListener('click', () => { try { localStorage.setItem('language-banner', 'dismissed'); } catch {} });
+        banner.hidden = false;
+      })();
+      // Dropdown groups open on click as well as on hover/focus.
+      document.querySelectorAll('.site-nav__group > button').forEach((button) => {
+        button.addEventListener('click', () => button.parentElement.classList.toggle('is-open'));
+      });
+    </script>
+  </body>
+</html>

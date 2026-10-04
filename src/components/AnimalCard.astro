@@ -1,0 +1,41 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { localizePath } from '../i18n/config.ts';
+import { formatAge, useUi } from '../i18n/ui.ts';
+import type { AnimalCard } from '../lib/animals.ts';
+import { imageUrl, srcset } from '../lib/media.ts';
+import { COLLECTION_PATHS } from '../lib/taxonomy.ts';
+
+interface Props {
+  animal: AnimalCard;
+  locale: Locale;
+  eager?: boolean;
+}
+
+const { animal, locale, eager = false } = Astro.props;
+const ui = useUi(locale);
+const url = localizePath(`/${COLLECTION_PATHS[animal.species][animal.adoptionType]}/${animal.slug}`, locale);
+const details = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMonths), animal.sex ? ui.sex[animal.sex] : null].filter(Boolean);
+---
+
+<li class="animal-card">
+  <a href={url}>
+    {
+      animal.photo && (
+        <img
+          src={imageUrl('animals', animal.photo.file, 400)}
+          srcset={srcset('animals', animal.photo.file, [400, 800])}
+          sizes="(min-width: 1100px) 300px, (min-width: 700px) 33vw, 50vw"
+          alt={animal.photo.alt || animal.name}
+          width="400"
+          height="400"
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      )
+    }
+    <h3>{animal.name}</h3>
+    <p>{details.join(' · ')}</p>
+    <span class="animal-card__more">{ui.animal.learnMore}</span>
+  </a>
+</li>

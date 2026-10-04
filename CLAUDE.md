@@ -26,6 +26,7 @@ pnpm db:migrate          # apply migrations
 pnpm user:create --email a@b.org --name "Name" --locale ro|fr   # create an admin account (prompts for the password)
 pnpm crawl [--media] [--refresh]   # re-crawl the Wix site into migration/
 pnpm import:animals [--dry-run]    # import migration/wix-export/*.csv (replaces all animals)
+pnpm import:pages [--dry-run]      # import content pages from the crawl (replaces all pages)
 ```
 
 Scripts in `scripts/` run directly with Node 24 (native type stripping): relative imports need the `.ts` extension, and no path aliases, enums or parameter properties. There is no test suite yet.
@@ -39,7 +40,13 @@ Astro in server mode (`@astrojs/node`, standalone) with SQLite through `better-s
 - `src/lib/taxonomy.ts` — controlled vocabularies (species, adoption type, sex, size, colour, traits, status) and the collection → URL segment map. The schema enums are built from these arrays, so adding a value means editing this file and generating a migration.
 - `src/db/schema.ts` — `animals` holds the structured, filterable data (one colour identifier, booleans `vaccinated`/`sterilized`/`dewormed`, `birthDate`). Traits are many-to-many in `animal_traits`. Only free text is translated (`animal_translations`: description and SEO fields per locale).
 - Age is never stored: it is computed from `birthDate` (`ageInMonths`). `birthDateEstimated` marks dates derived from a Wix age such as "3 ani" (counted back from the record's last Wix update) rather than from a real month of birth.
-- `src/i18n/config.ts` — public locales (`ro`, `en`, `fr`, `de`), admin locales (`ro`, `fr`), and path helpers.
+- `src/i18n/config.ts` — public locales (`ro`, `en`, `fr`, `de`), admin locales (`ro`, `fr`), and path helpers. `ENABLED_LOCALES` lists the languages actually served: German is defined everywhere but disabled (404, absent from hreflang and sitemap) until its content is translated.
+- `src/i18n/ui.ts` — every interface string and taxonomy label in the four languages, including gendered forms (`[masculine, feminine]`) picked from the animal's sex.
+- `src/pages/[...path].astro` — the single entry point of the public site: it splits the language prefix, resolves home / collection list / animal / content page / contact / 404, and computes the SEO tags. `src/layouts/Base.astro` renders head (canonical, hreflang, Open Graph), header, the shared call-to-action tiles and footer.
+- `src/middleware.ts` — redirects (trailing slash, `/_files/ugd/*` → `/files/*`, `LEGACY_REDIRECTS` in `src/lib/site.ts`, then the `redirects` table) and security headers.
+- Images are served by `/media/{animals|pages}/{width}/{file}`: resized to WebP with sharp on first request and cached in `data/cache/`. Only the widths in `IMAGE_WIDTHS` (`src/lib/media.ts`) exist. Videos and documents are streamed from `data/uploads/` with Range support.
+- The language is always decided by the URL. The browser language only drives a dismissible banner suggesting the matching version (English when the browser language is not served); never add a redirect based on `Accept-Language`, it would hide the Romanian pages from search engines.
+- List filters are plain GET parameters handled server-side; filtered URLs are `noindex` with the canonical pointing to the unfiltered list.
 - `redirects` table — 301/410 rules meant to be managed from the admin.
 
 ## Migration data (`migration/`)
@@ -50,4 +57,4 @@ Astro in server mode (`@astrojs/node`, standalone) with SQLite through `better-s
 
 ## Decided, not built yet
 
-Public templates (same structure and colour palette as the Wix site, modernised design), admin UI with session auth, contact/adoption form, Stripe donations (one-off and monthly, already in use), image pipeline, sitemaps and the SEO parity test, social links in the footer (Facebook `Hope.Animal.Protection.Organization`, Instagram `asociatia_hope`). No shop: `/shop` gets a 301.
+Admin UI with session auth, contact/adoption form (the contact page currently only offers the e-mail address), Stripe donations (one-off and monthly, already in use; the donation page currently shows bank, PayPal and SMS details only), German content and review of the machine-translated English and French texts, automated SEO parity test against `migration/seo-baseline.json`.

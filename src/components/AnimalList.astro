@@ -1,0 +1,98 @@
+---
+import AnimalCard from './AnimalCard.astro';
+import type { Locale } from '../i18n/config.ts';
+import { localizePath } from '../i18n/config.ts';
+import { gendered, useUi } from '../i18n/ui.ts';
+import { AGE_GROUPS, ageGroup, type AnimalCard as Card, type Collection } from '../lib/animals.ts';
+import type { PageKey } from '../lib/site.ts';
+import { COLORS, SEXES, SIZES, TRAITS } from '../lib/taxonomy.ts';
+
+interface Props {
+  collection: Collection;
+  animals: Card[];
+  locale: Locale;
+  filters: URLSearchParams;
+}
+
+const { collection, animals, locale, filters } = Astro.props;
+const ui = useUi(locale);
+const base = localizePath(`/${collection.path}`, locale);
+
+// Only offer values that at least one animal of this collection has.
+const present = <T extends string>(all: readonly T[], pick: (a: Card) => T | T[] | null) => all.filter((value) => animals.some((a) => [pick(a)].flat().includes(value)));
+const options = {
+  sex: present(SEXES, (a) => a.sex),
+  size: present(SIZES, (a) => a.size),
+  color: present(COLORS, (a) => a.color),
+  trait: present(TRAITS, (a) => a.traits),
+  age: present(AGE_GROUPS, (a) => (a.ageMonths === null ? null : ageGroup(a.ageMonths))),
+};
+const selected = Object.fromEntries(Object.keys(options).map((key) => [key, filters.get(key) ?? '']));
+const matches = (a: Card) =>
+  (!selected.sex || a.sex === selected.sex) &&
+  (!selected.size || a.size === selected.size) &&
+  (!selected.color || a.color === selected.color) &&
+  (!selected.trait || (a.traits as string[]).includes(selected.trait)) &&
+  (!selected.age || (a.ageMonths !== null && ageGroup(a.ageMonths) === selected.age));
+const visible = animals.filter(matches);
+const filtered = Object.values(selected).some(Boolean);
+
+const fields = [
+  { name: 'sex', label: ui.animal.sex, values: options.sex.map((v) => [v, ui.sex[v]]) },
+  { name: 'age', label: ui.filters.ageGroup, values: options.age.map((v) => [v, ui.filters[v]]) },
+  { name: 'size', label: ui.animal.size, values: options.size.map((v) => [v, gendered(ui.size[v], null)]) },
+  { name: 'color', label: ui.animal.color, values: options.color.map((v) => [v, ui.color[v]]) },
+  { name: 'trait', label: ui.filters.trait, values: options.trait.map((v) => [v, gendered(ui.traits[v], null)]).sort((a, b) => a[1].localeCompare(b[1], locale)) },
+].filter((field) => field.values.length > 1);
+---
+
+<section class="page-hero">
+  <h1>{ui.pages[collection.path as PageKey]}</h1>
+</section>
+
+<section class="container animal-list">
+  <form class="filters" method="get" action={base} aria-label={ui.filters.title}>
+    {
+      fields.map((field) => (
+        <label>
+          <span>{field.label}</span>
+          <select name={field.name}>
+            <option value="">{ui.filters.any}</option>
+            {field.values.map(([value, label]) => (
+              <option value={value} selected={selected[field.name] === value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ))
+    }
+    <button class="button button--small" type="submit">{ui.filters.apply}</button>
+    {filtered && <a class="filters__reset" href={base}>{ui.filters.reset}</a>}
+  </form>
+
+  <p class="animal-list__count" aria-live="polite">{ui.filters.count(visible.length)}</p>
+
+  {
+    visible.length ? (
+      <ul class="animal-grid">
+        {visible.map((animal, index) => (
+          <AnimalCard animal={animal} locale={locale} eager={index < 4} />
+        ))}
+      </ul>
+    ) : (
+      <p class="animal-list__empty">{ui.filters.none}</p>
+    )
+  }
+</section>
+
+<script is:inline>
+  // Apply a filter as soon as it changes; the submit button remains for keyboard and no-JS use.
+  document.querySelectorAll('.filters select').forEach((select) => {
+    select.addEventListener('change', () => {
+      // Drop empty parameters so unfiltered URLs stay clean.
+      for (const other of select.form.querySelectorAll('select')) other.disabled = !other.value;
+      select.form.submit();
+    });
+  });
+</script>

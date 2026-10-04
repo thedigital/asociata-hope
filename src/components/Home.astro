@@ -1,0 +1,93 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { localizePath } from '../i18n/config.ts';
+import { useUi } from '../i18n/ui.ts';
+import { imageUrl, srcset } from '../lib/media.ts';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = useUi(locale);
+const t = ui.homePage;
+const href = (path: string) => localizePath(path, locale);
+
+// Pictures carried over from the Wix home page.
+const HERO = '23c494_b230480b309a4402bfc3e96f472913dc_mv2.png';
+const SANCTUARY = '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg';
+const adoptions = [
+  { label: t.dogs, href: href('/adoptii-caini'), file: '313291_9419d3ada2c44ed7a96a12b568a4523b_mv2.jpg' },
+  { label: t.cats, href: href('/adoptii-pisici'), file: '23c494_793de495bdea4797a48a44f4619b418b_mv2.jpg' },
+];
+const sponsorships = [
+  { label: t.virtualCats, href: href('/adoptii-virtuale-pisici'), file: '313291_079206781e9a4fb7b249e7f0bebe6f31_mv2.jpg' },
+  { label: t.virtualDogs, href: href('/adoptii-virtuale-caini'), file: '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg' },
+];
+const FORM_PDF = '313291_0ee1b28245244859bb09190fb50db677.pdf';
+const REDIRECT_FORM = 'https://redirectioneaza.ro/asociatia-pentru-protectia-animalelor-hope/';
+---
+
+<section class="hero">
+  <h1>{t.h1}</h1>
+  <img src={imageUrl('pages', HERO, 1200)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 1100px) 1000px, 100vw" alt="" width="1300" height="828" fetchpriority="high" />
+</section>
+
+<section class="home-section">
+  <h2>{t.adoptions}</h2>
+  <ul class="tiles">
+    {
+      adoptions.map((tile) => (
+        <li>
+          <a href={tile.href}>
+            <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 700px) 480px, 100vw" alt="" width="800" height="800" loading="lazy" />
+            <span>{tile.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<section class="home-section home-section--teal">
+  <h2>{t.virtual}</h2>
+  <ul class="tiles">
+    {
+      sponsorships.map((tile) => (
+        <li>
+          <a href={tile.href}>
+            <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 700px) 480px, 100vw" alt="" width="800" height="800" loading="lazy" />
+            <span>{tile.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<section class="home-section home-section--orange">
+  <h2>{t.donateTitle}</h2>
+  <div class="donate-card">
+    <p>{t.donateText}</p>
+    <a class="button button--teal" href={href('/doneaza')}>{ui.donate}</a>
+  </div>
+</section>
+
+<section class="home-section home-redirect">
+  <img src={imageUrl('pages', SANCTUARY, 800)} srcset={srcset('pages', SANCTUARY, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt="" width="2000" height="2048" loading="lazy" />
+  <div>
+    <h2>{t.redirectTitle}</h2>
+    <p>{t.redirectIntro}</p>
+    <p class="home-redirect__actions">
+      <a class="button" href={REDIRECT_FORM} rel="noopener" target="_blank">{t.redirectLink}</a>
+      <a class="button button--sand" href={`/files/${FORM_PDF}`}>{t.redirectDownload}</a>
+    </p>
+    <p>{t.redirectForms}</p>
+    <p>{t.redirectCosts}</p>
+    <ul>
+      {t.redirectFacts.map((fact) => <li>{fact}</li>)}
+    </ul>
+    <p>{t.redirectThanks}</p>
+    <p><a href={href('/redirectioneaza')}>{ui.pages.redirectioneaza} ›</a></p>
+  </div>
+</section>
