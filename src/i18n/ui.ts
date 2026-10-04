@@ -10,6 +10,8 @@ export type Ui = {
   home: string;
   donate: string;
   download: string;
+  /** Note under a Word document to download; the documents exist in Romanian only. */
+  wordDocument: string;
   menu: string;
   skip: string;
   nav: { virtual: string; info: string };
@@ -107,6 +109,7 @@ const ro: Ui = {
   home: 'Acasa',
   donate: 'Doneaza',
   download: 'Descarca',
+  wordDocument: 'Document Word',
   menu: 'Meniu',
   skip: 'Sari la continut',
   nav: { virtual: 'Adoptii virtuale', info: 'Info' },
@@ -261,6 +264,7 @@ const en: Ui = {
   home: 'Home',
   donate: 'Donate',
   download: 'Download',
+  wordDocument: 'Word document, in Romanian',
   menu: 'Menu',
   skip: 'Skip to content',
   nav: { virtual: 'Sponsorship', info: 'Info' },
@@ -414,6 +418,7 @@ const fr: Ui = {
   home: 'Accueil',
   donate: 'Faire un don',
   download: 'Télécharger',
+  wordDocument: 'Document Word, en roumain',
   menu: 'Menu',
   skip: 'Aller au contenu',
   nav: { virtual: 'Parrainage', info: 'Info' },
@@ -567,6 +572,7 @@ const de: Ui = {
   home: 'Startseite',
   donate: 'Spenden',
   download: 'Herunterladen',
+  wordDocument: 'Word-Dokument, auf Rumänisch',
   menu: 'Menü',
   skip: 'Zum Inhalt springen',
   nav: { virtual: 'Patenschaft', info: 'Info' },

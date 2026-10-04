@@ -13,16 +13,16 @@ const CLOSING_DOWNLOAD = /<p>([^<]{1,120})<\/p>\s*<div class="figure"><a href="(
  * language to the next: headings typed as bold or numbered paragraphs, lists typed as lines that
  * start with a dash. These are turned into real headings and lists, so one stylesheet presents
  * every language the same way. Applied to every content page at display; the stored body is untouched.
- * `downloadLabel` is the text of the button of a download block, in the language of the page.
+ * `labels` are the texts of a download block in the language of the page: its button and the note under a Word document.
  */
-export function structureBody(body: string, downloadLabel = 'Download'): string {
+export function structureBody(body: string, labels = { download: 'Download', wordDocument: '' }): string {
   return (
     fixRedirectFormLink(body)
       // The document that closes a page becomes a download block: small preview, the sentence as its title, a button.
       .replace(
         CLOSING_DOWNLOAD,
         (_, title: string, href: string, file: string) =>
-          `<div class="download"><img src="/media/pages/400/${file}" alt="" loading="lazy"><div class="download__text"><p class="download__title">${title.trim()}</p><a class="button" href="${href}">${downloadLabel}</a></div></div>`,
+          `<div class="download"><img src="/media/pages/400/${file}" alt="" loading="lazy"><div class="download__text"><p class="download__title">${title.trim()}</p>${/\.docx?$/.test(href) && labels.wordDocument ? `<p class="download__note">${labels.wordDocument}</p>` : ''}<a class="button" href="${href}">${labels.download}</a></div></div>`,
       )
       // A paragraph that opens with a line break or a hard space (the text under a numbered title on Wix).
       .replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)+/g, '<p>')
