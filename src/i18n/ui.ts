@@ -73,7 +73,6 @@ export type Ui = {
   footer: { address: string; contact: string; socials: string; rights: string };
   contactPage: { intro: string; email: string; about: (name: string) => string };
   notFound: { title: string; text: string; back: string };
-  languageBanner: { text: string; action: string; dismiss: string };
 };
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -215,7 +214,6 @@ const ro: Ui = {
     about: (name) => `Doriti sa aflati mai multe despre ${name}? Mentionati numele in mesajul dvs.`,
   },
   notFound: { title: 'Pagina nu a fost gasita', text: 'Pagina cautata nu exista sau a fost mutata.', back: 'Inapoi la pagina principala' },
-  languageBanner: { text: 'Aceasta pagina este disponibila in limba romana.', action: 'Vezi in romana', dismiss: 'Inchide' },
 };
 
 const en: Ui = {
@@ -353,7 +351,6 @@ const en: Ui = {
     about: (name) => `Would you like to know more about ${name}? Please mention the name in your message.`,
   },
   notFound: { title: 'Page not found', text: 'The page you are looking for does not exist or has moved.', back: 'Back to the home page' },
-  languageBanner: { text: 'This page is available in English.', action: 'View in English', dismiss: 'Close' },
 };
 
 const fr: Ui = {
@@ -491,7 +488,6 @@ const fr: Ui = {
     about: (name) => `Vous souhaitez en savoir plus sur ${name} ? Indiquez son nom dans votre message.`,
   },
   notFound: { title: 'Page introuvable', text: 'La page que vous cherchez n’existe pas ou a été déplacée.', back: 'Retour à l’accueil' },
-  languageBanner: { text: 'Cette page est disponible en français.', action: 'Voir en français', dismiss: 'Fermer' },
 };
 
 const de: Ui = {
@@ -629,7 +625,6 @@ const de: Ui = {
     about: (name) => `Sie möchten mehr über ${name} erfahren? Bitte nennen Sie den Namen in Ihrer Nachricht.`,
   },
   notFound: { title: 'Seite nicht gefunden', text: 'Die gesuchte Seite existiert nicht oder wurde verschoben.', back: 'Zurück zur Startseite' },
-  languageBanner: { text: 'Diese Seite ist auf Deutsch verfügbar.', action: 'Auf Deutsch ansehen', dismiss: 'Schließen' },
 };
 
 const DICTIONARIES: Record<Locale, Ui> = { ro, en, fr, de };

@@ -136,36 +136,6 @@ a:hover {
   color: var(--ink);
 }
 
-/* Language suggestion */
-.language-banner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem 1rem;
-  padding: 0.5rem var(--gutter);
-  background: var(--teal);
-  color: #fff;
-  font-size: 0.9rem;
-}
-
-.language-banner[hidden] {
-  display: none;
-}
-
-.language-banner p {
-  margin: 0;
-}
-
-.language-banner button {
-  border: 0;
-  background: none;
-  color: inherit;
-  font-size: 1.4rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
 /* Header */
 .site-header {
   position: sticky;

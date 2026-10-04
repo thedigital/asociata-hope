@@ -4,7 +4,7 @@ import '@fontsource/poppins/400.css';
 import '@fontsource/poppins/500.css';
 import '@fontsource/poppins/600.css';
 import '../styles/global.css';
-import { DEFAULT_LOCALE, ENABLED_LOCALES, FALLBACK_LOCALE, HREFLANG, LOCALE_NAMES, localizePath, type Locale } from '../i18n/config.ts';
+import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, localizePath, type Locale } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import { NAV, SITE } from '../lib/site.ts';
 
@@ -29,8 +29,6 @@ const origin = Astro.site!.origin;
 const absolute = (target: Locale) => origin + localizePath(path, target).replace(/^\/$/, '');
 const href = (page: string) => localizePath(page, locale);
 const isCurrent = (page: string) => path === page || path.startsWith(`${page}/`);
-const alternateUrls = Object.fromEntries(ENABLED_LOCALES.map((l) => [l, localizePath(path, l)]));
-const banners = Object.fromEntries(ENABLED_LOCALES.map((l) => [l, useUi(l).languageBanner]));
 const cta = [
   { ...ui.cta.dogs, href: href('/adoptii-caini') },
   { ...ui.cta.cats, href: href('/adoptii-pisici') },
@@ -70,12 +68,6 @@ const cta = [
   </head>
   <body>
     <a class="skip-link" href="#content">{ui.skip}</a>
-
-    <div class="language-banner" id="language-banner" hidden>
-      <p></p>
-      <a class="button button--small"></a>
-      <button type="button" aria-label=""><span aria-hidden="true">×</span></button>
-    </div>
 
     <header class="site-header">
       <div class="site-header__inner">
@@ -183,27 +175,7 @@ const cta = [
       <p class="site-footer__legal">© {new Date().getFullYear()} {SITE.name}. {ui.footer.rights}</p>
     </footer>
 
-    <script is:inline define:vars={{ locale, alternateUrls, banners, fallback: FALLBACK_LOCALE }}>
-      // Suggest the visitor's browser language (never redirect: each URL keeps its own language).
-      (() => {
-        const banner = document.getElementById('language-banner');
-        let dismissed = false;
-        try { dismissed = localStorage.getItem('language-banner') === 'dismissed'; } catch {}
-        if (!banner || dismissed) return;
-        const wanted = (navigator.languages || [navigator.language]).map((l) => l.slice(0, 2).toLowerCase());
-        const target = wanted.find((l) => l in alternateUrls) || fallback;
-        if (target === locale || !(target in alternateUrls)) return;
-        const [text, link, close] = banner.children;
-        text.textContent = banners[target].text;
-        link.textContent = banners[target].action;
-        link.href = alternateUrls[target];
-        link.lang = banner.lang = target;
-        close.setAttribute('aria-label', banners[target].dismiss);
-        const dismiss = () => { banner.hidden = true; try { localStorage.setItem('language-banner', 'dismissed'); } catch {} };
-        close.addEventListener('click', dismiss);
-        link.addEventListener('click', () => { try { localStorage.setItem('language-banner', 'dismissed'); } catch {} });
-        banner.hidden = false;
-      })();
+    <script is:inline>
       // Dropdown groups open on click as well as on hover/focus.
       document.querySelectorAll('.site-nav__group > button').forEach((button) => {
         button.addEventListener('click', () => button.parentElement.classList.toggle('is-open'));
