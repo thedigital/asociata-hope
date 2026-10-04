@@ -1,3 +1,5 @@
+import { REDIRECT_FORM_URL } from './site.ts';
+
 // A keycap digit (1️⃣ … 🔟) at the start of a line numbers a section on several Wix pages.
 const KEYCAP = String.raw`(?:[0-9]\uFE0F?\u20E3|\u{1F51F})`;
 const STARTS_WITH_KEYCAP = new RegExp(`^\\s*${KEYCAP}`, 'u');
@@ -11,7 +13,7 @@ const KEYCAP_PARAGRAPH = new RegExp(`<p>\\s*(${KEYCAP}[^<]{1,120})<\\/p>`, 'gu')
  */
 export function structureBody(body: string): string {
   return (
-    body
+    fixRedirectFormLink(body)
       // A paragraph that opens with a line break or a hard space (the text under a numbered title on Wix).
       .replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)+/g, '<p>')
       // A paragraph that is one bold phrase is a heading, unless it is a "label: value" line (bank details).
@@ -27,6 +29,18 @@ export function structureBody(body: string): string {
         return `${intro.trim() ? `<p>${intro.trim()}</p>` : ''}<ul>${items.map((item) => `<li>${item.trim()}</li>`).join('')}</ul>`;
       })
   );
+}
+
+/**
+ * The link to the 3.5 % redirection form was pasted into Wix in a shortened form: its text is cut
+ * ("…protectia.../"), one language links to that cut address (404), others carry a Facebook tracking
+ * parameter and one has the cut address as plain text. All of them become the full address, linked.
+ */
+function fixRedirectFormLink(body: string): string {
+  const link = `<a href="${REDIRECT_FORM_URL}" rel="noopener" target="_blank">${REDIRECT_FORM_URL}</a>`;
+  return body
+    .replace(/<a\s[^>]*href="https:\/\/redirectioneaza\.ro\/asociatia-pentru-protectia[^"]*"[^>]*>[^]*?<\/a>/g, link)
+    .replace(/https:\/\/redirectioneaza\.ro\/asociatia-pentru-protectia\.\.\.\//g, link);
 }
 
 /** Heading levels, lists and images of a body, in order: what must match from one language to the next. */

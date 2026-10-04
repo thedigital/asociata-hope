@@ -3,6 +3,7 @@ import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
+import { REDIRECT_FORM_URL } from '../lib/site.ts';
 
 interface Props {
   locale: Locale;
@@ -25,7 +26,6 @@ const sponsorships = [
   { label: t.virtualDogs, href: href('/adoptii-virtuale-caini'), file: '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg' },
 ];
 const FORM_PDF = '313291_0ee1b28245244859bb09190fb50db677.pdf';
-const REDIRECT_FORM = 'https://redirectioneaza.ro/asociatia-pentru-protectia-animalelor-hope/';
 ---
 
 <section class="hero">
@@ -87,7 +87,7 @@ const REDIRECT_FORM = 'https://redirectioneaza.ro/asociatia-pentru-protectia-ani
     <h2>{t.redirectTitle}</h2>
     <p>{t.redirectIntro}</p>
     <p class="home-redirect__actions">
-      <a class="button" href={REDIRECT_FORM} rel="noopener" target="_blank">{t.redirectLink}</a>
+      <a class="button" href={REDIRECT_FORM_URL} rel="noopener" target="_blank">{t.redirectLink}</a>
       <a class="button button--sand" href={`/files/${FORM_PDF}`}>{t.redirectDownload}</a>
     </p>
     <p>{t.redirectForms}</p>

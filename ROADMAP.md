@@ -66,6 +66,8 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [ ] Relecture de l'allemand par un germanophone : les 114 pages sont nouvelles et n'ont aucune référence sur le site réel.
 - [ ] Toutes les pages anglaises (et françaises, allemandes) partagent la même description générique. C'était déjà le cas sur Wix, mais une description par page serait mieux.
 - [ ] Les 6 images de la page d'accueil ont un `alt` vide ; 4 images sans `alt` sur `/proiect-2022` (déjà le cas sur Wix).
+- [x] **Lien vers redirectioneaza.ro** sur `/redirectioneaza` et `/doneaza` : corrigé à l'affichage dans les quatre langues (`fixRedirectFormLink`, `src/lib/page-body.ts`), l'adresse est partout `https://redirectioneaza.ro/asociatia-pentru-protectia-animalelor-hope/`. Sur Wix, le lien français pointait vers une adresse tronquée (404), le texte du lien était tronqué partout, plusieurs langues portaient un paramètre de suivi Facebook (`?fbclid=…`) et `/en/doneaza` n'avait que l'adresse tronquée en texte, sans lien.
+- [ ] Signaler à l'association le lien cassé de `/fr/redirectioneaza` sur Wix (404), pour qu'elle le corrige tant que Wix est en ligne.
 
 ### Écarts de contenu entre langues, à faire trancher par l'association
 

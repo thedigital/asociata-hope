@@ -10,6 +10,9 @@ export const SITE = {
   },
 } as const;
 
+/** The association's page on redirectioneaza.ro, where the 3.5 % income tax form is filled in. */
+export const REDIRECT_FORM_URL = 'https://redirectioneaza.ro/asociatia-pentru-protectia-animalelor-hope/';
+
 /** Pages whose body is stored in the database. Slugs are the Wix ones, shared by every language. */
 export const CONTENT_PAGES = [
   'despre-noi',
