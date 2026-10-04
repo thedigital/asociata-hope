@@ -1,10 +1,7 @@
 import type { APIRoute } from 'astro';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, localizePath } from '../i18n/config.ts';
 import { COLLECTIONS, listAnimalPaths } from '../lib/animals.ts';
-import { CONTENT_PAGES } from '../lib/site.ts';
-
-/** Pages reached only after a payment: kept out of the sitemap. */
-const EXCLUDED = new Set(['donation-thank-you-page', 'confirmare-plata']);
+import { CONTENT_PAGES, UNLISTED_PAGES } from '../lib/site.ts';
 
 export const GET: APIRoute = ({ site }) => {
   const origin = site!.origin;
@@ -13,7 +10,7 @@ export const GET: APIRoute = ({ site }) => {
     { path: '/' },
     { path: '/contact' },
     ...COLLECTIONS.map((c) => ({ path: `/${c.path}` })),
-    ...CONTENT_PAGES.filter((slug) => !EXCLUDED.has(slug)).map((slug) => ({ path: `/${slug}` })),
+    ...CONTENT_PAGES.filter((slug) => !UNLISTED_PAGES.includes(slug)).map((slug) => ({ path: `/${slug}` })),
     ...listAnimalPaths().map((a) => ({ path: a.path, lastmod: a.updatedAt.toISOString().slice(0, 10) })),
   ];
 

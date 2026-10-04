@@ -45,5 +45,11 @@ export const NAV: NavItem[] = [
   { page: 'contact' },
 ];
 
+/** Pages reached only after a payment: not indexed and kept out of the sitemap. */
+export const UNLISTED_PAGES: readonly ContentPage[] = ['donation-thank-you-page', 'confirmare-plata'];
+
+/** Wix paths dropped on purpose (the shop page was published by mistake): they answer 410 Gone in every language. */
+export const REMOVED_PATHS: readonly string[] = ['/shop'];
+
 /** Paths that no longer exist, with their permanent redirect target. */
 export const LEGACY_REDIRECTS: Record<string, string> = {};

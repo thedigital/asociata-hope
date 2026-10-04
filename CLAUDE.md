@@ -31,9 +31,10 @@ pnpm import:pages [--dry-run]      # import content pages from the crawl (replac
 pnpm import:memoriam               # create the deceased animals of the Wix "In memoriam" page (run after import:animals)
 pnpm import:translations           # import migration/translations/ (German texts, missing EN/FR, corrections) — run after the other imports
 pnpm seo:fill [--dry-run]          # fill empty SEO title/description of animals in every language (never overwrites)
+pnpm seo:check [--url <origin>]    # compare a running server (default http://127.0.0.1:4321) with migration/seo-baseline.json
 ```
 
-Scripts in `scripts/` run directly with Node 24 (native type stripping): relative imports need the `.ts` extension, and no path aliases, enums or parameter properties. There is no test suite yet.
+Scripts in `scripts/` run directly with Node 24 (native type stripping): relative imports need the `.ts` extension, and no path aliases, enums or parameter properties. There is no test suite yet, apart from `pnpm seo:check`.
 
 pnpm must be allowed to build `better-sqlite3` and `esbuild` (`pnpm-workspace.yaml`). TypeScript is pinned to 6.x because `@astrojs/check` does not support 7.
 
@@ -60,6 +61,8 @@ Astro in server mode (`@astrojs/node`, standalone) with SQLite through `better-s
 - Configuration is read through `env()` (`src/lib/env.ts`); see `.env.example`. `SITE_URL` overrides the public origin used in Stripe return URLs.
 - List filters are plain GET parameters handled server-side; filtered URLs are `noindex` with the canonical pointing to the unfiltered list.
 - `redirects` table — 301/410 rules meant to be managed from the admin.
+- `/shop` was published by mistake on Wix: it is not rebuilt and answers 410 (`REMOVED_PATHS` in `src/lib/site.ts`). The post-payment pages (`UNLISTED_PAGES`) are `noindex` and left out of the sitemap.
+- Content pages: when the stored body has its own `h1`, it becomes the page heading instead of the UI label, so there is always exactly one `h1`. Romanian SEO title/description written by hand in Wix are imported from the baseline by `import:pages`.
 
 ## Migration data (`migration/`)
 
@@ -71,4 +74,4 @@ Astro in server mode (`@astrojs/node`, standalone) with SQLite through `better-s
 
 ## Decided, not built yet
 
-Admin for content pages and their SEO fields, real-world test of Stripe donations with the association's keys, full review of the machine-translated English and French texts, automated SEO parity test against `migration/seo-baseline.json`.
+Admin for content pages and their SEO fields, real-world test of Stripe donations with the association's keys, full review of the machine-translated English and French texts.

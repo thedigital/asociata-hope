@@ -13,7 +13,7 @@ import Base from '../layouts/Base.astro';
 import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from '../lib/animals.ts';
 import { REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
-import { CONTENT_PAGES, SITE, type ContentPage, type PageKey } from '../lib/site.ts';
+import { CONTENT_PAGES, REMOVED_PATHS, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
 
 /**
  * Single entry point of the public site. URLs are the Wix ones: an optional language prefix,
@@ -47,7 +47,10 @@ const isContact = enabled && segments.length === 1 && segments[0] === 'contact';
 // "In memoriam" is built from the animals with the `deceased` status, not from a stored body.
 const memoriam = page && segments[0] === 'in-memoriam' ? listDeceased() : null;
 const found = isHome || isContact || animal || animals || page;
-if (!found) Astro.response.status = 404;
+if (!found) Astro.response.status = REMOVED_PATHS.includes(path) ? 410 : 404;
+// A body that brings its own h1 (as on Wix) provides the page heading, so the page keeps a single h1.
+const ownHeading = page?.body.match(/<h1[^>]*>([\s\S]*?)<\/h1>\s*/);
+const pageBody = page && ownHeading ? page.body.replace(ownHeading[0], '') : page?.body;
 
 const key = segments[0] as PageKey;
 const organization = {
@@ -70,7 +73,10 @@ else if (animal && collection) {
   title = animal.translation?.seoTitle || `${animal.name} | ${ui.pages[collection.path as PageKey]} | ${SITE.name}`;
   description = animal.translation?.seoDescription || truncate(`${animal.name}${facts ? ` (${facts})` : ''} – ${(animal.translation?.description ?? '').replace(/\s+/g, ' ')}`);
   if (animal.photos[0]) image = imageUrl('animals', animal.photos[0].file, 1200);
-} else if (animals || isContact) title = titleOf(ui.pages[key]);
+} else if (animals || isContact) {
+  title = titleOf(ui.pages[key]);
+  description = ui.seo.lists?.[key] || description;
+}
 else if (page) {
   title = page.seoTitle || titleOf(ui.pages[key]);
   description = page.seoDescription || description;
@@ -104,18 +110,17 @@ const donationAnimal = page && segments[0] === 'doneaza' ? query.get('animal')?.
 const isDonation = page !== null && segments[0] === 'doneaza';
 // Pages reached with parameters (filters, pre-filled forms, form results) are not indexed.
 const filtered = (animals !== null || isContact || isDonation) && [...Astro.url.searchParams.values()].some(Boolean);
+const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as ContentPage);
 ---
 
-<Base locale={enabled ? locale : DEFAULT_LOCALE} path={path} title={title} description={description} image={image} noindex={!found || filtered} alternates={Boolean(found)} jsonLd={isHome ? [organization] : []}>
+<Base locale={enabled ? locale : DEFAULT_LOCALE} path={path} title={title} description={description} image={image} noindex={!found || filtered || unlisted} alternates={Boolean(found)} jsonLd={isHome ? [organization] : []}>
   {isHome && <Home locale={locale} />}
   {animals && collection && <AnimalList collection={collection} animals={animals} locale={locale} filters={Astro.url.searchParams} />}
   {animal && collection && <AnimalDetail collection={collection} animal={animal} locale={locale} />}
   {
     page && (
       <>
-        <section class="page-hero">
-          <h1>{ui.pages[key]}</h1>
-        </section>
+        <section class="page-hero">{ownHeading ? <h1 set:html={ownHeading[1]} /> : <h1>{ui.pages[key]}</h1>}</section>
         {memoriam ? (
           <div class="container memoriam">
             <ul class="animal-grid">
@@ -143,10 +148,10 @@ const filtered = (animals !== null || isContact || isDonation) && [...Astro.url.
           <div class="container prose">
             <DonateForm locale={locale} animal={donationAnimal} error={query.get('error')} cancelled={query.has('cancelled')} />
             <h2>{useFormsUi(locale).donate.otherWays}</h2>
-            <Fragment set:html={page.body} />
+            <Fragment set:html={pageBody} />
           </div>
         ) : (
-          <div class="container prose" set:html={page.body} />
+          <div class="container prose" set:html={pageBody} />
         )}
       </>
     )

@@ -13,7 +13,8 @@ export type Ui = {
   skip: string;
   nav: { virtual: string; info: string };
   pages: Record<PageKey, string>;
-  seo: { homeTitle: string; description: string };
+  /** `lists`: description of a collection list when it has its own, otherwise `description` is used. */
+  seo: { homeTitle: string; description: string; lists?: Partial<Record<PageKey, string>> };
   homePage: {
     h1: string;
     adoptions: string;
@@ -108,6 +109,7 @@ const ro: Ui = {
   seo: {
     homeTitle: 'Adoptii caini pisici | Bucuresti | Asociatia protectia animalelor HOPE',
     description: 'Asociatia protectia animalelor HOPE : Adoptii caini, pui si adulti',
+    lists: { 'adoptii-virtuale-caini': 'Adopta un caine virtual cu asociația Hope' },
   },
   homePage: {
     h1: 'Asociatia pentru protectia animalelor HOPE',

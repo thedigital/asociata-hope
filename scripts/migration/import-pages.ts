@@ -8,13 +8,17 @@
  * buttons). The shared call-to-action tiles at the bottom of every Wix page are dropped: the
  * layout renders them. Images are copied to data/uploads/pages, PDFs to data/uploads/files.
  *
+ * Romanian SEO fields written by hand in Wix are taken from migration/seo-baseline.json: a title
+ * that is not the automatic "{page name} | Hope", a description that is not the site-wide one.
+ * Other languages only had the Romanian values on Wix and keep the translated defaults.
+ *
  * WARNING: replaces every content page already in the database.
  */
 import { access, copyFile, mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parse, type HTMLElement, type Node, NodeType } from 'node-html-parser';
 import { db, schema } from '../../src/db/client.ts';
-import { CONTENT_PAGES } from '../../src/lib/site.ts';
+import { CONTENT_PAGES, SITE } from '../../src/lib/site.ts';
 
 const ROOT = join(import.meta.dirname, '../..');
 const MIGRATION = join(ROOT, 'migration');
@@ -118,6 +122,19 @@ function groupImages(parts: string[]): string {
   return out.join('\n');
 }
 
+type Baseline = Record<string, { title: string | null; description: string | null }>;
+const baseline: Baseline = JSON.parse(await readFile(join(MIGRATION, 'seo-baseline.json'), 'utf8'));
+const defaultDescription = baseline['/'].description;
+
+/** Hand-written Romanian SEO fields of a page, null where Wix only had its default. */
+function wixSeo(slug: string): { seoTitle: string | null; seoDescription: string | null } {
+  const { title, description } = baseline[`/${slug}`] ?? { title: null, description: null };
+  return {
+    seoTitle: title && !title.endsWith(`| ${SITE.name}`) ? title : null,
+    seoDescription: description && description !== defaultDescription ? description : null,
+  };
+}
+
 const rows: { slug: string; locale: (typeof LOCALES)[number]; body: string }[] = [];
 for (const slug of CONTENT_PAGES) {
   for (const locale of LOCALES) {
@@ -159,7 +176,8 @@ db.transaction((tx) => {
     const { id } = tx.insert(schema.pages).values({ slug }).returning({ id: schema.pages.id }).get();
     for (const row of rows.filter((r) => r.slug === slug)) {
       // The title is provided by the UI dictionary (src/i18n/ui.ts); the column stores the slug as a fallback.
-      tx.insert(schema.pageTranslations).values({ pageId: id, locale: row.locale, title: slug, body: row.body }).run();
+      const seo = row.locale === 'ro' ? wixSeo(slug) : {};
+      tx.insert(schema.pageTranslations).values({ pageId: id, locale: row.locale, title: slug, body: row.body, ...seo }).run();
     }
   }
 });

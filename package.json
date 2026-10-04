@@ -20,7 +20,8 @@
     "import:pages": "node scripts/migration/import-pages.ts",
     "import:memoriam": "node scripts/migration/import-memoriam.ts",
     "import:translations": "node scripts/migration/import-translations.ts",
-    "seo:fill": "node scripts/fill-seo.ts"
+    "seo:fill": "node scripts/fill-seo.ts",
+    "seo:check": "node scripts/seo-parity.ts"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.6",

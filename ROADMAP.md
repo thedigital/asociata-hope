@@ -1,0 +1,92 @@
+# ROADMAP
+
+Ce qu'il reste à faire avant de remplacer le site Wix par le nouveau site.
+
+Établi le 4 octobre 2026 en comparant, page par page, les 351 URL de `migration/seo-baseline.json` entre le site réel (https://www.adoptii-animale-hope.org) et le serveur local (`pnpm dev`, plus le build de production pour les redirections et les en-têtes).
+
+Comparé automatiquement : statut HTTP, `title`, description, `h1`, canonical, hreflang, robots, Open Graph, JSON-LD, volume de texte, nombre d'images, liens, sitemaps, `robots.txt`.
+**Non comparé** : le rendu visuel (aucune capture d'écran côté à côté), les performances, l'affichage mobile, et l'admin (non testé dans cette passe).
+
+## État des lieux
+
+| | Site réel (Wix) | Local |
+|---|---|---|
+| URL de la baseline répondant 200 | 351 | 348 (les 3 `/shop` répondent 410, voulu) |
+| URL dans le sitemap | 351 | 456 (342 + 114 pages allemandes) |
+| Animaux listés (chiens / chats / parrainage chiens / parrainage chats) | 39 / 24 / 13 / 21 | 39 / 24 / 13 / 21 |
+| Canonical et hreflang ro/en/fr | — | identiques partout, sauf `/shop` et Anais (voir plus bas) |
+| Texte des pages | — | même volume partout, sauf `/in-memoriam` |
+| Liens internes et externes | — | tous repris ; les `/_files/ugd/*` redirigent en 301 vers `/files/*` |
+| Allemand (`/de`) | n'existe pas (404) | 114 pages |
+
+Les listes d'animaux, les textes, les photos des fiches et les documents à télécharger sont à parité.
+
+## 1. Bloquant avant la mise en ligne
+
+### Données
+- [ ] **Refaire l'export Wix et l'import juste avant la bascule.** Le site réel a bougé depuis l'export (sitemap des chats modifié le 24/09/2026, pages le 25/09/2026). Séquence : `pnpm crawl --media --refresh`, nouveaux CSV dans `migration/wix-export/`, puis `import:animals`, `import:pages`, `import:memoriam`, `import:translations`, `seo:fill`.
+- [ ] **Anais / Serena.** Sur Wix, `/adoptii-pisici/anais` répond 301 vers `/adoptii-pisici/serena` (dans les trois langues), alors que les deux figurent encore dans la liste. C'était déjà le cas au moment du crawl : la baseline enregistre la page de Serena à l'URL d'Anais. En local les deux fiches sont publiées et répondent 200, avec des textes et des photos différents. Demander à l'association s'il s'agit de deux chats (la fiche d'Anais est alors inaccessible sur Wix par erreur, et le local a raison) ou d'un doublon (supprimer Anais et créer la redirection).
+- [ ] **`/in-memoriam`.** Le site réel affiche 9 animaux puis un bouton « Afiseza mai mult » ; le local en affiche 9 en tout. Vérifier dans Wix combien la galerie en contient réellement.
+- [ ] 9 animaux sur 106 n'ont pas de date de naissance, 73 ont une date estimée à partir d'un âge Wix. À faire corriger par l'association dans l'admin.
+- [ ] Descriptions vides : 2 en anglais, 2 en allemand, 1 en français.
+
+### SEO
+- [x] `/despre-noi` : `title` et description d'origine remis. `/in-memoriam` et `/adoptii-virtuale-caini` : description d'origine remise. `pnpm import:pages` reprend désormais ces champs depuis la baseline.
+- [x] `/shop` : la page était une erreur sur Wix, elle n'existe pas sur le nouveau site et répond 410 dans toutes les langues (`REMOVED_PATHS`).
+- [x] Un seul `h1` sur `/termeni-si-conditii` et `/confirmare-plata`, identique à celui de Wix.
+- [x] `/confirmare-plata` et `/donation-thank-you-page` : `noindex` et hors sitemap (pages vues seulement après un paiement).
+- [x] Test automatique de parité : `pnpm seo:check` compare les 351 URL de la baseline à un serveur lancé.
+- [ ] **Anais** : seul écart restant de `pnpm seo:check` (3 URL). Dépend de la décision de l'association, voir « Données ».
+- [ ] Search Console : revalider la propriété (aucune balise de vérification dans le HTML de Wix, elle passe sans doute par Wix ou le DNS), soumettre le nouveau `/sitemap.xml`. Les anciens `en_en-sitemap.xml`, `fr_fr-sitemap.xml` et `pages-sitemap.xml` répondront 404.
+
+### Fonctionnel
+- [ ] **Dons Stripe** : test réel avec les clés de l'association (`STRIPE_SECRET_KEY`), en paiement unique et mensuel.
+- [ ] **E-mail du formulaire de contact** : configurer `SMTP_URL`, `MAIL_FROM`, `CONTACT_TO` et tester un envoi réel.
+- [ ] Le site réel a un module de don directement sur la page d'accueil (une fois / mensuel, montant). En local l'accueil n'a qu'un lien vers `/doneaza`. À remettre ou à assumer.
+- [ ] Créer les comptes admin de l'association (`pnpm user:create`) ; il n'y a qu'un compte aujourd'hui.
+
+### Hébergement et bascule
+- [ ] Rien n'existe encore pour le déploiement : pas de configuration serveur, de service, de reverse proxy, d'intégration continue ni de README.
+- [ ] VPS : Node 24, service qui relance `pnpm start`, reverse proxy avec HTTPS.
+- [ ] Le serveur Node ne compresse pas les réponses et n'envoie ni `Cache-Control` sur le HTML, ni HSTS, ni CSP : à régler dans le reverse proxy (ou le middleware).
+- [ ] Redirection `adoptii-animale-hope.org` → `www.adoptii-animale-hope.org` et HTTP → HTTPS.
+- [ ] Sauvegarde automatique de `data/hope.db` et de `data/uploads/` (hors git).
+- [ ] Plan de bascule DNS : baisser le TTL avant, garder Wix actif quelques jours, puis surveiller les 404 et la Search Console.
+- [ ] `favicon.ico` répond 404 (seul `favicon.svg` existe) ; les navigateurs et robots le demandent quand même.
+
+## 2. À faire, non bloquant
+
+### Admin
+- [ ] Admin des pages de contenu et de leurs champs SEO (déjà décidé, pas construit). C'est ce qui permettra de corriger les titres et descriptions du point 1 sans toucher au code.
+- [ ] Gestion des comptes depuis l'admin (aujourd'hui uniquement en ligne de commande).
+- [ ] Recette complète de l'admin avec l'association : création, modification, photos, changement d'URL, anomalies.
+
+### Contenu et traductions
+- [ ] Relecture complète des textes anglais et français issus des traductions automatiques de Wix (déjà décidé).
+- [ ] Relecture de l'allemand par un germanophone : les 114 pages sont nouvelles et n'ont aucune référence sur le site réel.
+- [ ] Toutes les pages anglaises (et françaises, allemandes) partagent la même description générique. C'était déjà le cas sur Wix, mais une description par page serait mieux.
+- [ ] Les 6 images de la page d'accueil ont un `alt` vide ; 4 images sans `alt` sur `/proiect-2022` (déjà le cas sur Wix).
+
+### SEO, finitions
+- [ ] Balises Twitter : seule `twitter:card` est présente ; Wix envoie aussi `twitter:title`, `twitter:description` et `twitter:image`.
+- [ ] JSON-LD de l'accueil : Wix a `LocalBusiness` + `WebSite`, le local a `AnimalShelter` seul. Ajouter `WebSite`.
+- [ ] Icônes Facebook et Instagram du pied de page remplacées par des liens texte ; lien « Acasa » absent du menu (le logo y mène). À valider avec l'association.
+- [ ] Bandeau cookies : Wix en affiche un, le local non. Il n'en faut pas tant qu'aucun outil de mesure n'est ajouté ; à revoir si on installe des statistiques.
+- [ ] Statistiques de fréquentation : rien en local. Choisir un outil (de préférence sans cookie) pour suivre le trafic après la bascule.
+
+### Qualité
+- [ ] Pas de suite de tests en dehors de `pnpm seo:check`. Au minimum : redirections, formulaire de contact, connexion admin.
+- [ ] Comparaison visuelle page par page sur ordinateur et mobile, et audit de performance.
+
+## 3. Écarts voulus (rien à faire)
+
+Ces différences sont sorties de la comparaison mais sont des améliorations assumées.
+
+- **Fiches animaux** : Wix a pour `title` le seul nom (« Ambra ») et pour description un identifiant technique (« 9b836935-98da-… »). Le local génère un vrai titre et une vraie description, et ajoute une image Open Graph (absente sur Wix pour les 291 fiches).
+- **Pages anglaises et françaises** : Wix y laisse les titres et descriptions en roumain ; le local les traduit.
+- **`h1`** : 12 pages de contenu par langue n'en ont aucun sur Wix, le local en a un partout. Les fiches de parrainage avaient deux `h1` sur Wix, une seule en local. La faute « Asociata » du `h1` d'accueil est corrigée.
+- **`meta keywords`** (51 pages) et `robots: index` : non repris, sans effet sur le référencement.
+- **Titres de listes** normalisés (« Adoptii-pisici » → « Adoptii pisici | Hope »).
+- **Vidéos** : les fiches locales ont un lecteur ou un lien vidéo dans le HTML ; Wix n'en expose aucun dans le sien (il les charge sans doute en JavaScript, non vérifié).
+- **Images** : deux de moins par page, ce sont les icônes Facebook et Instagram du pied de page.
+- **Allemand** : entièrement nouveau.
