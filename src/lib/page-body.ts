@@ -5,15 +5,25 @@ const KEYCAP = String.raw`(?:[0-9]\uFE0F?\u20E3|\u{1F51F})`;
 const STARTS_WITH_KEYCAP = new RegExp(`^\\s*${KEYCAP}`, 'u');
 const KEYCAP_PARAGRAPH = new RegExp(`<p>\\s*(${KEYCAP}[^<]{1,120})<\\/p>`, 'gu');
 
+// A document offered at the end of a Wix page: a sentence, the preview linked to the file, then "click on the image".
+const CLOSING_DOWNLOAD = /<p>([^<]{1,120})<\/p>\s*<div class="figure"><a href="(\/files\/[^"]+)"><img src="\/media\/pages\/\d+\/([^"]+)"[^>]*><\/a><\/div>\s*<p>[^<]{1,80}<\/p>\s*$/;
+
 /**
  * Gives every language of a page the same structure. Wix stored the same page differently from one
  * language to the next: headings typed as bold or numbered paragraphs, lists typed as lines that
  * start with a dash. These are turned into real headings and lists, so one stylesheet presents
  * every language the same way. Applied to every content page at display; the stored body is untouched.
+ * `downloadLabel` is the text of the button of a download block, in the language of the page.
  */
-export function structureBody(body: string): string {
+export function structureBody(body: string, downloadLabel = 'Download'): string {
   return (
     fixRedirectFormLink(body)
+      // The document that closes a page becomes a download block: small preview, the sentence as its title, a button.
+      .replace(
+        CLOSING_DOWNLOAD,
+        (_, title: string, href: string, file: string) =>
+          `<div class="download"><img src="/media/pages/400/${file}" alt="" loading="lazy"><div class="download__text"><p class="download__title">${title.trim()}</p><a class="button" href="${href}">${downloadLabel}</a></div></div>`,
+      )
       // A paragraph that opens with a line break or a hard space (the text under a numbered title on Wix).
       .replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)+/g, '<p>')
       // A paragraph that is one bold phrase is a heading, unless it is a "label: value" line (bank details).

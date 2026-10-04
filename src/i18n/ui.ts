@@ -9,6 +9,7 @@ type Cta = { title: string; text: string; button: string };
 export type Ui = {
   home: string;
   donate: string;
+  download: string;
   menu: string;
   skip: string;
   nav: { virtual: string; info: string };
@@ -105,6 +106,7 @@ const roCount = (n: number, one: string, many: string) => (n === 1 ? `1 ${one}` 
 const ro: Ui = {
   home: 'Acasa',
   donate: 'Doneaza',
+  download: 'Descarca',
   menu: 'Meniu',
   skip: 'Sari la continut',
   nav: { virtual: 'Adoptii virtuale', info: 'Info' },
@@ -258,6 +260,7 @@ const ro: Ui = {
 const en: Ui = {
   home: 'Home',
   donate: 'Donate',
+  download: 'Download',
   menu: 'Menu',
   skip: 'Skip to content',
   nav: { virtual: 'Sponsorship', info: 'Info' },
@@ -410,6 +413,7 @@ const en: Ui = {
 const fr: Ui = {
   home: 'Accueil',
   donate: 'Faire un don',
+  download: 'Télécharger',
   menu: 'Menu',
   skip: 'Aller au contenu',
   nav: { virtual: 'Parrainage', info: 'Info' },
@@ -562,6 +566,7 @@ const fr: Ui = {
 const de: Ui = {
   home: 'Startseite',
   donate: 'Spenden',
+  download: 'Herunterladen',
   menu: 'Menü',
   skip: 'Zum Inhalt springen',
   nav: { virtual: 'Patenschaft', info: 'Info' },

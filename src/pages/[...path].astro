@@ -54,7 +54,7 @@ if (!found) Astro.response.status = REMOVED_PATHS.includes(path) ? 410 : 404;
 // A body that brings its own h1 (as on Wix) provides the page heading, so the page keeps a single h1.
 const ownHeading = page?.body.match(/<h1[^>]*>([\s\S]*?)<\/h1>\s*/);
 // Every language goes through the same structuring, so a page looks the same whatever the language.
-const pageBody = page ? structureBody(ownHeading ? page.body.replace(ownHeading[0], '') : page.body) : undefined;
+const pageBody = page ? structureBody(ownHeading ? page.body.replace(ownHeading[0], '') : page.body, ui.download) : undefined;
 
 const isStory = page !== null && STORY_PAGES.includes(segments[0] as ContentPage);
 const illustration = page ? PAGE_ILLUSTRATIONS[segments[0] as ContentPage] : undefined;
