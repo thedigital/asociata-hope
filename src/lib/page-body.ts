@@ -72,23 +72,3 @@ export function splitClosingPhoto(body: string): { body: string; photo: string |
   const figure = body.match(/<div class="figure"><img src="\/media\/pages\/\d+\/([^"]+)"[^>]*><\/div>\s*$/);
   return figure ? { body: body.slice(0, figure.index), photo: figure[1] } : { body, photo: null };
 }
-
-/**
- * Moves the photos of a closing gallery beside the paragraphs: the last paragraphs each get one
- * photo, the ones before stay as the introduction. The body is returned unchanged when it is not
- * made of paragraphs followed by a single gallery, or when there are more photos than paragraphs.
- */
-export function interleaveGallery(body: string): string {
-  const gallery = body.match(/<div class="gallery">([\s\S]*?)<\/div>\s*$/);
-  if (!gallery) return body;
-  const text = body.slice(0, gallery.index);
-  const paragraphs = text.match(/<p[\s>][\s\S]*?<\/p>/g) ?? [];
-  const images = gallery[1].match(/<img[^>]*>/g) ?? [];
-  const onlyParagraphs = text.replace(/<p[\s>][\s\S]*?<\/p>/g, '').trim() === '';
-  if (!onlyParagraphs || !images.length || images.length > paragraphs.length) return body;
-
-  const intro = paragraphs.slice(0, paragraphs.length - images.length);
-  // Beside the text a photo takes half the page at most: the 800 px rendition is enough.
-  const rows = paragraphs.slice(-images.length).map((paragraph, i) => `<div class="story-row">${images[i].replace('/media/pages/1200/', '/media/pages/800/')}${paragraph}</div>`);
-  return [...intro, ...rows].join('\n');
-}

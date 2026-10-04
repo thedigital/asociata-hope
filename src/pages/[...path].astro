@@ -15,7 +15,7 @@ import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from
 import { CONTACT_MAX_BYTES, REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
 import { imageSize } from '../lib/image-size.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
-import { interleaveGallery, splitClosingPhoto, structureBody } from '../lib/page-body.ts';
+import { splitClosingPhoto, structureBody } from '../lib/page-body.ts';
 import { CONTENT_PAGES, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
 
 /**
@@ -180,7 +180,7 @@ const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as Content
             )}
           </div>
         ) : isStory ? (
-          <div class="container prose prose--story" set:html={interleaveGallery(pageBody ?? '')} />
+          <div class="container prose prose--story" set:html={pageBody} />
         ) : (
           <div class="container prose" set:html={pageBody} />
         )}

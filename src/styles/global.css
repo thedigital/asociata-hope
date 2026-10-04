@@ -31,6 +31,8 @@
   --title-2: clamp(1.5rem, 1.25rem + 1.2vw, 2rem);
   --title-section: clamp(1.9rem, 1.3rem + 2.6vw, 3rem);
   --title-1: clamp(2.1rem, 1.3rem + 3.6vw, 3.6rem);
+  /* Titles are set in Fredoka, a rounded face; only its 600 weight is loaded, so heavier title weights fall back to it. */
+  --font-title: 'Fredoka', 'Poppins', system-ui, sans-serif;
 }
 
 *,
@@ -67,6 +69,7 @@ h1,
 h2,
 h3 {
   color: var(--teal);
+  font-family: var(--font-title);
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.015em;
@@ -460,12 +463,29 @@ a:hover {
   }
 }
 
-/* Page title band: teal with a curved lower edge */
+/* Page title band: the ground of the home hero (gradient, paw prints, light) with a curved lower edge */
 .page-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) calc(clamp(2.5rem, 7vw, 4.5rem) + var(--arc) / 2);
   border-radius: 0 0 50% 50% / 0 0 var(--arc) var(--arc);
-  background: var(--teal);
+  background: linear-gradient(118deg, var(--teal-dark), var(--teal) 38%, var(--green-deep));
   text-align: center;
+}
+
+/* Soft light above the title. */
+.page-hero::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -55%;
+  left: 50%;
+  width: min(900px, 110%);
+  aspect-ratio: 1.6;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(214 240 190 / 0.22), transparent);
+  translate: -50% 0;
 }
 
 .page-hero h1 {
@@ -502,8 +522,9 @@ a:hover {
   background: linear-gradient(118deg, var(--teal-dark), var(--teal) 38%, var(--green-deep));
 }
 
-/* Paw prints of the logo, lighter behind the title. */
-.hero::before {
+/* Paw prints of the logo, lighter behind the title. Shared with the title band of the other pages. */
+.hero::before,
+.page-hero::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -511,6 +532,11 @@ a:hover {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='190' height='170' viewBox='0 0 190 170'%3E%3Cdefs%3E%3Cg id='p'%3E%3Cellipse cx='14' cy='28' rx='7' ry='9' transform='rotate(-20 14 28)'/%3E%3Cellipse cx='27' cy='16' rx='7' ry='9.5' transform='rotate(-6 27 16)'/%3E%3Cellipse cx='42' cy='17' rx='7' ry='9.5' transform='rotate(10 42 17)'/%3E%3Cellipse cx='53' cy='31' rx='6.5' ry='8.5' transform='rotate(24 53 31)'/%3E%3Cpath d='M32 30c-9 0-17 9-17 17 0 6 5 9 10 9 3 0 5-1 7-1s4 1 7 1c5 0 10-3 10-9 0-8-8-17-17-17Z'/%3E%3C/g%3E%3C/defs%3E%3Cg fill='%23fff'%3E%3Cuse href='%23p' transform='translate(14 10) rotate(-18 32 32) scale(.78)'/%3E%3Cuse href='%23p' transform='translate(112 92) rotate(24 32 32) scale(.56)'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 190px 170px;
   opacity: 0.075;
   mask-image: linear-gradient(100deg, #000 0%, rgb(0 0 0 / 0.35) 45%, #000 100%);
+}
+
+/* The paw prints fade behind the title, which sits in the middle of the band. */
+.page-hero::before {
+  mask-image: radial-gradient(closest-side, rgb(0 0 0 / 0.25), #000);
 }
 
 /* Soft light behind the animals. */
@@ -685,6 +711,7 @@ a:hover {
 
 .tiles span {
   position: absolute;
+  font-family: var(--font-title);
   inset: auto 0 0;
   display: flex;
   align-items: center;
@@ -1273,6 +1300,7 @@ a:hover {
 .prose h4,
 .prose h5,
 .prose h6 {
+  font-family: var(--font-title);
   margin: 2.25em 0 0.7em;
   color: var(--teal);
   font-weight: 700;
@@ -1377,6 +1405,7 @@ a:hover {
 }
 
 .prose .facts strong {
+  font-family: var(--font-title);
   display: block;
   margin-bottom: 0.2rem;
   color: var(--teal);
@@ -1524,43 +1553,168 @@ a:hover {
   }
 }
 
-/* Story pages: each paragraph sits beside a photo, alternating sides */
+/* Story pages: an opening sheet over the title band, then numbered chapters, each beside its photo */
 .prose--story {
-  max-width: 1080px;
+  max-width: none;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  counter-reset: chapter;
 }
 
-.prose--story > p {
-  max-width: 68ch;
+.story-intro {
+  max-width: 860px;
+  margin-inline: auto;
+  padding: clamp(1.5rem, 5vw, 3rem) clamp(1.25rem, 6vw, 3.5rem);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: center;
 }
 
-.story-row {
+.prose .kicker {
+  margin-bottom: 0.75rem;
+  color: var(--green-deep);
+  font-size: var(--text-small);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.prose .lead {
+  margin-bottom: 1.75rem;
+  color: var(--teal);
+  font-size: var(--text-lead);
+  font-weight: 500;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+.story-intro .facts {
+  margin-bottom: 0;
+}
+
+.chapter {
   display: grid;
-  gap: clamp(1rem, 3vw, 2.75rem);
+  gap: clamp(1.75rem, 5vw, 4.5rem);
   align-items: center;
-  margin-block: clamp(1.75rem, 4vw, 3.25rem);
+  margin-block: clamp(3rem, 8vw, 6.5rem);
+  counter-increment: chapter;
 }
 
-.story-row img {
+/* The photo keeps its own proportions; a sand block set back behind it gives it depth. */
+.chapter__photo {
+  position: relative;
+  isolation: isolate;
+  margin-right: 0.75rem;
+}
+
+.chapter__photo::before {
+  content: '';
+  position: absolute;
+  inset: 0.75rem -0.75rem -0.75rem 0.75rem;
+  z-index: -1;
+  border-radius: var(--radius);
+  background: var(--sand);
+}
+
+.chapter__photo img {
   width: 100%;
   border-radius: var(--radius);
   box-shadow: var(--shadow-raised);
 }
 
-.story-row p {
-  margin: 0;
+.chapter__text::before {
+  font-family: var(--font-title);
+  content: counter(chapter, decimal-leading-zero);
+  display: block;
+  color: var(--sand-dark);
+  font-size: var(--title-section);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 
-@media (min-width: 800px) {
-  .story-row {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  }
+/* The number marks the chapter, so its title drops the green bar of the other headings. */
+.prose .chapter h2 {
+  margin-top: 0.5rem;
+  padding-left: 0;
+  border-left: 0;
+}
 
-  .story-row:nth-of-type(even) {
+.chapter__text > :last-child {
+  margin-bottom: 0;
+}
+
+.story-close {
+  max-width: 760px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.story-close > p {
+  font-size: var(--text-lead);
+  line-height: 1.55;
+}
+
+.prose .story-close blockquote {
+  margin-bottom: 0;
+  padding: clamp(3.75rem, 8vw, 4.5rem) clamp(1.5rem, 5vw, 3rem) clamp(1.75rem, 5vw, 2.75rem);
+  background: linear-gradient(118deg, var(--teal-dark), var(--teal) 45%, var(--green-deep));
+}
+
+.prose .story-close blockquote::before {
+  left: 50%;
+  translate: -50% 0;
+}
+
+.prose .story-close blockquote p {
+  font-size: var(--title-3);
+}
+
+@media (min-width: 860px) {
+  .chapter {
     grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
   }
 
-  .story-row:nth-of-type(even) img {
+  .chapter__photo {
+    margin-right: 0;
+  }
+
+  .chapter__photo::before {
+    inset: 1.5rem auto -1.5rem -1.5rem;
+    width: 70%;
+  }
+
+  .chapter:nth-of-type(even) {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+
+  .chapter:nth-of-type(even) .chapter__photo {
     order: 2;
+  }
+
+  .chapter:nth-of-type(even) .chapter__photo::before {
+    inset: 1.5rem -1.5rem -1.5rem auto;
+  }
+}
+
+/* Each chapter rises into place as it enters the screen, where the browser can tie an animation to scrolling. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .chapter {
+      animation: chapter-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+  }
+}
+
+@keyframes chapter-in {
+  from {
+    opacity: 0;
+    translate: 0 2.5rem;
   }
 }
 

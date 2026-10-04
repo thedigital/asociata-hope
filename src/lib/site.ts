@@ -59,7 +59,7 @@ export const PAGE_ILLUSTRATIONS: Partial<Record<ContentPage, string>> = {
   redirectioneaza: '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg',
 };
 
-/** Pages whose closing photo gallery is spread along the text, one photo per paragraph (`interleaveGallery`). */
+/** Pages told as a story: an opening sheet, then numbered chapters, each beside its photo (markup in `migration/translations/{locale}/pages/`). */
 export const STORY_PAGES: readonly ContentPage[] = ['proiect-2022'];
 
 /** Keys of `ui.pages` (src/i18n/ui.ts); each one is also the URL path of the page. */
