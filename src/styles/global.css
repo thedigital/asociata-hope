@@ -1401,6 +1401,16 @@ a:hover {
   resize: vertical;
 }
 
+.field input[type='file'] {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.field small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
 [aria-invalid='true'],
 fieldset[aria-invalid='true'] {
   border-color: #b3261e !important;

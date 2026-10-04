@@ -134,13 +134,15 @@ export const contactMessages = sqliteTable(
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
     locale: text('locale', { enum: LOCALES }).notNull(),
-    reason: text('reason', { enum: ['adopt-dog', 'adopt-cat', 'sponsorship', 'volunteering', 'other'] }).notNull(),
+    reason: text('reason', { enum: ['adopt-dog', 'adopt-cat', 'sponsorship', 'volunteering', 'redirection', 'other'] }).notNull(),
     firstName: text('first_name').notNull(),
     lastName: text('last_name').notNull(),
     email: text('email').notNull(),
     animalName: text('animal_name'),
     message: text('message').notNull(),
     answers: text('answers').notNull().default('{}'),
+    // File name in `data/contact/` of the document joined to the message, if any.
+    attachment: text('attachment'),
     // Set when someone at the association has dealt with the message.
     handledAt: integer('handled_at', { mode: 'timestamp' }),
     createdAt: timestamp('created_at'),

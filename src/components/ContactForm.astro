@@ -2,7 +2,7 @@
 import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { useFormsUi } from '../i18n/forms.ts';
-import { CAT_CHOICES, CAT_CHOICE_KEYS, REASONS, type CatText, type ContactField, type ContactValues } from '../lib/contact.ts';
+import { ATTACHMENT_ACCEPT, ATTACHMENT_MAX_BYTES, CAT_CHOICES, CAT_CHOICE_KEYS, REASONS, type CatText, type ContactField, type ContactValues } from '../lib/contact.ts';
 import { SITE } from '../lib/site.ts';
 
 interface Props {
@@ -27,9 +27,13 @@ const text = (key: CatText) => values.answers[key] ?? '';
       <strong>{t.sent}</strong> {t.sentText}
     </div>
   ) : (
-    <form class="contact-form" method="post" action={localizePath('/contact', locale)} novalidate={errors.length ? true : undefined}>
+    <form class="contact-form" method="post" enctype="multipart/form-data" action={localizePath('/contact', locale)} novalidate={errors.length ? true : undefined}>
       {state === 'limited' && <p class="form-notice form-notice--error" role="alert">{t.limited}</p>}
-      {errors.length > 0 && <p class="form-notice form-notice--error" role="alert">{t.invalid}</p>}
+      {errors.length > 0 && (
+        <p class="form-notice form-notice--error" role="alert">
+          {t.invalid} {errors.includes('attachment') && t.attachmentInvalid}
+        </p>
+      )}
 
       <label class="field">
         <span>{t.reason} *</span>
@@ -71,7 +75,13 @@ const text = (key: CatText) => values.answers[key] ?? '';
 
       <label class="field">
         <span>{t.message} *</span>
-        <textarea name="message" rows="6" maxlength="5000" required aria-invalid={invalid('message')}>{values.message}</textarea>
+        <textarea name="message" rows="6" maxlength="5000" required aria-invalid={invalid('message')} data-redirection-message={t.redirectionMessage}>{values.message}</textarea>
+      </label>
+
+      <label class="field" data-reasons={forReasons('redirection')}>
+        <span>{t.attachment} *</span>
+        <input type="file" name="attachment" accept={ATTACHMENT_ACCEPT} required aria-invalid={invalid('attachment')} data-max-bytes={ATTACHMENT_MAX_BYTES} data-invalid={t.attachmentInvalid} />
+        <small>{t.attachmentHint}</small>
       </label>
 
       <fieldset class="questionnaire" data-reasons={forReasons('adopt-cat')}>
@@ -132,8 +142,20 @@ const text = (key: CatText) => values.answers[key] ?? '';
         block.hidden = !active;
         block.querySelectorAll('input, textarea, select').forEach((input) => (input.disabled = !active));
       });
+      // The redirection comes with a ready-made message; it leaves with the reason unless edited.
+      const message = form.elements.message;
+      const proposed = message.dataset.redirectionMessage;
+      if (reason.value === 'redirection' && !message.value.trim()) message.value = proposed;
+      else if (reason.value !== 'redirection' && message.value === proposed) message.value = '';
     };
     reason.addEventListener('change', sync);
     sync();
+    // Tell the visitor about a file that is too large before it is uploaded.
+    const file = form.elements.attachment;
+    file.addEventListener('change', () => {
+      const tooLarge = file.files[0] && file.files[0].size > Number(file.dataset.maxBytes);
+      file.setCustomValidity(tooLarge ? file.dataset.invalid : '');
+      file.reportValidity();
+    });
   })();
 </script>

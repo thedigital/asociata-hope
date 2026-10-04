@@ -15,6 +15,11 @@ export type FormsUi = {
     catName: string;
     animalName: string;
     message: string;
+    /** Proposed as the message when the visitor writes about the 3.5 % redirection. */
+    redirectionMessage: string;
+    attachment: string;
+    attachmentHint: string;
+    attachmentInvalid: string;
     questionnaire: string;
     questions: Record<CatChoice | CatText, string>;
     options: { [K in CatChoice]: Record<string, string> };
@@ -48,7 +53,7 @@ const ro: FormsUi = {
   contact: {
     reason: 'Ne contactati pentru',
     choose: 'Alegeti…',
-    reasons: { 'adopt-dog': 'Adoptia unui caine', 'adopt-cat': 'Adoptia unei pisici', sponsorship: 'Adoptie virtuala', volunteering: 'Voluntariat', other: 'Alt subiect' },
+    reasons: { 'adopt-dog': 'Adoptia unui caine', 'adopt-cat': 'Adoptia unei pisici', sponsorship: 'Adoptie virtuala', volunteering: 'Voluntariat', redirection: 'Redirectionare 3,5%', other: 'Alt subiect' },
     firstName: 'Prenume',
     lastName: 'Nume',
     email: 'E-mail',
@@ -56,6 +61,10 @@ const ro: FormsUi = {
     catName: 'Numele pisicii pe care doriti sa o adoptati',
     animalName: 'Numele animalului (optional)',
     message: 'Mesaj',
+    redirectionMessage: 'Buna ziua, gasiti atasat formularul pe hartie completat pentru redirectionarea a 3,5%.',
+    attachment: 'Formularul completat',
+    attachmentHint: 'Imagine sau PDF, maximum 5 MB.',
+    attachmentInvalid: 'Atasati formularul completat: o imagine (JPEG, PNG, WebP) sau un PDF de cel mult 5 MB.',
     questionnaire: 'Chestionar pentru adoptia unei pisici',
     questions: {
       previousCats: 'Ati mai avut pisici? Daca da, va rugam sa ne oferiti detalii',
@@ -111,7 +120,7 @@ const en: FormsUi = {
   contact: {
     reason: 'You are contacting us about',
     choose: 'Choose…',
-    reasons: { 'adopt-dog': 'Adopting a dog', 'adopt-cat': 'Adopting a cat', sponsorship: 'Sponsoring an animal', volunteering: 'Volunteering', other: 'Something else' },
+    reasons: { 'adopt-dog': 'Adopting a dog', 'adopt-cat': 'Adopting a cat', sponsorship: 'Sponsoring an animal', volunteering: 'Volunteering', redirection: 'Redirecting 3.5% of your tax', other: 'Something else' },
     firstName: 'First name',
     lastName: 'Last name',
     email: 'Email',
@@ -119,6 +128,10 @@ const en: FormsUi = {
     catName: 'Name of the cat you would like to adopt',
     animalName: 'Name of the animal (optional)',
     message: 'Message',
+    redirectionMessage: 'Hello, please find attached the completed paper form for the 3.5% redirection.',
+    attachment: 'Completed form',
+    attachmentHint: 'Image or PDF, 5 MB maximum.',
+    attachmentInvalid: 'Please attach the completed form: an image (JPEG, PNG, WebP) or a PDF of 5 MB at most.',
     questionnaire: 'Cat adoption questionnaire',
     questions: {
       previousCats: 'Have you had cats before? If so, please give us some details',
@@ -174,7 +187,7 @@ const fr: FormsUi = {
   contact: {
     reason: 'Vous nous contactez pour',
     choose: 'Choisir…',
-    reasons: { 'adopt-dog': 'Adopter un chien', 'adopt-cat': 'Adopter un chat', sponsorship: 'Parrainer un animal', volunteering: 'Bénévolat', other: 'Autre sujet' },
+    reasons: { 'adopt-dog': 'Adopter un chien', 'adopt-cat': 'Adopter un chat', sponsorship: 'Parrainer un animal', volunteering: 'Bénévolat', redirection: 'Redirection de 3,5 %', other: 'Autre sujet' },
     firstName: 'Prénom',
     lastName: 'Nom',
     email: 'E-mail',
@@ -182,6 +195,10 @@ const fr: FormsUi = {
     catName: 'Nom du chat que vous souhaitez adopter',
     animalName: 'Nom de l’animal (facultatif)',
     message: 'Message',
+    redirectionMessage: 'Bonjour, vous trouverez ci-joint le formulaire papier rempli pour la redirection des 3,5 %.',
+    attachment: 'Formulaire rempli',
+    attachmentHint: 'Image ou PDF, 5 Mo maximum.',
+    attachmentInvalid: 'Merci de joindre le formulaire rempli : une image (JPEG, PNG, WebP) ou un PDF de 5 Mo au plus.',
     questionnaire: 'Questionnaire pour l’adoption d’un chat',
     questions: {
       previousCats: 'Avez-vous déjà eu des chats ? Si oui, merci de nous donner quelques détails',
@@ -237,7 +254,7 @@ const de: FormsUi = {
   contact: {
     reason: 'Ihr Anliegen',
     choose: 'Bitte wählen …',
-    reasons: { 'adopt-dog': 'Adoption eines Hundes', 'adopt-cat': 'Adoption einer Katze', sponsorship: 'Patenschaft', volunteering: 'Ehrenamt', other: 'Anderes Anliegen' },
+    reasons: { 'adopt-dog': 'Adoption eines Hundes', 'adopt-cat': 'Adoption einer Katze', sponsorship: 'Patenschaft', volunteering: 'Ehrenamt', redirection: '3,5 % der Steuer umleiten', other: 'Anderes Anliegen' },
     firstName: 'Vorname',
     lastName: 'Nachname',
     email: 'E-Mail',
@@ -245,6 +262,10 @@ const de: FormsUi = {
     catName: 'Name der Katze, die Sie adoptieren möchten',
     animalName: 'Name des Tieres (optional)',
     message: 'Nachricht',
+    redirectionMessage: 'Guten Tag, anbei finden Sie das ausgefüllte Papierformular für die Umleitung der 3,5 %.',
+    attachment: 'Ausgefülltes Formular',
+    attachmentHint: 'Bild oder PDF, höchstens 5 MB.',
+    attachmentInvalid: 'Bitte fügen Sie das ausgefüllte Formular bei: ein Bild (JPEG, PNG, WebP) oder ein PDF mit höchstens 5 MB.',
     questionnaire: 'Fragebogen zur Adoption einer Katze',
     questions: {
       previousCats: 'Hatten Sie schon einmal Katzen? Wenn ja, schildern Sie uns bitte Näheres',

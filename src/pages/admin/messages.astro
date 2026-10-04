@@ -5,7 +5,7 @@ import { useAdminUi } from '../../i18n/admin.ts';
 import { LOCALE_NAMES } from '../../i18n/config.ts';
 import { describeContact, useFormsUi } from '../../i18n/forms.ts';
 import Admin from '../../layouts/Admin.astro';
-import type { ContactValues } from '../../lib/contact.ts';
+import { deleteContactMessage, type ContactValues } from '../../lib/contact.ts';
 
 const user = Astro.locals.user!;
 const t = useAdminUi(user.locale);
@@ -19,7 +19,7 @@ if (Astro.request.method === 'POST') {
   const action = form.get('_action');
   if (action === 'handled') db.update(contactMessages).set({ handledAt: new Date() }).where(eq(contactMessages.id, id)).run();
   if (action === 'pending') db.update(contactMessages).set({ handledAt: null }).where(eq(contactMessages.id, id)).run();
-  if (action === 'delete') db.delete(contactMessages).where(eq(contactMessages.id, id)).run();
+  if (action === 'delete') deleteContactMessage(id);
   return Astro.redirect(Astro.url.pathname + Astro.url.search, 303);
 }
 
@@ -63,6 +63,13 @@ const toValues = (row: (typeof rows)[number]): ContactValues => {
         </summary>
         {/* Rendered as text: nothing typed by a visitor is ever interpreted as HTML. */}
         <pre>{describeContact(toValues(row), user.locale)}</pre>
+        {row.attachment && (
+          <p>
+            <a href={`/admin/attachments/${row.id}`} target="_blank">
+              {m.attachment}
+            </a>
+          </p>
+        )}
         <p>
           <small>
             {m.language} : {LOCALE_NAMES[row.locale]}

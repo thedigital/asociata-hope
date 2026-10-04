@@ -8,7 +8,7 @@ export type AdminUi = {
   title: string;
   login: { title: string; email: string; password: string; code: string; codeHelp: string; submit: string; failed: string; locked: string };
   nav: { animals: string; messages: string; redirects: string; site: string; logout: string };
-  messages: { intro: string; empty: string; pending: string; handled: string; all: string; markHandled: string; markPending: string; reply: string; confirmDelete: string; language: string };
+  messages: { intro: string; empty: string; pending: string; handled: string; all: string; markHandled: string; markPending: string; reply: string; confirmDelete: string; language: string; attachment: string };
   list: { add: string; search: string; all: string; empty: string; photo: string; name: string; age: string; status: string; order: string; up: string; down: string; edit: string; estimated: string };
   form: {
     newTitle: string;
@@ -101,6 +101,7 @@ const ro: AdminUi = {
     reply: 'Raspunde pe e-mail',
     confirmDelete: 'Stergeti definitiv acest mesaj?',
     language: 'Limba vizitatorului',
+    attachment: 'Document atasat',
   },
   list: {
     add: 'Adauga un animal',
@@ -239,6 +240,7 @@ const fr: AdminUi = {
     reply: 'Répondre par e-mail',
     confirmDelete: 'Supprimer définitivement ce message ?',
     language: 'Langue du visiteur',
+    attachment: 'Pièce jointe',
   },
   list: {
     add: 'Ajouter un animal',
