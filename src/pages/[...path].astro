@@ -15,8 +15,8 @@ import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from
 import { CONTACT_MAX_BYTES, REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
 import { imageSize } from '../lib/image-size.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
-import { insertOpeningPhoto, interleaveGallery, splitClosingPhoto, structureBody } from '../lib/page-body.ts';
-import { CONTENT_PAGES, OPENING_PHOTO_PAGES, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
+import { interleaveGallery, splitClosingPhoto, structureBody } from '../lib/page-body.ts';
+import { CONTENT_PAGES, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
 
 /**
  * Single entry point of the public site. URLs are the Wix ones: an optional language prefix,
@@ -61,9 +61,7 @@ const illustration = page ? PAGE_ILLUSTRATIONS[segments[0] as ContentPage] : und
 // The photo keeps its own proportions: its real size is given to the browser to avoid a layout shift.
 // Beside the text, the photo that closes the body joins the illustration in the photo column.
 const split = illustration && pageBody ? splitClosingPhoto(pageBody) : null;
-const openingPhoto = split?.photo && OPENING_PHOTO_PAGES.includes(segments[0] as ContentPage) ? split.photo : null;
-const splitBody = split && openingPhoto ? insertOpeningPhoto(split.body, openingPhoto) : split?.body;
-const splitPhotos = illustration ? await Promise.all([...new Set([illustration, ...(split?.photo && !openingPhoto ? [split.photo] : [])])].map(async (file) => ({ file, size: await imageSize('pages', file) }))) : [];
+const splitPhotos = illustration ? await Promise.all([...new Set([illustration, ...(split?.photo ? [split.photo] : [])])].map(async (file) => ({ file, size: await imageSize('pages', file) }))) : [];
 
 const key = segments[0] as PageKey;
 const organization = {
@@ -178,7 +176,7 @@ const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as Content
                 <RedirectDetail locale={locale} />
               </div>
             ) : (
-              <div class="prose prose--plain" set:html={splitBody ?? pageBody} />
+              <div class="prose prose--plain" set:html={split?.body ?? pageBody} />
             )}
           </div>
         ) : isStory ? (

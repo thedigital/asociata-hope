@@ -47,7 +47,7 @@ export type ContentPage = (typeof CONTENT_PAGES)[number];
 /**
  * Text-heavy pages shown with a photo beside the text, like the redirection block of the home page.
  * Files are in `data/uploads/pages`; a page without an entry keeps the single-column sheet.
- * The photo that closes the body is shown in the same column (`splitClosingPhoto`), or under the introduction for `OPENING_PHOTO_PAGES`; naming it here
+ * The photo that closes the body is shown in the same column (`splitClosingPhoto`); naming it here
  * makes it the only photo of the page.
  */
 export const PAGE_ILLUSTRATIONS: Partial<Record<ContentPage, string>> = {
@@ -58,9 +58,6 @@ export const PAGE_ILLUSTRATIONS: Partial<Record<ContentPage, string>> = {
   voluntariat: '313291_8712b4a1e5f1447f9dc063ff9ccaee48_mv2.webp',
   redirectioneaza: '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg',
 };
-
-/** Illustrated pages whose closing photo is a landscape: it opens the text, under the introduction, instead of joining the illustration. */
-export const OPENING_PHOTO_PAGES: readonly ContentPage[] = ['despre-noi'];
 
 /** Pages whose closing photo gallery is spread along the text, one photo per paragraph (`interleaveGallery`). */
 export const STORY_PAGES: readonly ContentPage[] = ['proiect-2022'];

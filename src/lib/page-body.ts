@@ -63,11 +63,6 @@ export function splitClosingPhoto(body: string): { body: string; photo: string |
   return figure ? { body: body.slice(0, figure.index), photo: figure[1] } : { body, photo: null };
 }
 
-/** Puts a photo back into a body, right after its first paragraph (the introduction). */
-export function insertOpeningPhoto(body: string, file: string): string {
-  return body.replace('</p>', `</p>\n<div class="figure"><img src="/media/pages/800/${file}" alt="" loading="lazy"></div>`);
-}
-
 /**
  * Moves the photos of a closing gallery beside the paragraphs: the last paragraphs each get one
  * photo, the ones before stay as the introduction. The body is returned unchanged when it is not

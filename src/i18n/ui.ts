@@ -77,6 +77,7 @@ export type Ui = {
     trait: string;
     ageGroup: string;
     young: string;
+    youngAdult: string;
     adult: string;
     senior: string;
     apply: string;
@@ -199,7 +200,8 @@ const ro: Ui = {
     trait: 'Caracter',
     ageGroup: 'Varsta',
     young: 'Sub 1 an',
-    adult: '1 – 7 ani',
+    youngAdult: '1 – 3 ani',
+    adult: '4 – 7 ani',
     senior: '8 ani si peste',
     apply: 'Filtreaza',
     reset: 'Sterge filtrele',
@@ -350,7 +352,8 @@ const en: Ui = {
     trait: 'Temperament',
     ageGroup: 'Age',
     young: 'Under 1 year',
-    adult: '1 – 7 years',
+    youngAdult: '1 – 3 years',
+    adult: '4 – 7 years',
     senior: '8 years and over',
     apply: 'Filter',
     reset: 'Clear filters',
@@ -501,7 +504,8 @@ const fr: Ui = {
     trait: 'Caractère',
     ageGroup: 'Âge',
     young: 'Moins d’un an',
-    adult: '1 à 7 ans',
+    youngAdult: '1 à 3 ans',
+    adult: '4 à 7 ans',
     senior: '8 ans et plus',
     apply: 'Filtrer',
     reset: 'Effacer les filtres',
@@ -652,7 +656,8 @@ const de: Ui = {
     trait: 'Charakter',
     ageGroup: 'Alter',
     young: 'Unter 1 Jahr',
-    adult: '1 bis 7 Jahre',
+    youngAdult: '1 bis 3 Jahre',
+    adult: '4 bis 7 Jahre',
     senior: '8 Jahre und älter',
     apply: 'Filtern',
     reset: 'Filter zurücksetzen',

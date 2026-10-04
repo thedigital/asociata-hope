@@ -15,10 +15,10 @@ export const COLLECTIONS: Collection[] = (['dog', 'cat'] as const).flatMap((spec
 );
 export const findCollection = (path: string) => COLLECTIONS.find((c) => c.path === path);
 
-export const AGE_GROUPS = ['young', 'adult', 'senior'] as const;
+export const AGE_GROUPS = ['young', 'youngAdult', 'adult', 'senior'] as const;
 export type AgeGroup = (typeof AGE_GROUPS)[number];
-/** Under one year, one to seven years, eight years and over. */
-export const ageGroup = (months: number): AgeGroup => (months < 12 ? 'young' : months < 96 ? 'adult' : 'senior');
+/** Under one year, one to three years, four to seven years, eight years and over. */
+export const ageGroup = (months: number): AgeGroup => (months < 12 ? 'young' : months < 48 ? 'youngAdult' : months < 96 ? 'adult' : 'senior');
 
 function traitsByAnimal(ids: number[]): Map<number, Trait[]> {
   const map = new Map<number, Trait[]>();

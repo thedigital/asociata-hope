@@ -818,7 +818,8 @@ a:hover {
   box-shadow: var(--shadow);
 }
 
-.filters label {
+.filters__field {
+  position: relative;
   display: grid;
   gap: 0.3rem;
   flex: 1 1 150px;
@@ -830,6 +831,7 @@ a:hover {
 }
 
 .filters select,
+.filters__multi summary,
 .field input,
 .field select,
 .field textarea {
@@ -849,6 +851,7 @@ a:hover {
 }
 
 .filters select:hover,
+.filters__multi summary:hover,
 .field input:hover,
 .field select:hover,
 .field textarea:hover {
@@ -856,12 +859,83 @@ a:hover {
 }
 
 .filters select:focus,
+.filters__multi summary:focus-visible,
+.filters__multi[open] summary,
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
   border-color: var(--teal);
   box-shadow: 0 0 0 4px rgb(16 79 85 / 0.14);
   outline: 0;
+}
+
+/* Filter with several values: a closed list that looks like the selects, checkboxes inside */
+.filters__multi summary {
+  position: relative;
+  padding-right: 2.2rem;
+  overflow: hidden;
+  line-height: calc(48px - 1.2rem - 3px);
+  list-style: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filters__multi summary::-webkit-details-marker {
+  display: none;
+}
+
+.filters__multi summary::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0.95rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border: solid var(--ink);
+  border-width: 0 2px 2px 0;
+  transform: translateY(-70%) rotate(45deg);
+}
+
+.filters__options {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 20;
+  display: grid;
+  min-width: 100%;
+  max-height: 19rem;
+  padding: 0.4rem;
+  overflow-y: auto;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.filters__options label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filters__options label:hover {
+  background: var(--green-pale);
+}
+
+.filters__options input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--green-deep);
 }
 
 .filters .button {
@@ -1279,6 +1353,78 @@ a:hover {
 
 .prose .figure img {
   width: 100%;
+}
+
+/* Key figures of a page: one tile per fact, the figure above its caption */
+.prose ul.facts {
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.75rem;
+  margin-block: 0 0.5rem;
+  padding: 0;
+  background: none;
+  list-style: none;
+}
+
+.prose .facts li {
+  padding: 1rem 1.1rem 1.1rem;
+  border-top: 4px solid var(--sand);
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  font-size: var(--text-small);
+  line-height: 1.45;
+}
+
+.prose .facts strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--teal);
+  font-size: var(--title-2);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* Pull quote: a sentence of the text set apart, on the teal of the title band */
+.prose blockquote {
+  position: relative;
+  margin: 2rem 0;
+  padding: 1.5rem 1.75rem 1.5rem 4.25rem;
+  border-radius: var(--radius);
+  background: var(--teal);
+}
+
+.prose blockquote::before {
+  content: '“';
+  position: absolute;
+  top: 0.55rem;
+  left: 1.4rem;
+  color: var(--sand);
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.prose blockquote p {
+  margin: 0;
+  color: #fff;
+  font-size: var(--text-lead);
+  font-weight: 500;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+/* Closing appeal of a page: the request, then the button */
+.prose .appeal {
+  margin-block: 1.75rem 0;
+  padding: 1.5rem 1.75rem 1.75rem;
+  border-radius: var(--radius);
+  background: var(--sand-pale);
+}
+
+.prose .appeal p {
+  margin-bottom: 1.1rem;
 }
 
 /* A document to download: its preview, what it is, and the button */

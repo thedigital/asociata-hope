@@ -27,22 +27,23 @@ const options = {
   trait: present(TRAITS, (a) => a.traits),
   age: present(AGE_GROUPS, (a) => (a.ageMonths === null ? null : ageGroup(a.ageMonths))),
 };
-const selected = Object.fromEntries(Object.keys(options).map((key) => [key, filters.get(key) ?? '']));
+// Colour and trait accept several values (repeated parameter): an animal matches when it has one of them.
+const selected = Object.fromEntries(Object.entries(options).map(([key, values]) => [key, filters.getAll(key).filter((value) => (values as readonly string[]).includes(value))]));
 const matches = (a: Card) =>
-  (!selected.sex || a.sex === selected.sex) &&
-  (!selected.size || a.size === selected.size) &&
-  (!selected.color || a.color === selected.color) &&
-  (!selected.trait || (a.traits as string[]).includes(selected.trait)) &&
-  (!selected.age || (a.ageMonths !== null && ageGroup(a.ageMonths) === selected.age));
+  (!selected.sex.length || a.sex === selected.sex[0]) &&
+  (!selected.size.length || a.size === selected.size[0]) &&
+  (!selected.color.length || (a.color !== null && selected.color.includes(a.color))) &&
+  (!selected.trait.length || a.traits.some((trait) => selected.trait.includes(trait))) &&
+  (!selected.age.length || (a.ageMonths !== null && ageGroup(a.ageMonths) === selected.age[0]));
 const visible = animals.filter(matches);
-const filtered = Object.values(selected).some(Boolean);
+const filtered = Object.values(selected).some((values) => values.length);
 
 const fields = [
   { name: 'sex', label: ui.animal.sex, values: options.sex.map((v) => [v, ui.sex[v]]) },
   { name: 'age', label: ui.filters.ageGroup, values: options.age.map((v) => [v, ui.filters[v]]) },
   { name: 'size', label: ui.animal.size, values: options.size.map((v) => [v, gendered(ui.size[v], null)]) },
-  { name: 'color', label: ui.animal.color, values: options.color.map((v) => [v, ui.color[v]]) },
-  { name: 'trait', label: ui.filters.trait, values: options.trait.map((v) => [v, gendered(ui.traits[v], null)]).sort((a, b) => a[1].localeCompare(b[1], locale)) },
+  { name: 'color', label: ui.animal.color, multiple: true, values: options.color.map((v) => [v, ui.color[v]]) },
+  { name: 'trait', label: ui.filters.trait, multiple: true, values: options.trait.map((v) => [v, gendered(ui.traits[v], null)]).sort((a, b) => a[1].localeCompare(b[1], locale)) },
 ].filter((field) => field.values.length > 1);
 ---
 
@@ -53,21 +54,43 @@ const fields = [
 <section class="container animal-list">
   <form class="filters" method="get" action={base} aria-label={ui.filters.title}>
     {
-      fields.map((field) => (
-        <label>
-          <span>{field.label}</span>
-          <select name={field.name}>
-            <option value="">{ui.filters.any}</option>
-            {field.values.map(([value, label]) => (
-              <option value={value} selected={selected[field.name] === value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-      ))
+      fields.map((field) =>
+        field.multiple ? (
+          <div class="filters__field">
+            <span>{field.label}</span>
+            <details class="filters__multi" data-filter={field.name}>
+              <summary>
+                {field.values
+                  .filter(([value]) => selected[field.name].includes(value))
+                  .map(([, label]) => label)
+                  .join(', ') || ui.filters.any}
+              </summary>
+              <div class="filters__options" role="group" aria-label={field.label}>
+                {field.values.map(([value, label]) => (
+                  <label>
+                    <input type="checkbox" name={field.name} value={value} checked={selected[field.name].includes(value)} />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </details>
+          </div>
+        ) : (
+          <label class="filters__field">
+            <span>{field.label}</span>
+            <select name={field.name}>
+              <option value="">{ui.filters.any}</option>
+              {field.values.map(([value, label]) => (
+                <option value={value} selected={selected[field.name][0] === value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ),
+      )
     }
-    <button class="button button--small" type="submit">{ui.filters.apply}</button>
+    <noscript><button class="button button--small" type="submit">{ui.filters.apply}</button></noscript>
     {filtered && <a class="filters__reset" href={base}>{ui.filters.reset}</a>}
   </form>
 
@@ -87,12 +110,39 @@ const fields = [
 </section>
 
 <script is:inline>
-  // Apply a filter as soon as it changes; the submit button remains for keyboard and no-JS use.
-  document.querySelectorAll('.filters select').forEach((select) => {
-    select.addEventListener('change', () => {
+  // Filters apply as soon as they change; without JavaScript the form has a submit button.
+  (() => {
+    const form = document.querySelector('.filters');
+    if (!form) return;
+    const OPEN_KEY = 'filters-open';
+    const remember = (name) => {
+      try {
+        name ? sessionStorage.setItem(OPEN_KEY, name) : sessionStorage.removeItem(OPEN_KEY);
+      } catch {}
+    };
+
+    form.addEventListener('change', (event) => {
+      // A list of checkboxes stays open after the page reloads, to tick several values in a row.
+      remember(event.target.closest('.filters__multi')?.dataset.filter);
       // Drop empty parameters so unfiltered URLs stay clean.
-      for (const other of select.form.querySelectorAll('select')) other.disabled = !other.value;
-      select.form.submit();
+      for (const select of form.querySelectorAll('select')) select.disabled = !select.value;
+      form.submit();
     });
-  });
+
+    let reopen = null;
+    try {
+      reopen = sessionStorage.getItem(OPEN_KEY);
+    } catch {}
+    remember(null);
+    const reopened = reopen && form.querySelector(`.filters__multi[data-filter="${CSS.escape(reopen)}"]`);
+    if (reopened) reopened.open = true;
+
+    const closeAll = (except) => {
+      for (const multi of form.querySelectorAll('.filters__multi[open]')) if (multi !== except) multi.open = false;
+    };
+    document.addEventListener('click', (event) => closeAll(event.target.closest?.('.filters__multi')));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeAll(null);
+    });
+  })();
 </script>
