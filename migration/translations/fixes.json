@@ -67,5 +67,15 @@
         "Filets de protection solides aux fenêtres, posés avant l'arrivée de Moustache"
       ]
     ]
+  },
+  {
+    "key": "*",
+    "locale": "fr",
+    "replace": [
+      [
+        "Moustiquaires solides installées",
+        "Filets de protection solides aux fenêtres, posés"
+      ]
+    ]
   }
 ]
