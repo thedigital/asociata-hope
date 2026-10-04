@@ -3,6 +3,8 @@ import '@fontsource/poppins/400.css';
 import '@fontsource/poppins/500.css';
 import '@fontsource/poppins/600.css';
 import '../styles/admin.css';
+import { count, isNull } from 'drizzle-orm';
+import { db, schema } from '../db/client.ts';
 import { useAdminUi } from '../i18n/admin.ts';
 import type { AdminLocale } from '../i18n/config.ts';
 
@@ -17,6 +19,7 @@ const locale = user?.locale ?? Astro.props.locale ?? 'ro';
 const t = useAdminUi(locale);
 const { title } = Astro.props;
 const current = Astro.url.pathname;
+const pending = user ? db.select({ n: count() }).from(schema.contactMessages).where(isNull(schema.contactMessages.handledAt)).get()!.n : 0;
 ---
 
 <!doctype html>
@@ -38,6 +41,10 @@ const current = Astro.url.pathname;
           </a>
           <nav>
             <a href="/admin" aria-current={current === '/admin' || current.startsWith('/admin/animals') ? 'page' : undefined}>{t.nav.animals}</a>
+            <a href="/admin/messages" aria-current={current === '/admin/messages' ? 'page' : undefined}>
+              {t.nav.messages}
+              {pending > 0 && <span class="count">{pending}</span>}
+            </a>
             <a href="/admin/redirects" aria-current={current === '/admin/redirects' ? 'page' : undefined}>{t.nav.redirects}</a>
             <a href="/" target="_blank" rel="noopener">{t.nav.site} ↗</a>
           </nav>

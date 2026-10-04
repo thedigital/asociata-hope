@@ -27,7 +27,7 @@ pnpm user:create --email a@b.org --name "Name" --locale ro|fr   # create an admi
 pnpm user:reset --email a@b.org    # new password and new authenticator app for an existing account
 pnpm crawl [--media] [--refresh]   # re-crawl the Wix site into migration/
 pnpm import:animals [--dry-run]    # import migration/wix-export/*.csv (replaces all animals)
-pnpm import:pages [--dry-run]      # import content pages from the crawl (replaces all pages)
+pnpm import:pages [--dry-run]      # import content pages from the crawl (replaces all pages, so run import:translations again afterwards)
 pnpm import:memoriam               # create the deceased animals of the Wix "In memoriam" page (run after import:animals)
 pnpm import:translations           # import migration/translations/ (German texts, missing EN/FR, corrections) — run after the other imports
 pnpm seo:fill [--dry-run]          # fill empty SEO title/description of animals in every language (never overwrites)
@@ -55,6 +55,9 @@ Astro in server mode (`@astrojs/node`, standalone) with SQLite through `better-s
 - On save, empty animal SEO fields are generated (`src/lib/seo.ts`); a field still equal to what was generated before the save is regenerated, hand-written values are kept.
 - `DATA_DIR` (default `data`) holds uploads and the image cache, `DATABASE_PATH` the database: point both at a scratch copy to test admin writes without touching real data.
 - Statuses: only `published` animals have a public page and appear in lists. `deceased` animals are listed on `/in-memoriam` (built from the database, the stored page body is ignored) and their former URL answers 301 to it. `draft` and `adopted` answer 404.
+- Contact form (`src/components/ContactForm.astro`, `src/lib/contact.ts`): posted to the contact page itself, handled at the top of `[...path].astro`. Messages are stored in `contact_messages`, listed in `/admin/messages`, and e-mailed when `SMTP_URL` is set. Stored option values are English identifiers; `describeContact` (`src/i18n/forms.ts`) renders them in any language. Spam traps: a hidden field and a minimum fill time (bots get the normal "sent" answer but nothing is stored), plus an in-memory rate limit per address.
+- Donations (`src/components/DonateForm.astro`, `src/pages/donate.ts`, `src/lib/stripe.ts`): the form posts to `/donate`, which creates a Stripe Checkout session with plain `fetch` (no SDK) and redirects there; `payment` mode for one-off gifts, `subscription` with an ad-hoc monthly price otherwise. No webhook: Stripe is the record of donations. Without `STRIPE_SECRET_KEY` the donor is sent back with an "unavailable" notice.
+- Configuration is read through `env()` (`src/lib/env.ts`); see `.env.example`. `SITE_URL` overrides the public origin used in Stripe return URLs.
 - List filters are plain GET parameters handled server-side; filtered URLs are `noindex` with the canonical pointing to the unfiltered list.
 - `redirects` table — 301/410 rules meant to be managed from the admin.
 
@@ -68,4 +71,4 @@ Astro in server mode (`@astrojs/node`, standalone) with SQLite through `better-s
 
 ## Decided, not built yet
 
-Admin for content pages and their SEO fields, contact/adoption form (the contact page currently only offers the e-mail address), Stripe donations (one-off and monthly, already in use; the donation page currently shows bank, PayPal and SMS details only), full review of the machine-translated English and French texts, automated SEO parity test against `migration/seo-baseline.json`.
+Admin for content pages and their SEO fields, real-world test of Stripe donations with the association's keys, full review of the machine-translated English and French texts, automated SEO parity test against `migration/seo-baseline.json`.

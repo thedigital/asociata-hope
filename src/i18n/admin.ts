@@ -7,7 +7,8 @@ import type { AdoptionType, Species, Status } from '../lib/taxonomy.ts';
 export type AdminUi = {
   title: string;
   login: { title: string; email: string; password: string; code: string; codeHelp: string; submit: string; failed: string; locked: string };
-  nav: { animals: string; redirects: string; site: string; logout: string };
+  nav: { animals: string; messages: string; redirects: string; site: string; logout: string };
+  messages: { intro: string; empty: string; pending: string; handled: string; all: string; markHandled: string; markPending: string; reply: string; confirmDelete: string; language: string };
   list: { add: string; search: string; all: string; empty: string; photo: string; name: string; age: string; status: string; order: string; up: string; down: string; edit: string; estimated: string };
   form: {
     newTitle: string;
@@ -88,7 +89,19 @@ const ro: AdminUi = {
     failed: 'E-mail, parola sau cod incorecte.',
     locked: 'Prea multe incercari. Incercati din nou peste 15 minute.',
   },
-  nav: { animals: 'Animale', redirects: 'Redirectionari', site: 'Vezi site-ul', logout: 'Deconectare' },
+  nav: { animals: 'Animale', messages: 'Mesaje', redirects: 'Redirectionari', site: 'Vezi site-ul', logout: 'Deconectare' },
+  messages: {
+    intro: 'Mesajele trimise prin formularul de contact al site-ului.',
+    empty: 'Niciun mesaj.',
+    pending: 'De tratat',
+    handled: 'Tratat',
+    all: 'Toate',
+    markHandled: 'Marcheaza ca tratat',
+    markPending: 'Marcheaza ca netratat',
+    reply: 'Raspunde pe e-mail',
+    confirmDelete: 'Stergeti definitiv acest mesaj?',
+    language: 'Limba vizitatorului',
+  },
   list: {
     add: 'Adauga un animal',
     search: 'Cauta dupa nume',
@@ -214,7 +227,19 @@ const fr: AdminUi = {
     failed: 'E-mail, mot de passe ou code incorrect.',
     locked: 'Trop de tentatives. Réessayez dans 15 minutes.',
   },
-  nav: { animals: 'Animaux', redirects: 'Redirections', site: 'Voir le site', logout: 'Déconnexion' },
+  nav: { animals: 'Animaux', messages: 'Messages', redirects: 'Redirections', site: 'Voir le site', logout: 'Déconnexion' },
+  messages: {
+    intro: 'Les messages envoyés depuis le formulaire de contact du site.',
+    empty: 'Aucun message.',
+    pending: 'À traiter',
+    handled: 'Traité',
+    all: 'Tous',
+    markHandled: 'Marquer comme traité',
+    markPending: 'Marquer comme non traité',
+    reply: 'Répondre par e-mail',
+    confirmDelete: 'Supprimer définitivement ce message ?',
+    language: 'Langue du visiteur',
+  },
   list: {
     add: 'Ajouter un animal',
     search: 'Rechercher par nom',

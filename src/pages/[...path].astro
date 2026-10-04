@@ -2,12 +2,16 @@
 import { and, eq } from 'drizzle-orm';
 import AnimalDetail from '../components/AnimalDetail.astro';
 import AnimalList from '../components/AnimalList.astro';
+import ContactForm from '../components/ContactForm.astro';
+import DonateForm from '../components/DonateForm.astro';
 import Home from '../components/Home.astro';
 import { db, schema } from '../db/client.ts';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, localizePath, splitLocale } from '../i18n/config.ts';
+import { describeContact, useFormsUi } from '../i18n/forms.ts';
 import { formatAge, useUi } from '../i18n/ui.ts';
 import Base from '../layouts/Base.astro';
 import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from '../lib/animals.ts';
+import { REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
 import { CONTENT_PAGES, SITE, type ContentPage, type PageKey } from '../lib/site.ts';
 
@@ -46,7 +50,6 @@ const found = isHome || isContact || animal || animals || page;
 if (!found) Astro.response.status = 404;
 
 const key = segments[0] as PageKey;
-const filtered = animals !== null && [...Astro.url.searchParams.values()].some(Boolean);
 const organization = {
   '@context': 'https://schema.org',
   '@type': 'AnimalShelter',
@@ -72,7 +75,35 @@ else if (page) {
   title = page.seoTitle || titleOf(ui.pages[key]);
   description = page.seoDescription || description;
 }
-const contactAnimal = isContact ? Astro.url.searchParams.get('animal')?.slice(0, 60) : null;
+const query = Astro.url.searchParams;
+
+// Contact form: links from animal pages pre-fill the reason and the animal's name.
+let contact = emptyContact(REASONS.find((r) => r === query.get('reason')) ?? '', query.get('animal')?.slice(0, 80) ?? '');
+let contactErrors: ContactField[] = [];
+let contactState: 'form' | 'sent' | 'limited' = query.has('sent') ? 'sent' : 'form';
+if (isContact && Astro.request.method === 'POST') {
+  const sent = () => Astro.redirect(`${localizePath('/contact', locale)}?sent=1`, 303);
+  const submission = parseContactForm(await Astro.request.formData());
+  contact = submission.values;
+  // Bots get the same answer as people, but nothing is stored.
+  if (submission.spam) return sent();
+  if (submission.errors.length) {
+    contactErrors = submission.errors;
+    Astro.response.status = 422;
+  } else if (isRateLimited(Astro.clientAddress)) {
+    contactState = 'limited';
+    Astro.response.status = 429;
+  } else {
+    const id = saveContactMessage(contact, locale);
+    // The association reads Romanian, whatever the language of the visitor.
+    await notifyContactMessage(contact, id, (values) => describeContact(values, DEFAULT_LOCALE));
+    return sent();
+  }
+}
+const donationAnimal = page && segments[0] === 'doneaza' ? query.get('animal')?.replace(/[\r\n]/g, ' ').slice(0, 80) || null : null;
+const isDonation = page !== null && segments[0] === 'doneaza';
+// Pages reached with parameters (filters, pre-filled forms, form results) are not indexed.
+const filtered = (animals !== null || isContact || isDonation) && [...Astro.url.searchParams.values()].some(Boolean);
 ---
 
 <Base locale={enabled ? locale : DEFAULT_LOCALE} path={path} title={title} description={description} image={image} noindex={!found || filtered} alternates={Boolean(found)} jsonLd={isHome ? [organization] : []}>
@@ -108,6 +139,12 @@ const contactAnimal = isContact ? Astro.url.searchParams.get('animal')?.slice(0,
               ))}
             </ul>
           </div>
+        ) : isDonation ? (
+          <div class="container prose">
+            <DonateForm locale={locale} animal={donationAnimal} error={query.get('error')} cancelled={query.has('cancelled')} />
+            <h2>{useFormsUi(locale).donate.otherWays}</h2>
+            <Fragment set:html={page.body} />
+          </div>
         ) : (
           <div class="container prose" set:html={page.body} />
         )}
@@ -121,16 +158,8 @@ const contactAnimal = isContact ? Astro.url.searchParams.get('animal')?.slice(0,
           <h1>{ui.pages.contact}</h1>
         </section>
         <div class="container prose contact">
-          {contactAnimal && <p class="contact__about">{ui.contactPage.about(contactAnimal)}</p>}
-          <p>{ui.contactPage.intro}</p>
-          <p>
-            <a class="button" href={`mailto:${SITE.email}${contactAnimal ? `?subject=${encodeURIComponent(contactAnimal)}` : ''}`}>
-              {ui.contactPage.email}
-            </a>
-          </p>
-          <p>
-            <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
-          </p>
+          {contactState !== 'sent' && <p>{ui.contactPage.intro}</p>}
+          <ContactForm locale={locale} values={contact} errors={contactErrors} state={contactState} />
         </div>
       </>
     )

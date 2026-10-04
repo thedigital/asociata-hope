@@ -820,6 +820,176 @@ a:hover {
   background: var(--surface);
 }
 
+/* Forms */
+.field {
+  display: grid;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 0 1rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+[aria-invalid='true'],
+fieldset[aria-invalid='true'] {
+  border-color: #b3261e !important;
+  outline: 1px solid #b3261e;
+}
+
+.contact-form [hidden],
+.donate-form [hidden] {
+  display: none;
+}
+
+.questionnaire,
+.choice {
+  margin: 0 0 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.questionnaire > legend {
+  padding: 0 0.5rem;
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.choice {
+  background: none;
+}
+
+.choice legend {
+  padding: 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.choice label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+}
+
+.trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.form-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.form-notice {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1.1rem;
+  border-left: 4px solid var(--sand);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--surface);
+}
+
+.form-notice--ok {
+  border-color: var(--green);
+}
+
+.form-notice--error {
+  border-color: #b3261e;
+}
+
+.donate-form {
+  margin-bottom: 2.5rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.donate-form h2 {
+  margin-top: 0;
+}
+
+.donate-form__label {
+  margin: 1.25rem 0 0.5rem;
+  font-weight: 500;
+}
+
+.segmented,
+.amounts {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.segmented--small {
+  width: min(100%, 280px);
+}
+
+.segmented input,
+.amounts input {
+  position: absolute;
+  opacity: 0;
+}
+
+.segmented span,
+.amounts span {
+  display: block;
+  padding: 0.65rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.segmented--small span {
+  padding-block: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.segmented input:checked + span,
+.amounts input:checked + span {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: #fff;
+}
+
+.segmented input:focus-visible + span,
+.amounts input:focus-visible + span {
+  outline: 3px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.donate-form .button {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
 /* Call-to-action tiles and footer */
 .cta-tiles {
   display: grid;

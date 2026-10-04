@@ -127,3 +127,23 @@ export const redirects = sqliteTable('redirects', {
   status: integer('status').notNull().default(301),
   createdAt: timestamp('created_at'),
 });
+
+/** Messages sent through the public contact form. `answers` is the JSON of the cat adoption questionnaire. */
+export const contactMessages = sqliteTable(
+  'contact_messages',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    locale: text('locale', { enum: LOCALES }).notNull(),
+    reason: text('reason', { enum: ['adopt-dog', 'adopt-cat', 'sponsorship', 'volunteering', 'other'] }).notNull(),
+    firstName: text('first_name').notNull(),
+    lastName: text('last_name').notNull(),
+    email: text('email').notNull(),
+    animalName: text('animal_name'),
+    message: text('message').notNull(),
+    answers: text('answers').notNull().default('{}'),
+    // Set when someone at the association has dealt with the message.
+    handledAt: integer('handled_at', { mode: 'timestamp' }),
+    createdAt: timestamp('created_at'),
+  },
+  (t) => [index('contact_messages_created').on(t.createdAt)],
+);

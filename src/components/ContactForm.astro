@@ -1,0 +1,139 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { localizePath } from '../i18n/config.ts';
+import { useFormsUi } from '../i18n/forms.ts';
+import { CAT_CHOICES, CAT_CHOICE_KEYS, REASONS, type CatText, type ContactField, type ContactValues } from '../lib/contact.ts';
+import { SITE } from '../lib/site.ts';
+
+interface Props {
+  locale: Locale;
+  values: ContactValues;
+  errors: ContactField[];
+  /** `sent` after a successful submission, `limited` when too many messages were sent. */
+  state: 'form' | 'sent' | 'limited';
+}
+
+const { locale, values, errors, state } = Astro.props;
+const t = useFormsUi(locale).contact;
+const invalid = (field: ContactField) => (errors.includes(field) ? 'true' : undefined);
+// Shown or hidden according to the chosen reason; see the script below.
+const forReasons = (...reasons: string[]) => reasons.join(' ');
+const text = (key: CatText) => values.answers[key] ?? '';
+---
+
+{
+  state === 'sent' ? (
+    <div class="form-notice form-notice--ok" role="status">
+      <strong>{t.sent}</strong> {t.sentText}
+    </div>
+  ) : (
+    <form class="contact-form" method="post" action={localizePath('/contact', locale)} novalidate={errors.length ? true : undefined}>
+      {state === 'limited' && <p class="form-notice form-notice--error" role="alert">{t.limited}</p>}
+      {errors.length > 0 && <p class="form-notice form-notice--error" role="alert">{t.invalid}</p>}
+
+      <label class="field">
+        <span>{t.reason} *</span>
+        <select name="reason" required aria-invalid={invalid('reason')}>
+          <option value="">{t.choose}</option>
+          {REASONS.map((reason) => <option value={reason} selected={values.reason === reason}>{t.reasons[reason]}</option>)}
+        </select>
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span>{t.firstName} *</span>
+          <input type="text" name="firstName" value={values.firstName} maxlength="80" autocomplete="given-name" required aria-invalid={invalid('firstName')} />
+        </label>
+        <label class="field">
+          <span>{t.lastName} *</span>
+          <input type="text" name="lastName" value={values.lastName} maxlength="80" autocomplete="family-name" required aria-invalid={invalid('lastName')} />
+        </label>
+      </div>
+
+      <label class="field">
+        <span>{t.email} *</span>
+        <input type="email" name="email" value={values.email} maxlength="200" autocomplete="email" required aria-invalid={invalid('email')} />
+      </label>
+
+      {/* One "animalName" input per case: only the one matching the reason is enabled. */}
+      <label class="field" data-reasons={forReasons('adopt-dog')}>
+        <span>{t.dogName} *</span>
+        <input type="text" name="animalName" value={values.animalName} maxlength="80" required aria-invalid={invalid('animalName')} />
+      </label>
+      <label class="field" data-reasons={forReasons('adopt-cat')}>
+        <span>{t.catName} *</span>
+        <input type="text" name="animalName" value={values.animalName} maxlength="80" required aria-invalid={invalid('animalName')} />
+      </label>
+      <label class="field" data-reasons={forReasons('sponsorship')}>
+        <span>{t.animalName}</span>
+        <input type="text" name="animalName" value={values.animalName} maxlength="80" />
+      </label>
+
+      <label class="field">
+        <span>{t.message} *</span>
+        <textarea name="message" rows="6" maxlength="5000" required aria-invalid={invalid('message')}>{values.message}</textarea>
+      </label>
+
+      <fieldset class="questionnaire" data-reasons={forReasons('adopt-cat')}>
+        <legend>{t.questionnaire}</legend>
+        <label class="field">
+          <span>{t.questions.previousCats} *</span>
+          <input type="text" name="previousCats" value={text('previousCats')} maxlength="1000" required aria-invalid={invalid('previousCats')} />
+        </label>
+        {
+          CAT_CHOICE_KEYS.map((key) => (
+            <fieldset class="choice" aria-invalid={invalid(key)}>
+              <legend>{t.questions[key]} *</legend>
+              {CAT_CHOICES[key].map((option) => (
+                <label>
+                  <input type="radio" name={key} value={option} checked={values.answers[key] === option} required />
+                  {t.options[key][option]}
+                </label>
+              ))}
+            </fieldset>
+          ))
+        }
+        {
+          (['idealEnvironment', 'plants', 'ruralRelatives'] as const).map((key) => (
+            <label class="field">
+              <span>{t.questions[key]} *</span>
+              <input type="text" name={key} value={text(key)} maxlength="1000" required aria-invalid={invalid(key)} />
+            </label>
+          ))
+        }
+      </fieldset>
+
+      {/* Traps for bots: a field humans never see, and the time the form was rendered. */}
+      <div class="trap" aria-hidden="true">
+        <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+      </div>
+      <input type="hidden" name="t" value={Date.now().toString(36)} />
+
+      <p class="form-note">{t.privacy}</p>
+      <button class="button" type="submit">{t.send}</button>
+      <p class="form-note">
+        {t.orEmail} <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      </p>
+    </form>
+  )
+}
+
+<script is:inline>
+  // Show only the questions that match the chosen reason. Hidden inputs are disabled so that
+  // they are neither required nor submitted. Without JavaScript everything stays visible and
+  // the server ignores what does not apply.
+  (() => {
+    const form = document.querySelector('.contact-form');
+    if (!form) return;
+    const reason = form.elements.reason;
+    const sync = () => {
+      form.querySelectorAll('[data-reasons]').forEach((block) => {
+        const active = block.dataset.reasons.split(' ').includes(reason.value);
+        block.hidden = !active;
+        block.querySelectorAll('input, textarea, select').forEach((input) => (input.disabled = !active));
+      });
+    };
+    reason.addEventListener('change', sync);
+    sync();
+  })();
+</script>

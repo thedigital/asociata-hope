@@ -126,10 +126,11 @@ for (const slug of CONTENT_PAGES) {
     if (!main) throw new Error(`${locale}/${slug}: no <main>`);
     const parts: string[] = [];
     extract(main, parts);
-    // The donation page starts with the labels of the Wix payment widget, which the template replaces.
+    // The donation page starts with the labels and the heading of the Wix card payment widget,
+    // which the template replaces with its own form.
     if (slug === 'doneaza') {
       const firstHeading = parts.findIndex((p) => /^<h\d/.test(p));
-      if (firstHeading > 1) parts.splice(1, firstHeading - 1);
+      if (firstHeading >= 1) parts.splice(1, firstHeading);
     }
     const body = groupImages(parts);
     rows.push({ slug, locale, body });

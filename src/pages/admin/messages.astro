@@ -1,0 +1,92 @@
+---
+import { desc, eq, isNotNull, isNull } from 'drizzle-orm';
+import { db, schema } from '../../db/client.ts';
+import { useAdminUi } from '../../i18n/admin.ts';
+import { LOCALE_NAMES } from '../../i18n/config.ts';
+import { describeContact, useFormsUi } from '../../i18n/forms.ts';
+import Admin from '../../layouts/Admin.astro';
+import type { ContactValues } from '../../lib/contact.ts';
+
+const user = Astro.locals.user!;
+const t = useAdminUi(user.locale);
+const m = t.messages;
+const { contactMessages } = schema;
+const view = ['pending', 'handled', 'all'].find((v) => v === Astro.url.searchParams.get('view')) ?? 'pending';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const id = Number(form.get('id'));
+  const action = form.get('_action');
+  if (action === 'handled') db.update(contactMessages).set({ handledAt: new Date() }).where(eq(contactMessages.id, id)).run();
+  if (action === 'pending') db.update(contactMessages).set({ handledAt: null }).where(eq(contactMessages.id, id)).run();
+  if (action === 'delete') db.delete(contactMessages).where(eq(contactMessages.id, id)).run();
+  return Astro.redirect(Astro.url.pathname + Astro.url.search, 303);
+}
+
+const filter = view === 'pending' ? isNull(contactMessages.handledAt) : view === 'handled' ? isNotNull(contactMessages.handledAt) : undefined;
+const rows = db.select().from(contactMessages).where(filter).orderBy(desc(contactMessages.createdAt), desc(contactMessages.id)).limit(200).all();
+const reasons = useFormsUi(user.locale).contact.reasons;
+const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium', timeStyle: 'short' });
+const toValues = (row: (typeof rows)[number]): ContactValues => {
+  let answers = {};
+  try {
+    answers = JSON.parse(row.answers);
+  } catch {}
+  return { reason: row.reason, firstName: row.firstName, lastName: row.lastName, email: row.email, animalName: row.animalName ?? '', message: row.message, answers };
+};
+---
+
+<Admin title={t.nav.messages}>
+  <div class="toolbar">
+    <h1>{t.nav.messages}</h1>
+  </div>
+  <p>{m.intro}</p>
+
+  <nav class="tabs">
+    {(['pending', 'handled', 'all'] as const).map((v) => <a href={`/admin/messages?view=${v}`} aria-current={v === view ? 'page' : undefined}>{m[v]}</a>)}
+  </nav>
+
+  {rows.length === 0 && <p class="card">{m.empty}</p>}
+  {
+    rows.map((row) => (
+      <details class="card message" open={view === 'pending' && rows.length <= 3}>
+        <summary>
+          <span class={`badge ${row.handledAt ? '' : 'badge--adopted'}`}>{row.handledAt ? m.handled : m.pending}</span>
+          <strong>
+            {row.firstName} {row.lastName}
+          </strong>
+          <span>
+            {reasons[row.reason]}
+            {row.animalName && ` – ${row.animalName}`}
+          </span>
+          <time datetime={row.createdAt.toISOString()}>{date.format(row.createdAt)}</time>
+        </summary>
+        {/* Rendered as text: nothing typed by a visitor is ever interpreted as HTML. */}
+        <pre>{describeContact(toValues(row), user.locale)}</pre>
+        <p>
+          <small>
+            {m.language} : {LOCALE_NAMES[row.locale]}
+          </small>
+        </p>
+        <form class="message__actions" method="post">
+          <input type="hidden" name="id" value={row.id} />
+          <a class="btn" href={`mailto:${row.email}`}>{m.reply}</a>
+          <button class="btn btn--light" type="submit" name="_action" value={row.handledAt ? 'pending' : 'handled'}>
+            {row.handledAt ? m.markPending : m.markHandled}
+          </button>
+          <button class="btn btn--danger" type="submit" name="_action" value="delete" data-confirm={m.confirmDelete}>
+            {t.form.remove}
+          </button>
+        </form>
+      </details>
+    ))
+  }
+
+  <script is:inline>
+    document.querySelectorAll('[data-confirm]').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        if (!confirm(button.dataset.confirm)) event.preventDefault();
+      });
+    });
+  </script>
+</Admin>

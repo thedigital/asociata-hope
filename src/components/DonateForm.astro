@@ -1,0 +1,99 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { useFormsUi } from '../i18n/forms.ts';
+import { AMOUNTS, CURRENCIES, FREQUENCIES, type Frequency } from '../lib/stripe.ts';
+
+interface Props {
+  locale: Locale;
+  /** Animal the donation is for (sponsorship), shown and passed on to Stripe. */
+  animal: string | null;
+  error: string | null;
+  cancelled: boolean;
+}
+
+const { locale, animal, error, cancelled } = Astro.props;
+const t = useFormsUi(locale).donate;
+const message = error && error in t.errors ? t.errors[error as keyof typeof t.errors] : null;
+// A sponsorship is a monthly gift by nature.
+const defaultFrequency: Frequency = animal ? 'monthly' : 'once';
+---
+
+<form class="donate-form" id="card" method="post" action="/donate">
+  <h2>{t.title}</h2>
+  {message && <p class="form-notice form-notice--error" role="alert">{message}</p>}
+  {cancelled && <p class="form-notice" role="status">{t.cancelled}</p>}
+  {animal && <p class="form-notice form-notice--ok">{t.forAnimal(animal)}</p>}
+
+  <input type="hidden" name="locale" value={locale} />
+  {animal && <input type="hidden" name="animal" value={animal} />}
+
+  <div class="segmented" role="radiogroup" aria-label={t.frequency.once + ' / ' + t.frequency.monthly}>
+    {
+      FREQUENCIES.map((frequency) => (
+        <label>
+          <input type="radio" name="frequency" value={frequency} checked={frequency === defaultFrequency} />
+          <span>{t.frequency[frequency]}</span>
+        </label>
+      ))
+    }
+  </div>
+
+  <div class="segmented segmented--small" role="radiogroup" aria-label={t.currency}>
+    {
+      CURRENCIES.map((currency, index) => (
+        <label>
+          <input type="radio" name="currency" value={currency} checked={index === 0} />
+          <span>{t.currencies[currency]}</span>
+        </label>
+      ))
+    }
+  </div>
+
+  <p class="donate-form__label">{t.amount}</p>
+  {
+    CURRENCIES.map((currency, index) => (
+      <div class="amounts" data-currency={currency} hidden={index > 0}>
+        {AMOUNTS[currency].presets.map((amount, position) => (
+          <label>
+            <input type="radio" name="amount" value={amount} checked={position === 1} disabled={index > 0} />
+            <span>
+              {amount} {currency.toUpperCase()}
+            </span>
+          </label>
+        ))}
+      </div>
+    ))
+  }
+  <label class="field">
+    <span>{t.other}</span>
+    <input type="text" name="customAmount" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" maxlength="9" autocomplete="off" />
+  </label>
+
+  <button class="button button--teal" type="submit">{t.submit}</button>
+  <p class="form-note">🔒 {t.secure}</p>
+</form>
+
+<script is:inline>
+  // Show the suggested amounts of the selected currency only.
+  (() => {
+    const form = document.querySelector('.donate-form');
+    if (!form) return;
+    const sync = () => {
+      const currency = form.elements.currency.value;
+      form.querySelectorAll('[data-currency]').forEach((group) => {
+        const active = group.dataset.currency === currency;
+        group.hidden = !active;
+        group.querySelectorAll('input').forEach((input, index) => {
+          input.disabled = !active;
+          if (active && index === 1 && !group.querySelector('input:checked')) input.checked = true;
+        });
+      });
+    };
+    form.querySelectorAll('input[name=currency]').forEach((input) => input.addEventListener('change', sync));
+    // Typing a custom amount deselects the suggestions.
+    form.elements.customAmount.addEventListener('input', (event) => {
+      if (event.target.value) form.querySelectorAll('input[name=amount]').forEach((input) => (input.checked = false));
+    });
+    sync();
+  })();
+</script>

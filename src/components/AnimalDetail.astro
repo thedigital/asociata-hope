@@ -15,6 +15,7 @@ const { collection, animal, locale } = Astro.props;
 const ui = useUi(locale);
 const listUrl = localizePath(`/${collection.path}`, locale);
 const isVirtual = collection.adoptionType === 'virtual';
+const contactReason = isVirtual ? 'sponsorship' : animal.species === 'dog' ? 'adopt-dog' : 'adopt-cat';
 
 // Lower-case every label but the first, as in a sentence: "Docile and affectionate".
 const sentence = (labels: string[]) => joinList(labels.map((label, i) => (i ? label.toLowerCase() : label)), ui.and);
@@ -101,8 +102,8 @@ const [main, ...others] = animal.photos;
         )
       }
       <div class="animal__actions">
-        {isVirtual && <a class="button" href={localizePath('/doneaza', locale)}>{ui.animal.sponsor}</a>}
-        <a class={isVirtual ? 'button button--sand' : 'button'} href={`${localizePath('/contact', locale)}?animal=${encodeURIComponent(animal.name)}`}>{ui.animal.contact}</a>
+        {isVirtual && <a class="button" href={`${localizePath('/doneaza', locale)}?animal=${encodeURIComponent(animal.name)}#card`}>{ui.animal.sponsor}</a>}
+        <a class={isVirtual ? 'button button--sand' : 'button'} href={`${localizePath('/contact', locale)}?reason=${contactReason}&animal=${encodeURIComponent(animal.name)}`}>{ui.animal.contact}</a>
         <a class="button button--sand" href={listUrl}>{ui.animal.seeOthers[animal.species]}</a>
       </div>
     </div>
