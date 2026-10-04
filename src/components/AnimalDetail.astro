@@ -103,7 +103,7 @@ const [main, ...others] = animal.photos;
       }
       <div class="animal__actions">
         {isVirtual && <a class="button" href={`${localizePath('/doneaza', locale)}?animal=${encodeURIComponent(animal.name)}#card`}>{ui.animal.sponsor}</a>}
-        <a class={isVirtual ? 'button button--sand' : 'button'} href={`${localizePath('/contact', locale)}?reason=${contactReason}&animal=${encodeURIComponent(animal.name)}`}>{ui.animal.contact}</a>
+        <a class={isVirtual ? 'button button--sand' : 'button'} href={`${localizePath('/contact', locale)}?reason=${contactReason}&animal=${encodeURIComponent(animal.name)}#contact-body`}>{ui.animal.contact}</a>
         <a class="button button--sand" href={listUrl}>{ui.animal.seeOthers[animal.species]}</a>
       </div>
     </div>

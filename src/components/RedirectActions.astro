@@ -28,7 +28,7 @@ const campaign = redirectCampaign();
   (note || !campaign.open) && (
     <p class="form-note">
       {note ? (campaign.open ? t.redirectPaper : t.redirectClosed(campaign.filingYear)) : t.redirectReopens(campaign.filingYear)}{' '}
-      <a href={`${localizePath('/contact', locale)}?reason=redirection`}>{ui.pages.contact}</a>
+      <a href={`${localizePath('/contact', locale)}?reason=redirection#contact-body`}>{ui.pages.contact}</a>
     </p>
   )
 }

@@ -9,6 +9,13 @@ export type FormsUi = {
     reason: string;
     choose: string;
     reasons: Record<Reason, string>;
+    /** One line under each reason in the list of reasons. */
+    hints: Record<Reason, string>;
+    /** What to tell us, shown above the form once the reason is chosen. */
+    guides: Record<Reason, string>;
+    /** Titles of the first two parts of the form; the third one is `questionnaire`. */
+    details: string;
+    request: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -19,6 +26,7 @@ export type FormsUi = {
     /** Proposed as the message when the visitor writes about the 3.5 % redirection. */
     redirectionMessage: string;
     attachment: string;
+    attachmentChoose: string;
     attachmentHint: string;
     attachmentInvalid: string;
     questionnaire: string;
@@ -66,6 +74,17 @@ const ro: FormsUi = {
     reason: 'Ne contactati pentru',
     choose: 'Alegeti…',
     reasons: { 'adopt-dog': 'Adoptia unui caine', 'adopt-cat': 'Adoptia unei pisici', sponsorship: 'Adoptie virtuala', volunteering: 'Voluntariat', redirection: 'Redirectionare 3,5%', other: 'Alt subiect' },
+    hints: { 'adopt-dog': 'Ati ales un catel', 'adopt-cat': 'Cu un scurt chestionar', sponsorship: 'Sustineti un animal de la distanta', volunteering: 'Oferiti din timpul dvs.', redirection: 'Trimiteti-ne formularul completat', other: 'Orice alta intrebare' },
+    guides: {
+      'adopt-dog': 'Spuneti-ne numele catelului care v-a cucerit si cateva cuvinte despre dvs. si despre caminul dvs.',
+      'adopt-cat': 'Inainte de a incredinta o pisica, dorim sa cunoastem viitorul ei camin. Chestionarul de mai jos dureaza aproximativ cinci minute.',
+      sponsorship: 'Aveti o intrebare despre adoptia virtuala sau despre un anumit animal? Scrieti-ne. Pentru a incepe imediat o adoptie virtuala, folositi pagina de donatii.',
+      volunteering: 'Povestiti-ne despre dvs.: cand sunteti disponibil(a) si ce v-ar placea sa faceti alaturi de animale.',
+      redirection: 'Descarcati formularul deja completat cu datele asociatiei, adaugati datele dvs., semnati-l, apoi atasati aici o fotografie sau o copie scanata.',
+      other: 'O intrebare, o idee, o sesizare? Scrieti-ne liber.',
+    },
+    details: 'Datele dvs.',
+    request: 'Cererea dvs.',
     firstName: 'Prenume',
     lastName: 'Nume',
     email: 'E-mail',
@@ -75,6 +94,7 @@ const ro: FormsUi = {
     message: 'Mesaj',
     redirectionMessage: 'Buna ziua, gasiti atasat formularul pe hartie completat pentru redirectionarea a 3,5%.',
     attachment: 'Formularul completat',
+    attachmentChoose: 'Alegeti un fisier sau trageti-l aici',
     attachmentHint: 'Imagine sau PDF, maximum 5 MB.',
     attachmentInvalid: 'Atasati formularul completat: o imagine (JPEG, PNG, WebP) sau un PDF de cel mult 5 MB.',
     questionnaire: 'Chestionar pentru adoptia unei pisici',
@@ -152,6 +172,17 @@ const en: FormsUi = {
     reason: 'You are contacting us about',
     choose: 'Choose…',
     reasons: { 'adopt-dog': 'Adopting a dog', 'adopt-cat': 'Adopting a cat', sponsorship: 'Sponsoring an animal', volunteering: 'Volunteering', redirection: 'Redirecting 3.5% of your tax', other: 'Something else' },
+    hints: { 'adopt-dog': 'You have a dog in mind', 'adopt-cat': 'With a short questionnaire', sponsorship: 'Support an animal from afar', volunteering: 'Give some of your time', redirection: 'Send us the completed form', other: 'Any other question' },
+    guides: {
+      'adopt-dog': 'Tell us the name of the dog who won you over, and a few words about yourself and your home.',
+      'adopt-cat': 'Before entrusting a cat, we like to know its future home. The questionnaire below takes about five minutes.',
+      sponsorship: 'A question about sponsorship or about one animal in particular? Write to us. To start a sponsorship right away, use the donation page.',
+      volunteering: 'Tell us about yourself: when you are available and what you would like to do with the animals.',
+      redirection: 'Download the form already filled in with the association’s details, add your own, sign it, then attach a photo or a scan of it here.',
+      other: 'A question, an idea, something to report? Write to us freely.',
+    },
+    details: 'Your details',
+    request: 'Your request',
     firstName: 'First name',
     lastName: 'Last name',
     email: 'Email',
@@ -161,6 +192,7 @@ const en: FormsUi = {
     message: 'Message',
     redirectionMessage: 'Hello, please find attached the completed paper form for the 3.5% redirection.',
     attachment: 'Completed form',
+    attachmentChoose: 'Choose a file or drop it here',
     attachmentHint: 'Image or PDF, 5 MB maximum.',
     attachmentInvalid: 'Please attach the completed form: an image (JPEG, PNG, WebP) or a PDF of 5 MB at most.',
     questionnaire: 'Cat adoption questionnaire',
@@ -238,6 +270,17 @@ const fr: FormsUi = {
     reason: 'Vous nous contactez pour',
     choose: 'Choisir…',
     reasons: { 'adopt-dog': 'Adopter un chien', 'adopt-cat': 'Adopter un chat', sponsorship: 'Parrainer un animal', volunteering: 'Bénévolat', redirection: 'Redirection de 3,5 %', other: 'Autre sujet' },
+    hints: { 'adopt-dog': 'Vous avez repéré un chien', 'adopt-cat': 'Avec un court questionnaire', sponsorship: 'Soutenir un animal à distance', volunteering: 'Donner un peu de votre temps', redirection: 'Nous envoyer le formulaire rempli', other: 'Toute autre question' },
+    guides: {
+      'adopt-dog': 'Indiquez le nom du chien qui vous a touché, et dites-nous quelques mots sur vous et sur votre foyer.',
+      'adopt-cat': 'Avant de confier un chat, nous aimons connaître son futur foyer. Le questionnaire ci-dessous prend environ cinq minutes.',
+      sponsorship: 'Une question sur le parrainage ou sur un animal en particulier ? Écrivez-nous. Pour commencer un parrainage tout de suite, passez par la page de don.',
+      volunteering: 'Parlez-nous de vous : vos disponibilités et ce que vous aimeriez faire auprès des animaux.',
+      redirection: 'Téléchargez le formulaire déjà rempli avec les coordonnées de l’association, ajoutez les vôtres, signez-le, puis joignez-en ici une photo ou un scan.',
+      other: 'Une question, une idée, un signalement ? Écrivez-nous librement.',
+    },
+    details: 'Vos coordonnées',
+    request: 'Votre demande',
     firstName: 'Prénom',
     lastName: 'Nom',
     email: 'E-mail',
@@ -247,6 +290,7 @@ const fr: FormsUi = {
     message: 'Message',
     redirectionMessage: 'Bonjour, vous trouverez ci-joint le formulaire papier rempli pour la redirection des 3,5 %.',
     attachment: 'Formulaire rempli',
+    attachmentChoose: 'Choisir un fichier ou le déposer ici',
     attachmentHint: 'Image ou PDF, 5 Mo maximum.',
     attachmentInvalid: 'Merci de joindre le formulaire rempli : une image (JPEG, PNG, WebP) ou un PDF de 5 Mo au plus.',
     questionnaire: 'Questionnaire pour l’adoption d’un chat',
@@ -324,6 +368,17 @@ const de: FormsUi = {
     reason: 'Ihr Anliegen',
     choose: 'Bitte wählen …',
     reasons: { 'adopt-dog': 'Adoption eines Hundes', 'adopt-cat': 'Adoption einer Katze', sponsorship: 'Patenschaft', volunteering: 'Ehrenamt', redirection: '3,5 % der Steuer umleiten', other: 'Anderes Anliegen' },
+    hints: { 'adopt-dog': 'Sie haben einen Hund im Blick', 'adopt-cat': 'Mit einem kurzen Fragebogen', sponsorship: 'Ein Tier aus der Ferne unterstützen', volunteering: 'Etwas von Ihrer Zeit schenken', redirection: 'Das ausgefüllte Formular senden', other: 'Jede andere Frage' },
+    guides: {
+      'adopt-dog': 'Nennen Sie uns den Namen des Hundes, der Ihr Herz gewonnen hat, und erzählen Sie kurz von sich und Ihrem Zuhause.',
+      'adopt-cat': 'Bevor wir eine Katze anvertrauen, möchten wir ihr künftiges Zuhause kennenlernen. Der Fragebogen unten dauert etwa fünf Minuten.',
+      sponsorship: 'Eine Frage zur Patenschaft oder zu einem bestimmten Tier? Schreiben Sie uns. Um sofort eine Patenschaft zu beginnen, nutzen Sie die Spendenseite.',
+      volunteering: 'Erzählen Sie uns von sich: wann Sie Zeit haben und was Sie gern mit den Tieren tun würden.',
+      redirection: 'Laden Sie das Formular herunter, das bereits mit den Daten des Vereins ausgefüllt ist, ergänzen Sie Ihre Angaben, unterschreiben Sie es und fügen Sie hier ein Foto oder einen Scan bei.',
+      other: 'Eine Frage, eine Idee, ein Hinweis? Schreiben Sie uns einfach.',
+    },
+    details: 'Ihre Angaben',
+    request: 'Ihre Anfrage',
     firstName: 'Vorname',
     lastName: 'Nachname',
     email: 'E-Mail',
@@ -333,6 +388,7 @@ const de: FormsUi = {
     message: 'Nachricht',
     redirectionMessage: 'Guten Tag, anbei finden Sie das ausgefüllte Papierformular für die Umleitung der 3,5 %.',
     attachment: 'Ausgefülltes Formular',
+    attachmentChoose: 'Datei auswählen oder hier ablegen',
     attachmentHint: 'Bild oder PDF, höchstens 5 MB.',
     attachmentInvalid: 'Bitte fügen Sie das ausgefüllte Formular bei: ein Bild (JPEG, PNG, WebP) oder ein PDF mit höchstens 5 MB.',
     questionnaire: 'Fragebogen zur Adoption einer Katze',

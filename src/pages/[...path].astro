@@ -192,9 +192,9 @@ const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as Content
       <>
         <section class="page-hero">
           <h1>{ui.pages.contact}</h1>
+          {contactState !== 'sent' && <p class="page-hero__lead">{ui.contactPage.intro}</p>}
         </section>
-        <div class="container prose contact">
-          {contactState !== 'sent' && <p>{ui.contactPage.intro}</p>}
+        <div class="container contact">
           <ContactForm locale={locale} values={contact} errors={contactErrors} state={contactState} />
         </div>
       </>

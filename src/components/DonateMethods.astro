@@ -2,6 +2,7 @@
 import type { Locale } from '../i18n/config.ts';
 import { useFormsUi } from '../i18n/forms.ts';
 import { useUi } from '../i18n/ui.ts';
+import { LINE_ICONS } from '../lib/icons.ts';
 import { DONATION_METHODS, SITE, type DonationMethod } from '../lib/site.ts';
 import DonateForm from './DonateForm.astro';
 import RedirectSummary from './RedirectSummary.astro';
@@ -28,8 +29,8 @@ const ICONS: Record<DonationMethod, string> = {
   card: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
   transfer: '<path d="M3 10l9-5.5 9 5.5M5.5 10v7.5M10 10v7.5M14 10v7.5M18.5 10v7.5M3 20h18"/>',
   paypal: '<path d="M17 8V5H6.5a2.5 2.5 0 0 0 0 5H20v9.5H6.5A2.5 2.5 0 0 1 4 17V7.5"/><path d="M16 14.75h.01"/>',
-  sms: '<path d="M4 5h16v11.5H9.5L5 20v-3.5H4z"/><path d="M8 9.25h8M8 12.5h5"/>',
-  redirect: '<path d="M6 3.5h8.5l3.5 3.5v13.5H6z"/><path d="M14.5 3.5V7H18M9.5 17l5-5"/><path d="M9.75 12.25h.01M14.25 16.75h.01"/>',
+  sms: LINE_ICONS.message,
+  redirect: LINE_ICONS.form,
 };
 
 /** An IBAN is easier to read, and to check, in groups of four. */

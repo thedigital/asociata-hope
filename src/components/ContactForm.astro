@@ -2,7 +2,10 @@
 import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { useFormsUi } from '../i18n/forms.ts';
-import { ATTACHMENT_ACCEPT, ATTACHMENT_MAX_BYTES, CAT_CHOICES, CAT_CHOICE_KEYS, REASONS, type CatText, type ContactField, type ContactValues } from '../lib/contact.ts';
+import { useUi } from '../i18n/ui.ts';
+import { ATTACHMENT_ACCEPT, ATTACHMENT_MAX_BYTES, CAT_CHOICES, CAT_CHOICE_KEYS, REASONS, type CatText, type ContactField, type ContactValues, type Reason } from '../lib/contact.ts';
+import { LINE_ICONS } from '../lib/icons.ts';
+import { REDIRECT_FORM_PDF, redirectCampaign } from '../lib/redirect-form.ts';
 import { SITE } from '../lib/site.ts';
 
 interface Props {
@@ -13,149 +16,252 @@ interface Props {
   state: 'form' | 'sent' | 'limited';
 }
 
+/**
+ * The contact page in three moments: the reasons to write, as a list of tiles; the form, whose
+ * guide and questions follow the chosen reason; the confirmation once the message has left.
+ */
 const { locale, values, errors, state } = Astro.props;
 const t = useFormsUi(locale).contact;
-const invalid = (field: ContactField) => (errors.includes(field) ? 'true' : undefined);
-// Shown or hidden according to the chosen reason; see the script below.
-const forReasons = (...reasons: string[]) => reasons.join(' ');
+const ui = useUi(locale);
+const href = (path: string) => localizePath(path, locale);
+const bad = (field: ContactField) => errors.includes(field);
+const invalid = (field: ContactField) => (bad(field) ? 'true' : undefined);
 const text = (key: CatText) => values.answers[key] ?? '';
+
+const ICONS: Record<Reason, string> = {
+  'adopt-dog': LINE_ICONS.dog,
+  'adopt-cat': LINE_ICONS.cat,
+  sponsorship: LINE_ICONS.heart,
+  volunteering: LINE_ICONS.care,
+  redirection: LINE_ICONS.form,
+  other: LINE_ICONS.message,
+};
+/** The page that tells more about each reason, linked from its guide. */
+const adoptionGuide = { href: href('/cum-pot-adopta'), label: ui.pages['cum-pot-adopta'] };
+const LINKS: Record<Reason, { href: string; label: string }> = {
+  'adopt-dog': adoptionGuide,
+  'adopt-cat': adoptionGuide,
+  sponsorship: { href: `${href('/doneaza')}#card`, label: ui.pages.doneaza },
+  volunteering: { href: href('/voluntariat'), label: ui.pages.voluntariat },
+  redirection: { href: REDIRECT_FORM_PDF, label: `${ui.homePage.redirectDownload} ${redirectCampaign().incomeYear}` },
+  other: { href: href('/ai-gasit-un-animal'), label: ui.pages['ai-gasit-un-animal'] },
+};
+const questionCount = 1 + CAT_CHOICE_KEYS.length + 3;
 ---
 
 {
   state === 'sent' ? (
-    <div class="form-notice form-notice--ok" role="status">
-      <strong>{t.sent}</strong> {t.sentText}
+    <div class="contact-sheet contact-sent" role="status">
+      <svg class="contact-sent__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={LINE_ICONS.check} />
+      <h2>{t.sent}</h2>
+      <p>{t.sentText}</p>
+      <a class="button button--teal" href={href('/')}>
+        {ui.notFound.back}
+      </a>
     </div>
   ) : (
-    <form class="contact-form" method="post" enctype="multipart/form-data" action={localizePath('/contact', locale)} novalidate={errors.length ? true : undefined}>
-      {state === 'limited' && <p class="form-notice form-notice--error" role="alert">{t.limited}</p>}
-      {errors.length > 0 && (
-        <p class="form-notice form-notice--error" role="alert">
-          {t.invalid} {errors.includes('attachment') && t.attachmentInvalid}
+    <form class="contact-form" id="contact-form" method="post" enctype="multipart/form-data" action={`${href('/contact')}#contact-form`} novalidate={errors.length ? true : undefined}>
+      <div class="contact-sheet">
+        {state === 'limited' && <p class="form-notice form-notice--error" role="alert">{t.limited}</p>}
+        {errors.length > 0 && (
+          <p class="form-notice form-notice--error" role="alert">
+            {t.invalid} {bad('attachment') && t.attachmentInvalid}
+          </p>
+        )}
+        <fieldset class="contact-reasons" aria-invalid={invalid('reason')}>
+          <legend>{t.reason}</legend>
+          <div class="contact-reasons__list">
+            {REASONS.map((reason) => (
+              <label class="contact-reason">
+                <input type="radio" name="reason" value={reason} checked={values.reason === reason} required />
+                <svg class="give-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={ICONS[reason]} />
+                <strong>{t.reasons[reason]}</strong>
+                <span>{t.hints[reason]}</span>
+              </label>
+            ))}
+          </div>
+          {bad('reason') && <small class="field__error">{t.required}</small>}
+        </fieldset>
+        <p class="form-note contact-reasons__mail">
+          {t.orEmail} <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
         </p>
-      )}
-
-      <label class="field">
-        <span>{t.reason} *</span>
-        <select name="reason" required aria-invalid={invalid('reason')}>
-          <option value="">{t.choose}</option>
-          {REASONS.map((reason) => <option value={reason} selected={values.reason === reason}>{t.reasons[reason]}</option>)}
-        </select>
-      </label>
-
-      <div class="field-row">
-        <label class="field">
-          <span>{t.firstName} *</span>
-          <input type="text" name="firstName" value={values.firstName} maxlength="80" autocomplete="given-name" required aria-invalid={invalid('firstName')} />
-        </label>
-        <label class="field">
-          <span>{t.lastName} *</span>
-          <input type="text" name="lastName" value={values.lastName} maxlength="80" autocomplete="family-name" required aria-invalid={invalid('lastName')} />
-        </label>
       </div>
 
-      <label class="field">
-        <span>{t.email} *</span>
-        <input type="email" name="email" value={values.email} maxlength="200" autocomplete="email" required aria-invalid={invalid('email')} />
-      </label>
+      {/* Everything below waits for a reason; blocks with `data-reasons` only exist for those reasons.
+          Links that carry a reason point at `#contact-body`, so the visitor lands on the form. */}
+      <div class="contact-sheet contact-form__body" id="contact-body">
+        {REASONS.map((reason) => (
+          <div class="contact-guide" data-reasons={reason}>
+            <svg class="give-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={ICONS[reason]} />
+            <p>{t.guides[reason]}</p>
+            <a href={LINKS[reason].href}>{LINKS[reason].label}</a>
+          </div>
+        ))}
 
-      {/* One "animalName" input per case: only the one matching the reason is enabled. */}
-      <label class="field" data-reasons={forReasons('adopt-dog')}>
-        <span>{t.dogName} *</span>
-        <input type="text" name="animalName" value={values.animalName} maxlength="80" required aria-invalid={invalid('animalName')} />
-      </label>
-      <label class="field" data-reasons={forReasons('adopt-cat')}>
-        <span>{t.catName} *</span>
-        <input type="text" name="animalName" value={values.animalName} maxlength="80" required aria-invalid={invalid('animalName')} />
-      </label>
-      <label class="field" data-reasons={forReasons('sponsorship')}>
-        <span>{t.animalName}</span>
-        <input type="text" name="animalName" value={values.animalName} maxlength="80" />
-      </label>
-
-      <label class="field">
-        <span>{t.message} *</span>
-        <textarea name="message" rows="6" maxlength="5000" required aria-invalid={invalid('message')} data-redirection-message={t.redirectionMessage}>{values.message}</textarea>
-      </label>
-
-      <label class="field" data-reasons={forReasons('redirection')}>
-        <span>{t.attachment} *</span>
-        <input type="file" name="attachment" accept={ATTACHMENT_ACCEPT} required aria-invalid={invalid('attachment')} data-max-bytes={ATTACHMENT_MAX_BYTES} data-invalid={t.attachmentInvalid} />
-        <small>{t.attachmentHint}</small>
-      </label>
-
-      <fieldset class="questionnaire" data-reasons={forReasons('adopt-cat')}>
-        <legend>{t.questionnaire}</legend>
-        <label class="field">
-          <span>{t.questions.previousCats} *</span>
-          <input type="text" name="previousCats" value={text('previousCats')} maxlength="1000" required aria-invalid={invalid('previousCats')} />
-        </label>
-        {
-          CAT_CHOICE_KEYS.map((key) => (
-            <fieldset class="choice" aria-invalid={invalid(key)}>
-              <legend>{t.questions[key]} *</legend>
-              {CAT_CHOICES[key].map((option) => (
-                <label>
-                  <input type="radio" name={key} value={option} checked={values.answers[key] === option} required />
-                  {t.options[key][option]}
-                </label>
-              ))}
-            </fieldset>
-          ))
-        }
-        {
-          (['idealEnvironment', 'plants', 'ruralRelatives'] as const).map((key) => (
+        <section class="contact-step">
+          <h2>{t.details}</h2>
+          <div class="field-row">
             <label class="field">
-              <span>{t.questions[key]} *</span>
-              <input type="text" name={key} value={text(key)} maxlength="1000" required aria-invalid={invalid(key)} />
+              <span>{t.firstName} *</span>
+              <input type="text" name="firstName" value={values.firstName} maxlength="80" autocomplete="given-name" required aria-invalid={invalid('firstName')} />
+              {bad('firstName') && <small class="field__error">{t.required}</small>}
             </label>
-          ))
-        }
-      </fieldset>
+            <label class="field">
+              <span>{t.lastName} *</span>
+              <input type="text" name="lastName" value={values.lastName} maxlength="80" autocomplete="family-name" required aria-invalid={invalid('lastName')} />
+              {bad('lastName') && <small class="field__error">{t.required}</small>}
+            </label>
+          </div>
+          <label class="field">
+            <span>{t.email} *</span>
+            <input type="email" name="email" value={values.email} maxlength="200" autocomplete="email" required aria-invalid={invalid('email')} />
+            {bad('email') && <small class="field__error">{t.required}</small>}
+          </label>
+        </section>
 
-      {/* Traps for bots: a field humans never see, and the time the form was rendered. */}
-      <div class="trap" aria-hidden="true">
-        <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        <section class="contact-step">
+          <h2>{t.request}</h2>
+          {/* One input for the animal's name; its label, and whether it is required, follow the reason. */}
+          <label class="field" data-reasons="adopt-dog adopt-cat sponsorship">
+            <span data-reasons="adopt-dog">{t.dogName} *</span>
+            <span data-reasons="adopt-cat">{t.catName} *</span>
+            <span data-reasons="sponsorship">{t.animalName}</span>
+            <input type="text" name="animalName" value={values.animalName} maxlength="80" data-required-for="adopt-dog adopt-cat" aria-invalid={invalid('animalName')} />
+            {bad('animalName') && <small class="field__error">{t.required}</small>}
+          </label>
+
+          <label class="field">
+            <span>{t.message} *</span>
+            <textarea name="message" rows="6" maxlength="5000" required aria-invalid={invalid('message')} data-redirection-message={t.redirectionMessage}>{values.message}</textarea>
+            {bad('message') && <small class="field__error">{t.required}</small>}
+          </label>
+
+          <div class="field" data-reasons="redirection">
+            <span>{t.attachment} *</span>
+            <label class:list={['dropzone', bad('attachment') && 'dropzone--invalid']}>
+              <input type="file" name="attachment" accept={ATTACHMENT_ACCEPT} data-required-for="redirection" aria-label={t.attachment} data-max-bytes={ATTACHMENT_MAX_BYTES} data-invalid={t.attachmentInvalid} />
+              <svg class="give-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={LINE_ICONS.upload} />
+              <strong data-file-name>{t.attachmentChoose}</strong>
+              <small>{t.attachmentHint}</small>
+            </label>
+            {bad('attachment') && <small class="field__error">{t.attachmentInvalid}</small>}
+          </div>
+        </section>
+
+        <section class="contact-step questionnaire" data-reasons="adopt-cat">
+          <h2>
+            {t.questionnaire}
+            <span class="questionnaire__count" data-answered={questionCount} hidden />
+          </h2>
+          <label class="field question">
+            <span>{t.questions.previousCats} *</span>
+            <textarea name="previousCats" rows="2" maxlength="1000" data-required-for="adopt-cat" aria-invalid={invalid('previousCats')}>{text('previousCats')}</textarea>
+            {bad('previousCats') && <small class="field__error">{t.required}</small>}
+          </label>
+          {CAT_CHOICE_KEYS.map((key) => (
+            <fieldset class="question" aria-invalid={invalid(key)}>
+              <legend>{t.questions[key]} *</legend>
+              <div class="chips">
+                {CAT_CHOICES[key].map((option) => (
+                  <label>
+                    <input type="radio" name={key} value={option} checked={values.answers[key] === option} data-required-for="adopt-cat" />
+                    <span>{t.options[key][option]}</span>
+                  </label>
+                ))}
+              </div>
+              {bad(key) && <small class="field__error">{t.required}</small>}
+            </fieldset>
+          ))}
+          {(['idealEnvironment', 'plants', 'ruralRelatives'] as const).map((key) => (
+            <label class="field question">
+              <span>{t.questions[key]} *</span>
+              <textarea name={key} rows="2" maxlength="1000" data-required-for="adopt-cat" aria-invalid={invalid(key)}>{text(key)}</textarea>
+              {bad(key) && <small class="field__error">{t.required}</small>}
+            </label>
+          ))}
+        </section>
+
+        {/* Traps for bots: a field humans never see, and the time the form was rendered. */}
+        <div class="trap" aria-hidden="true">
+          <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+        <input type="hidden" name="t" value={Date.now().toString(36)} />
+
+        <div class="contact-form__foot">
+          <p class="form-note">{t.privacy}</p>
+          <button class="button" type="submit">{t.send}</button>
+        </div>
       </div>
-      <input type="hidden" name="t" value={Date.now().toString(36)} />
-
-      <p class="form-note">{t.privacy}</p>
-      <button class="button" type="submit">{t.send}</button>
-      <p class="form-note">
-        {t.orEmail} <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
-      </p>
     </form>
   )
 }
 
 <script is:inline>
-  // Show only the questions that match the chosen reason. Hidden inputs are disabled so that
-  // they are neither required nor submitted. Without JavaScript everything stays visible and
-  // the server ignores what does not apply.
+  // The stylesheet shows the blocks that match the chosen reason; this script makes the inputs
+  // follow: those of another reason are disabled, so that they are neither required nor
+  // submitted. Without JavaScript nothing is required by the browser and the server ignores
+  // what does not apply.
   (() => {
     const form = document.querySelector('.contact-form');
     if (!form) return;
-    const reason = form.elements.reason;
+    const body = form.querySelector('.contact-form__body');
+    const chosen = () => form.elements.reason.value;
     const sync = () => {
+      const reason = chosen();
       form.querySelectorAll('[data-reasons]').forEach((block) => {
-        const active = block.dataset.reasons.split(' ').includes(reason.value);
+        const active = block.dataset.reasons.split(' ').includes(reason);
         block.hidden = !active;
-        block.querySelectorAll('input, textarea, select').forEach((input) => (input.disabled = !active));
+        block.querySelectorAll('input, textarea').forEach((input) => (input.disabled = !active));
       });
+      form.querySelectorAll('[data-required-for]').forEach((input) => (input.required = input.dataset.requiredFor.split(' ').includes(reason)));
       // The redirection comes with a ready-made message; it leaves with the reason unless edited.
       const message = form.elements.message;
       const proposed = message.dataset.redirectionMessage;
-      if (reason.value === 'redirection' && !message.value.trim()) message.value = proposed;
-      else if (reason.value !== 'redirection' && message.value === proposed) message.value = '';
+      if (reason === 'redirection' && !message.value.trim()) message.value = proposed;
+      else if (reason !== 'redirection' && message.value === proposed) message.value = '';
     };
-    reason.addEventListener('change', sync);
+    form.querySelectorAll('[name="reason"]').forEach((radio) =>
+      radio.addEventListener('change', () => {
+        sync();
+        // Bring the form into view when it opens below the fold.
+        if (body.getBoundingClientRect().top > innerHeight * 0.6) {
+          body.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+        }
+      }),
+    );
     sync();
-    // Tell the visitor about a file that is too large before it is uploaded.
+
+    // How many questions of the questionnaire are answered.
+    const count = form.querySelector('[data-answered]');
+    const questions = [...form.querySelectorAll('.question')];
+    const tally = () => {
+      const answered = questions.filter((question) => question.querySelector('input:checked') || question.querySelector('textarea')?.value.trim()).length;
+      count.textContent = `${answered} / ${count.dataset.answered}`;
+      count.classList.toggle('is-complete', answered === questions.length);
+    };
+    count.hidden = false;
+    form.addEventListener('input', tally);
+    tally();
+
+    // The chosen file is named in the drop area; one that is too large is refused before it is uploaded.
     const file = form.elements.attachment;
+    const zone = file.closest('.dropzone');
+    const fileName = zone.querySelector('[data-file-name]');
+    const choose = fileName.textContent;
     file.addEventListener('change', () => {
-      const tooLarge = file.files[0] && file.files[0].size > Number(file.dataset.maxBytes);
+      const picked = file.files[0];
+      const tooLarge = picked && picked.size > Number(file.dataset.maxBytes);
+      fileName.textContent = picked ? picked.name : choose;
+      zone.classList.toggle('dropzone--filled', Boolean(picked) && !tooLarge);
+      zone.classList.toggle('dropzone--invalid', Boolean(tooLarge));
       file.setCustomValidity(tooLarge ? file.dataset.invalid : '');
       file.reportValidity();
     });
+    ['dragenter', 'dragover'].forEach((type) => file.addEventListener(type, () => zone.classList.add('dropzone--over')));
+    ['dragleave', 'drop'].forEach((type) => file.addEventListener(type, () => zone.classList.remove('dropzone--over')));
+
+    // After a refused submission, start at the first field to correct.
+    const first = form.querySelector('[aria-invalid="true"]');
+    (first?.matches('fieldset') ? first.querySelector('input') : first)?.focus();
   })();
 </script>
