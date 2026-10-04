@@ -1561,10 +1561,12 @@ fieldset[aria-invalid='true'] {
   font-size: 0.95rem;
 }
 
+/* Columns take the width of their content, so the e-mail address stays on one line. */
 .site-footer__inner {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-  gap: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem clamp(2rem, 5vw, 4rem);
   width: min(100%, var(--width));
   margin-inline: auto;
 }
@@ -1578,9 +1580,16 @@ fieldset[aria-invalid='true'] {
   text-transform: uppercase;
 }
 
+.site-footer__inner > div {
+  max-width: 28ch;
+}
+
 .site-footer p {
   margin: 0 0 0.35rem;
-  overflow-wrap: anywhere;
+}
+
+.site-footer a[href^='mailto:'] {
+  white-space: nowrap;
 }
 
 .social-links {
