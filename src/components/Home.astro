@@ -2,8 +2,12 @@
 import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
+import { useFormsUi } from '../i18n/forms.ts';
+import { findCollection, listAnimals, type AnimalCard as Animal } from '../lib/animals.ts';
 import { imageSize } from '../lib/image-size.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
+import { DONATION_METHODS } from '../lib/site.ts';
+import AnimalCard from './AnimalCard.astro';
 import RedirectSummary from './RedirectSummary.astro';
 
 interface Props {
@@ -13,6 +17,7 @@ interface Props {
 const { locale } = Astro.props;
 const ui = useUi(locale);
 const t = ui.homePage;
+const give = useFormsUi(locale).donate;
 const href = (path: string) => localizePath(path, locale);
 
 // Pictures carried over from the Wix home page.
@@ -29,16 +34,50 @@ const sponsorships = [
 // Uncropped pictures keep their own proportions: the size is read from the file, never written here.
 const heroSize = await imageSize('pages', HERO);
 const sanctuarySize = await imageSize('pages', SANCTUARY);
+
+const published = (path: string) => listAnimals(findCollection(path)!);
+const dogs = published('adoptii-caini');
+const cats = published('adoptii-pisici');
+const stats = [
+  { count: dogs.length, label: t.stats.dogs },
+  { count: cats.length, label: t.stats.cats },
+  { count: published('adoptii-virtuale-caini').length + published('adoptii-virtuale-pisici').length, label: t.stats.virtual },
+].filter((stat) => stat.count > 0);
+
+// Animals shown on the home page: four dogs and four cats, a different set each day so that every one gets its turn.
+const WAITING = 4;
+const day = Math.floor(Date.now() / 86_400_000);
+const todays = (list: Animal[]) => {
+  const withPhoto = list.filter((animal) => animal.photo);
+  return withPhoto.length <= WAITING ? withPhoto : Array.from({ length: WAITING }, (_, i) => withPhoto[(day * WAITING + i) % withPhoto.length]);
+};
+const [someDogs, someCats] = [todays(dogs), todays(cats)];
+const waiting = Array.from({ length: WAITING }, (_, i) => [someDogs[i], someCats[i]]).flat().filter((animal) => animal !== undefined);
+
+// The redirection has its own block right below the donation one.
+const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
 ---
 
 <section class="hero">
   <div class="hero__inner">
     <div class="hero__text">
       <h1>{t.h1}</h1>
+      <p class="hero__lead">{t.lead}</p>
       <p class="hero__actions">
         <a class="button" href={href('/adoptii-caini')}>{ui.cta.dogs.button}</a>
         <a class="button button--light" href={href('/adoptii-pisici')}>{ui.cta.cats.button}</a>
       </p>
+      {
+        stats.length > 0 && (
+          <ul class="hero__stats">
+            {stats.map((stat) => (
+              <li>
+                <strong>{stat.count}</strong> {stat.label}
+              </li>
+            ))}
+          </ul>
+        )
+      }
     </div>
     <div class="hero__photo">
       <img src={imageUrl('pages', HERO, 800)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 900px) 620px, 100vw" alt="" width={heroSize?.width} height={heroSize?.height} fetchpriority="high" />
@@ -48,6 +87,7 @@ const sanctuarySize = await imageSize('pages', SANCTUARY);
 
 <section class="home-section">
   <h2>{t.adoptions}</h2>
+  <p class="home-section__lead">{t.adoptionsLead}</p>
   <ul class="tiles">
     {
       adoptions.map((tile) => (
@@ -60,29 +100,58 @@ const sanctuarySize = await imageSize('pages', SANCTUARY);
       ))
     }
   </ul>
+  {
+    waiting.length > 0 && (
+      <div class="home-waiting">
+        <h3>{t.waiting}</h3>
+        <ul class="animal-grid">
+          {waiting.map((animal) => <AnimalCard animal={animal} locale={locale} />)}
+        </ul>
+      </div>
+    )
+  }
 </section>
 
 <section class="home-section home-section--teal">
-  <h2>{t.virtual}</h2>
-  <ul class="tiles">
-    {
-      sponsorships.map((tile) => (
-        <li>
-          <a href={tile.href}>
-            <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 700px) 480px, 100vw" alt="" width="800" height="800" loading="lazy" />
-            <span>{tile.label}</span>
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+  <div class="home-split">
+    <div class="home-split__text">
+      <h2>{t.virtual}</h2>
+      <p>{t.virtualLead}</p>
+    </div>
+    <ul class="tiles">
+      {
+        sponsorships.map((tile) => (
+          <li>
+            <a href={tile.href}>
+              <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 900px) 320px, (min-width: 700px) 480px, 100vw" alt="" width="800" height="800" loading="lazy" />
+              <span>{tile.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 </section>
 
 <section class="home-section home-section--orange">
-  <h2>{t.donateTitle}</h2>
-  <div class="donate-card">
-    <p>{t.donateText}</p>
-    <a class="button button--teal" href={href('/doneaza')}>{ui.donate}</a>
+  <div class="home-give">
+    <div class="home-give__text">
+      <h2>{t.donateTitle}</h2>
+      <p>{t.donateText}</p>
+      <a class="button" href={href('/doneaza')}>{ui.donate}</a>
+    </div>
+    <ul class="home-give__methods" aria-label={give.pick}>
+      {
+        methods.map((method) => (
+          <li>
+            <a href={`${href('/doneaza')}#${method}`}>
+              <strong>{give.methods[method].label}</strong>
+              <span>{give.methods[method].hint}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
   </div>
 </section>
 

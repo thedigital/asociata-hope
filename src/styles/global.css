@@ -497,7 +497,9 @@ a:hover {
 
 /* Short bar under the main titles, so that they stand out from the text. */
 .page-hero h1::after,
-.home-section > h2::after {
+.home-section > h2::after,
+.home-split h2::after,
+.home-give h2::after {
   content: '';
   display: block;
   width: 64px;
@@ -509,6 +511,15 @@ a:hover {
 
 .page-hero h1::after {
   background: var(--sand);
+}
+
+/* Sentence under the title of a list: what adopting or sponsoring means. */
+.page-hero__lead {
+  max-width: 56ch;
+  margin: 1.25rem auto 0;
+  color: rgb(255 255 255 / 0.9);
+  font-size: var(--text-lead);
+  line-height: 1.5;
 }
 
 /* Home */
@@ -563,7 +574,7 @@ a:hover {
 .hero__text {
   display: grid;
   justify-items: center;
-  gap: 1.75rem;
+  gap: 1.25rem;
 }
 
 .hero h1 {
@@ -574,12 +585,49 @@ a:hover {
   line-height: 1.12;
 }
 
+.hero__lead {
+  max-width: 36ch;
+  margin: 0;
+  color: rgb(255 255 255 / 0.9);
+  font-size: var(--text-lead);
+  line-height: 1.5;
+}
+
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.75rem;
-  margin: 0;
+  margin: 0.4rem 0 0;
+}
+
+/* Key figures under the buttons: the figure above its caption, a sand bar on the left of each. */
+.hero__stats {
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.9rem, 3vw, 2rem);
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero__stats li {
+  max-width: 9.5rem;
+  padding-left: clamp(0.6rem, 2vw, 0.9rem);
+  border-left: 3px solid var(--sand);
+  color: rgb(255 255 255 / 0.85);
+  font-size: var(--text-small);
+  line-height: 1.35;
+  text-align: left;
+}
+
+.hero__stats strong {
+  display: block;
+  color: #fff;
+  font-family: var(--font-title);
+  font-size: var(--title-2);
+  font-weight: 600;
+  line-height: 1.1;
 }
 
 .hero__photo {
@@ -623,7 +671,8 @@ a:hover {
     padding-bottom: clamp(2rem, 5vw, 3.5rem);
   }
 
-  .hero__actions {
+  .hero__actions,
+  .hero__stats {
     justify-content: flex-start;
   }
 
@@ -642,10 +691,20 @@ a:hover {
   text-align: center;
 }
 
-.home-section > h2 {
+.home-section > h2,
+.home-split h2 {
   margin: 0 0 clamp(1.75rem, 4vw, 2.75rem);
   font-size: var(--title-section);
   font-weight: 700;
+}
+
+/* Sentence under a section title, pulled up towards it. */
+.home-section__lead {
+  max-width: 46ch;
+  margin: calc(-1 * clamp(0.5rem, 2vw, 1.25rem)) auto clamp(1.75rem, 4vw, 2.75rem);
+  color: var(--muted);
+  font-size: var(--text-lead);
+  line-height: 1.5;
 }
 
 .home-section--teal,
@@ -664,17 +723,12 @@ a:hover {
   background: var(--orange);
 }
 
-.home-section--teal > h2,
-.home-section--orange > h2 {
+.home-split h2 {
   color: #fff;
 }
 
-.home-section--teal > h2::after {
+.home-split h2::after {
   background: var(--sand);
-}
-
-.home-section--orange > h2::after {
-  background: #fff;
 }
 
 .tiles {
@@ -742,25 +796,224 @@ a:hover {
   transform: translateX(4px);
 }
 
-.donate-card {
+/* A few animals under the two adoption tiles: a row to swipe on small screens, a grid from 700px. */
+.home-waiting {
+  width: min(100%, var(--width));
+  margin: clamp(2.5rem, 6vw, 4rem) auto 0;
+}
+
+.home-waiting h3 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 clamp(1rem, 3vw, 1.75rem);
+  font-size: var(--title-2);
+}
+
+.home-waiting h3::before,
+.home-waiting h3::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+@media (max-width: 699px) {
+  .home-waiting .animal-grid {
+    grid-auto-columns: min(62%, 240px);
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    margin-inline: calc(-1 * var(--gutter));
+    padding: 0.25rem var(--gutter) 1.25rem;
+    overflow-x: auto;
+    scroll-padding-inline: var(--gutter);
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .home-waiting .animal-card {
+    scroll-snap-align: start;
+  }
+}
+
+/* Sponsorship band: the explanation beside the two tiles, the second one set lower. */
+.home-split {
   display: grid;
-  justify-items: center;
-  gap: 1.5rem;
-  width: min(100%, 720px);
+  align-items: center;
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  width: min(100%, var(--width));
   margin-inline: auto;
-  padding: clamp(1.75rem, 5vw, 3rem);
+}
+
+.home-split__text p {
+  max-width: 46ch;
+  margin: 0 auto;
+  color: rgb(255 255 255 / 0.9);
+  font-size: var(--text-lead);
+  line-height: 1.55;
+}
+
+@media (min-width: 900px) {
+  .home-split {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    text-align: left;
+  }
+
+  .home-split h2::after {
+    margin-left: 0;
+  }
+
+  .home-split__text p {
+    margin: 0;
+  }
+
+  .home-split .tiles {
+    grid-template-columns: 1fr 1fr;
+    padding-bottom: 2.5rem;
+  }
+
+  .home-split .tiles li:last-child {
+    translate: 0 2.5rem;
+  }
+
+  /* Narrow tiles: the portraits are shown as portraits. */
+  .home-split .tiles img {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* Donation sheet: the appeal on the left, the ways of giving on the right, each one a link to its section of the donation page. */
+.home-give {
+  display: grid;
+  overflow: hidden;
+  width: min(100%, 980px);
+  margin-inline: auto;
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow-raised);
+  text-align: left;
 }
 
-.donate-card p {
+.home-give__text {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 1.5rem;
+  padding: clamp(1.75rem, 5vw, 3rem);
+}
+
+.home-give h2 {
   margin: 0;
-  color: var(--teal);
+  font-size: var(--title-section);
+  font-weight: 700;
+}
+
+.home-give h2::after {
+  margin-left: 0;
+}
+
+.home-give__text p {
+  margin: 0;
   font-size: var(--text-lead);
-  font-weight: 600;
+  line-height: 1.5;
+}
+
+.home-give__methods {
+  display: grid;
+  align-content: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: var(--sand-pale);
+  list-style: none;
+}
+
+.home-give__methods a {
+  position: relative;
+  display: grid;
+  padding: 0.85rem 3.75rem 0.85rem 1.2rem;
+  border-radius: var(--radius-small);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  font-size: var(--text-small);
   line-height: 1.4;
-  text-wrap: balance;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.home-give__methods strong {
+  color: var(--teal);
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+/* Drawn arrow, as on the tiles. */
+.home-give__methods a::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230b1f16' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / 16px no-repeat;
+  translate: 0 -50%;
+  transition: translate 0.2s, background-color 0.2s;
+}
+
+.home-give__methods a:hover {
+  box-shadow: var(--shadow-raised);
+  transform: translateX(4px);
+}
+
+.home-give__methods a:hover::after {
+  background-color: var(--orange);
+  translate: 4px -50%;
+}
+
+@media (min-width: 800px) {
+  .home-give {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/* The hero settles in on load; further down, each block rises as it enters the screen, where the browser can tie an animation to scrolling. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero__text > * {
+    animation: hero-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .hero__text > :nth-child(2) {
+    animation-delay: 0.08s;
+  }
+
+  .hero__text > :nth-child(3) {
+    animation-delay: 0.16s;
+  }
+
+  .hero__text > :nth-child(4) {
+    animation-delay: 0.24s;
+  }
+
+  @supports (animation-timeline: view()) {
+    .home-section .tiles li,
+    .home-waiting,
+    .home-split__text,
+    .home-give {
+      animation: chapter-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
 }
 
 .home-redirect {

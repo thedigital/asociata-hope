@@ -28,6 +28,16 @@ export type Ui = {
     virtualDogs: string;
     donateTitle: string;
     donateText: string;
+    /** Sentence under the title of the hero. */
+    lead: string;
+    /** Captions of the figures of the hero: published animals, counted in the database. */
+    stats: { dogs: string; cats: string; virtual: string };
+    /** Also shown under the title of the two adoption lists. */
+    adoptionsLead: string;
+    /** Title of the animals shown on the home page, a different set each day. */
+    waiting: string;
+    /** What sponsoring means; also shown under the title of the two sponsorship lists. */
+    virtualLead: string;
     redirectTitle: string;
     /** The year is the income year of the form (`redirectCampaign`). */
     redirectIntro: (year: number) => string;
@@ -148,6 +158,11 @@ const ro: Ui = {
     virtualDogs: 'Adoptii virtuale caini',
     donateTitle: 'Doneaza',
     donateText: 'Doneaza pentru ingrijirea cateilor si pisicilor Asociatiei pentru protectia animalelor HOPE',
+    lead: 'Salvăm, îngrijim și dăm spre adopție câini și pisici fără stăpân din București și din împrejurimi.',
+    stats: { dogs: 'câini de adoptat', cats: 'pisici de adoptat', virtual: 'animale în adopție virtuală' },
+    adoptionsLead: 'Fiecare dintre ei așteaptă o familie care să îl iubească. Poate chiar pe a dumneavoastră.',
+    waiting: 'Își caută o familie',
+    virtualLead: 'Nu puteți adopta? Alegeți un animăluț și susțineți-i de la distanță hrana și îngrijirea: el rămâne în grija noastră, iar dumneavoastră îi deveniți părinte virtual.',
     redirectTitle: 'Redirecționare 3,5%',
     redirectIntro: (year) => `Printr-un gest GRATUIT puteți ajuta 170 de căței și pisicuțe. Completați, vă rugăm, formularul pentru direcționarea a 3,5% din impozitul pe salariu pentru anul ${year}.`,
     redirectOnline: 'Durează 1 minut, este simplu, este online:',
@@ -302,6 +317,11 @@ const en: Ui = {
     virtualDogs: 'Sponsor a dog',
     donateTitle: 'Donate',
     donateText: 'Donate to support the care of the dogs and cats of the HOPE Animal Protection Association',
+    lead: 'We rescue, care for and rehome stray dogs and cats in and around Bucharest.',
+    stats: { dogs: 'dogs for adoption', cats: 'cats for adoption', virtual: 'animals to sponsor' },
+    adoptionsLead: 'Each of them is waiting for a family to love them. It could be yours.',
+    waiting: 'Looking for a family',
+    virtualLead: 'Can’t adopt? Choose an animal and support its food and care from a distance: it stays in our care, and you become its sponsor.',
     redirectTitle: 'Redirect 3.5% of your income tax',
     redirectIntro: (year) => `With a FREE gesture you can help 170 dogs and cats. Please fill in the form to redirect 3.5% of your ${year} income tax.`,
     redirectOnline: 'It takes one minute, it is simple and it is online:',
@@ -456,6 +476,11 @@ const fr: Ui = {
     virtualDogs: 'Parrainer un chien',
     donateTitle: 'Faire un don',
     donateText: 'Soutenez les chiens et les chats de l’association HOPE en faisant un don',
+    lead: 'Nous recueillons, soignons et faisons adopter des chiens et des chats errants de Bucarest et de ses environs.',
+    stats: { dogs: 'chiens à adopter', cats: 'chats à adopter', virtual: 'animaux à parrainer' },
+    adoptionsLead: 'Chacun d’eux attend une famille qui l’aimera. Peut-être la vôtre.',
+    waiting: 'Ils cherchent une famille',
+    virtualLead: 'Vous ne pouvez pas adopter ? Choisissez un animal et financez à distance sa nourriture et ses soins : il reste sous notre garde, et vous devenez son parrain ou sa marraine.',
     redirectTitle: 'Redirection de 3,5 % de votre impôt sur le revenu',
     redirectIntro: (year) => `Un geste GRATUIT suffit pour aider 170 chiens et chats. Remplissez le formulaire pour reverser 3,5 % de votre impôt sur le revenu ${year}.`,
     redirectOnline: 'Cela prend une minute, c’est simple et en ligne :',
@@ -610,6 +635,11 @@ const de: Ui = {
     virtualDogs: 'Patenschaft für einen Hund',
     donateTitle: 'Spenden',
     donateText: 'Unterstützen Sie mit Ihrer Spende die Hunde und Katzen des Tierschutzvereins HOPE',
+    lead: 'Wir retten, versorgen und vermitteln herrenlose Hunde und Katzen aus Bukarest und Umgebung.',
+    stats: { dogs: 'Hunde zur Adoption', cats: 'Katzen zur Adoption', virtual: 'Tiere für eine Patenschaft' },
+    adoptionsLead: 'Jedes von ihnen wartet auf eine Familie, die es liebt. Vielleicht auf Ihre.',
+    waiting: 'Sie suchen ein Zuhause',
+    virtualLead: 'Sie können kein Tier aufnehmen? Wählen Sie ein Tier aus und unterstützen Sie aus der Ferne sein Futter und seine Pflege: Es bleibt in unserer Obhut, und Sie werden sein Pate oder seine Patin.',
     redirectTitle: '3,5 % der Einkommensteuer umleiten',
     redirectIntro: (year) => `Mit einer KOSTENLOSEN Geste können Sie 170 Hunden und Katzen helfen. Füllen Sie das Formular aus, um 3,5 % Ihrer Einkommensteuer ${year} umzuleiten.`,
     redirectOnline: 'Es dauert eine Minute, ist einfach und online:',

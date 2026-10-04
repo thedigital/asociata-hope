@@ -49,6 +49,7 @@ const fields = [
 
 <section class="page-hero">
   <h1>{ui.pages[collection.path as PageKey]}</h1>
+  <p class="page-hero__lead">{collection.adoptionType === 'virtual' ? ui.homePage.virtualLead : ui.homePage.adoptionsLead}</p>
 </section>
 
 <section class="container animal-list">
