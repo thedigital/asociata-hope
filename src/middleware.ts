@@ -2,6 +2,7 @@ import { defineMiddleware } from 'astro:middleware';
 import { eq } from 'drizzle-orm';
 import { db, schema } from './db/client.ts';
 import { localizePath, preferredLocale, splitLocale } from './i18n/config.ts';
+import { SESSION_COOKIE, getSessionUser } from './lib/auth.ts';
 import { LEGACY_REDIRECTS } from './lib/site.ts';
 
 const redirect = (location: string, status = 301) => new Response(null, { status, headers: { location } });
@@ -11,11 +12,29 @@ const ONE_YEAR = 60 * 60 * 24 * 365;
 /** Public HTML pages only: not media, documents, the admin, or files such as sitemap.xml. */
 const isPublicPage = (pathname: string) => !/^\/(media|files|admin|_)/.test(pathname) && !/\.[a-z0-9]+$/i.test(pathname);
 
-export const onRequest = defineMiddleware(async ({ url, request, cookies }, next) => {
+const secure = (response: Response) => {
+  response.headers.set('x-content-type-options', 'nosniff');
+  response.headers.set('referrer-policy', 'strict-origin-when-cross-origin');
+  response.headers.set('x-frame-options', 'SAMEORIGIN');
+  return response;
+};
+
+export const onRequest = defineMiddleware(async ({ url, request, cookies, locals }, next) => {
   const { pathname, search } = url;
 
   // Wix URLs have no trailing slash; keep a single canonical form.
   if (pathname.length > 1 && pathname.endsWith('/')) return redirect(pathname.replace(/\/+$/, '') + search);
+
+  // Admin: every page except the login form requires a valid session.
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    const token = cookies.get(SESSION_COOKIE)?.value;
+    locals.user = (token && getSessionUser(token)) || undefined;
+    if (!locals.user && pathname !== '/admin/login') return redirect('/admin/login', 302);
+    const response = secure(await next());
+    response.headers.set('cache-control', 'no-store');
+    response.headers.set('x-robots-tag', 'noindex, nofollow');
+    return response;
+  }
 
   // Documents kept their file name but moved out of the Wix-specific path.
   const legacyFile = pathname.match(/^(?:\/[a-z]{2})?\/_files\/ugd\/([\w.-]+)$/);
@@ -46,9 +65,5 @@ export const onRequest = defineMiddleware(async ({ url, request, cookies }, next
     }
   }
 
-  const response = await next();
-  response.headers.set('x-content-type-options', 'nosniff');
-  response.headers.set('referrer-policy', 'strict-origin-when-cross-origin');
-  response.headers.set('x-frame-options', 'SAMEORIGIN');
-  return response;
+  return secure(await next());
 });

@@ -1,0 +1,55 @@
+---
+import '@fontsource/poppins/400.css';
+import '@fontsource/poppins/500.css';
+import '@fontsource/poppins/600.css';
+import '../styles/admin.css';
+import { useAdminUi } from '../i18n/admin.ts';
+import type { AdminLocale } from '../i18n/config.ts';
+
+interface Props {
+  title: string;
+  /** Language of the page when nobody is signed in (login form). */
+  locale?: AdminLocale;
+}
+
+const user = Astro.locals.user;
+const locale = user?.locale ?? Astro.props.locale ?? 'ro';
+const t = useAdminUi(locale);
+const { title } = Astro.props;
+const current = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} – {t.title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    {
+      user && (
+        <header class="admin-header">
+          <a class="admin-header__brand" href="/admin">
+            <img src="/favicon.svg" alt="" width="28" height="28" />
+            {t.title}
+          </a>
+          <nav>
+            <a href="/admin" aria-current={current === '/admin' || current.startsWith('/admin/animals') ? 'page' : undefined}>{t.nav.animals}</a>
+            <a href="/admin/redirects" aria-current={current === '/admin/redirects' ? 'page' : undefined}>{t.nav.redirects}</a>
+            <a href="/" target="_blank" rel="noopener">{t.nav.site} ↗</a>
+          </nav>
+          <form method="post" action="/admin/logout">
+            <span>{user.name}</span>
+            <button class="link" type="submit">{t.nav.logout}</button>
+          </form>
+        </header>
+      )
+    }
+    <main class="admin-main">
+      <slot />
+    </main>
+  </body>
+</html>

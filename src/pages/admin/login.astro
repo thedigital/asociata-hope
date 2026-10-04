@@ -1,0 +1,54 @@
+---
+import { useAdminUi } from '../../i18n/admin.ts';
+import Admin from '../../layouts/Admin.astro';
+import { SESSION_COOKIE, authenticate, clearFailures, createSession, isLocked, recordFailure } from '../../lib/auth.ts';
+
+if (Astro.locals.user) return Astro.redirect('/admin');
+
+// Nobody is signed in yet: pick the form language from the browser.
+const locale = /^fr\b/i.test(Astro.request.headers.get('accept-language') ?? '') ? 'fr' : 'ro';
+const t = useAdminUi(locale);
+let error = '';
+let email = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  email = String(form.get('email') ?? '').trim().toLowerCase().slice(0, 200);
+  const password = String(form.get('password') ?? '');
+  // Throttle by address and by account, so neither one password list nor one account can be hammered.
+  const keys = [`ip:${Astro.clientAddress}`, `email:${email}`];
+  if (keys.some(isLocked)) {
+    error = t.login.locked;
+    Astro.response.status = 429;
+  } else {
+    const user = await authenticate(email, password);
+    if (user) {
+      keys.forEach(clearFailures);
+      const { token, expiresAt } = createSession(user.id);
+      const local = ['localhost', '127.0.0.1'].includes(Astro.url.hostname);
+      Astro.cookies.set(SESSION_COOKIE, token, { path: '/admin', httpOnly: true, sameSite: 'lax', secure: !local, expires: expiresAt });
+      return Astro.redirect('/admin');
+    }
+    keys.forEach(recordFailure);
+    error = t.login.failed;
+    Astro.response.status = 401;
+  }
+}
+---
+
+<Admin title={t.login.title} locale={locale}>
+  <form class="login card" method="post">
+    <img src="/logo.webp" alt="Hope" width="149" height="55" />
+    <h1>{t.login.title}</h1>
+    {error && <p class="notice notice--error" role="alert">{error}</p>}
+    <label>
+      {t.login.email}
+      <input type="email" name="email" value={email} autocomplete="username" required autofocus />
+    </label>
+    <label>
+      {t.login.password}
+      <input type="password" name="password" autocomplete="current-password" required />
+    </label>
+    <button class="btn" type="submit">{t.login.submit}</button>
+  </form>
+</Admin>

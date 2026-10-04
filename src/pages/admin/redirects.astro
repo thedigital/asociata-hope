@@ -1,0 +1,88 @@
+---
+import { asc, eq } from 'drizzle-orm';
+import { db, schema } from '../../db/client.ts';
+import { useAdminUi } from '../../i18n/admin.ts';
+import Admin from '../../layouts/Admin.astro';
+
+const user = Astro.locals.user!;
+const t = useAdminUi(user.locale);
+const r = t.redirects;
+const { redirects } = schema;
+let error = '';
+
+/** Site paths only: a redirect must never point to another domain. */
+const isPath = (value: string) => /^\/(?!\/)\S*$/.test(value) && value.length <= 300;
+const clean = (value: FormDataEntryValue | null) => String(value ?? '').trim().replace(/(.)\/+$/, '$1');
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (form.has('delete')) {
+    db.delete(redirects).where(eq(redirects.id, Number(form.get('delete')))).run();
+    return Astro.redirect('/admin/redirects', 303);
+  }
+  const fromPath = clean(form.get('from'));
+  const toPath = clean(form.get('to'));
+  if (!isPath(fromPath) || fromPath.startsWith('/admin') || (toPath && (!isPath(toPath) || toPath === fromPath))) {
+    error = r.invalid;
+    Astro.response.status = 422;
+  } else {
+    const values = { toPath: toPath || null, status: toPath ? 301 : 410 };
+    db.insert(redirects).values({ fromPath, ...values }).onConflictDoUpdate({ target: redirects.fromPath, set: values }).run();
+    return Astro.redirect('/admin/redirects', 303);
+  }
+}
+
+const rows = db.select().from(redirects).orderBy(asc(redirects.fromPath)).all();
+---
+
+<Admin title={t.nav.redirects}>
+  <div class="toolbar">
+    <h1>{t.nav.redirects}</h1>
+  </div>
+  <p>{r.intro}</p>
+  {error && <p class="notice notice--error" role="alert">{error}</p>}
+
+  <form class="card filters-bar" method="post">
+    <label>
+      {r.from}
+      <input type="text" name="from" placeholder="/adoptii-caini/rex" required />
+    </label>
+    <label>
+      {r.to}
+      <input type="text" name="to" placeholder="/adoptii-caini" />
+      <small>{r.toHelp}</small>
+    </label>
+    <button class="btn" type="submit">{r.add}</button>
+  </form>
+
+  {
+    rows.length === 0 ? (
+      <p class="card">{r.empty}</p>
+    ) : (
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{r.from}</th>
+            <th>{r.to}</th>
+            <th>{r.code}</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr>
+              <td><code>{row.fromPath}</code></td>
+              <td>{row.toPath ? <code>{row.toPath}</code> : <em>{r.gone}</em>}</td>
+              <td>{row.status}</td>
+              <td>
+                <form method="post">
+                  <button class="link" type="submit" name="delete" value={row.id}>{t.form.remove}</button>
+                </form>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+</Admin>

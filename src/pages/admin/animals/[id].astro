@@ -1,0 +1,285 @@
+---
+import { useAdminUi } from '../../../i18n/admin.ts';
+import { ENABLED_LOCALES, LOCALES, LOCALE_NAMES } from '../../../i18n/config.ts';
+import { gendered, useUi } from '../../../i18n/ui.ts';
+import Admin from '../../../layouts/Admin.astro';
+import { addPhotos, deleteAnimal, deletePhoto, getAnimalForEdit, movePhoto, parseAnimalForm, saveAnimal, setVideo, type FormError } from '../../../lib/admin-animals.ts';
+import { findCollection } from '../../../lib/animals.ts';
+import { imageUrl } from '../../../lib/media.ts';
+import { ADOPTION_TYPES, COLLECTION_PATHS, COLORS, SEXES, SIZES, SPECIES, STATUSES, TRAITS } from '../../../lib/taxonomy.ts';
+
+const user = Astro.locals.user!;
+const t = useAdminUi(user.locale);
+const ui = useUi(user.locale);
+const f = t.form;
+
+const isNew = Astro.params.id === 'new';
+const id = isNew ? null : Number(Astro.params.id);
+const existing = id ? getAnimalForEdit(id) : null;
+if (!isNew && !existing) return new Response('Not found', { status: 404 });
+
+const listUrl = (species: string, adoptionType: string) => `/admin?c=${COLLECTION_PATHS[species as 'dog'][adoptionType as 'real']}`;
+let errors: FormError[] = [];
+let submitted: ReturnType<typeof parseAnimalForm> | null = null;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = String(form.get('_action') ?? 'save');
+  const self = `/admin/animals/${id}`;
+
+  if (id && existing && action !== 'save') {
+    // Photo buttons send "photo-<operation>:<photo id>".
+    const [operation, photoId] = action.split(':');
+    if (operation === 'delete') {
+      await deleteAnimal(id);
+      return Astro.redirect(listUrl(existing.animal.species, existing.animal.adoptionType), 303);
+    }
+    if (operation === 'photo-delete') await deletePhoto(id, Number(photoId));
+    if (operation === 'photo-main') movePhoto(id, Number(photoId), 'main');
+    if (operation === 'photo-left') movePhoto(id, Number(photoId), 'left');
+    if (operation === 'photo-right') movePhoto(id, Number(photoId), 'right');
+    return Astro.redirect(`${self}#photos`, 303);
+  }
+
+  submitted = parseAnimalForm(form);
+  errors = submitted.errors;
+  if (!errors.length) {
+    const result = saveAnimal(id, submitted);
+    if ('error' in result) errors = [result.error];
+    else {
+      const files = form.getAll('photos').filter((file): file is File => file instanceof File);
+      const rejected = await addPhotos(result.id, files);
+      const video = form.get('video');
+      const videoOk = await setVideo(result.id, video instanceof File ? video : null, form.has('removeVideo'));
+      const flags = new URLSearchParams({ saved: '1', ...(rejected ? { rejected: String(rejected) } : {}), ...(videoOk ? {} : { video: 'rejected' }) });
+      return Astro.redirect(`/admin/animals/${result.id}?${flags}`, 303);
+    }
+  }
+  Astro.response.status = 422;
+}
+
+// Values shown in the form: what was just submitted (on error), else the stored animal, else defaults.
+const preset = findCollection(Astro.url.searchParams.get('c') ?? '');
+const values = submitted?.data ?? existing?.animal ?? {
+  name: '',
+  slug: '',
+  species: preset?.species ?? 'dog',
+  adoptionType: preset?.adoptionType ?? 'real',
+  status: 'draft' as const,
+  sex: null,
+  size: null,
+  color: null,
+  birthDate: null,
+  birthDateEstimated: false,
+  vaccinated: false,
+  sterilized: false,
+  dewormed: false,
+  videoUrl: null,
+};
+const traits = submitted?.traits ?? existing?.traits ?? [];
+const translations = submitted?.translations ?? existing?.translations ?? [];
+const translation = (locale: string) => translations.find((tr) => tr.locale === locale);
+const photos = existing?.photos ?? [];
+const flags = Astro.url.searchParams;
+const title = isNew ? f.newTitle : existing!.animal.name;
+const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[trait], null) })).sort((a, b) => a.label.localeCompare(b.label, user.locale));
+---
+
+<Admin title={title}>
+  <div class="toolbar">
+    <h1>{title}</h1>
+    <div>
+      {existing && existing.animal.status === 'published' && <a class="btn btn--light" href={existing.path} target="_blank" rel="noopener">{f.view} ↗</a>}
+      <a class="btn btn--light" href={listUrl(values.species, values.adoptionType)}>{f.back}</a>
+    </div>
+  </div>
+
+  {flags.has('saved') && <p class="notice notice--ok" role="status">{f.saved}</p>}
+  {flags.has('rejected') && <p class="notice notice--error" role="alert">{f.rejected(Number(flags.get('rejected')))}</p>}
+  {flags.has('video') && <p class="notice notice--error" role="alert">{f.videoRejected}</p>}
+  {errors.map((error) => <p class="notice notice--error" role="alert">{t.errors[error]}</p>)}
+
+  <form id="animal-form" class="form" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_action" value="save" />
+
+    <fieldset class="card">
+      <legend>{f.identity}</legend>
+      <div class="grid">
+        <label>
+          {f.name}
+          <input type="text" name="name" value={values.name} maxlength="80" required />
+        </label>
+        <label>
+          {f.slug}
+          <input type="text" name="slug" value={values.slug} maxlength="80" pattern="[a-z0-9\-]+" />
+          <small>{f.slugHelp}</small>
+        </label>
+        <label>
+          {f.species}
+          <select name="species">
+            {SPECIES.map((v) => <option value={v} selected={v === values.species}>{t.species[v]}</option>)}
+          </select>
+        </label>
+        <label>
+          {f.adoptionType}
+          <select name="adoptionType">
+            {ADOPTION_TYPES.map((v) => <option value={v} selected={v === values.adoptionType}>{t.adoptionType[v]}</option>)}
+          </select>
+        </label>
+        <label>
+          {f.status}
+          <select name="status">
+            {STATUSES.map((v) => <option value={v} selected={v === values.status}>{t.status[v]}</option>)}
+          </select>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>{f.characteristics}</legend>
+      <div class="grid">
+        <label>
+          {f.sex}
+          <select name="sex">
+            <option value="">{f.none}</option>
+            {SEXES.map((v) => <option value={v} selected={v === values.sex}>{ui.sex[v]}</option>)}
+          </select>
+        </label>
+        <label>
+          {f.size}
+          <select name="size">
+            <option value="">{f.none}</option>
+            {SIZES.map((v) => <option value={v} selected={v === values.size}>{gendered(ui.size[v], null)}</option>)}
+          </select>
+        </label>
+        <label>
+          {f.color}
+          <select name="color">
+            <option value="">{f.none}</option>
+            {COLORS.map((v) => <option value={v} selected={v === values.color}>{ui.color[v]}</option>)}
+          </select>
+        </label>
+        <label>
+          {f.birthDate}
+          <input type="date" name="birthDate" value={values.birthDate ?? ''} />
+        </label>
+        <label class="check">
+          <input type="checkbox" name="birthDateEstimated" checked={values.birthDateEstimated} />
+          {f.birthDateEstimated}
+        </label>
+      </div>
+
+      <h3>{f.traits}</h3>
+      <div class="checks">
+        {
+          sortedTraits.map(({ trait, label }) => (
+            <label class="check">
+              <input type="checkbox" name="traits" value={trait} checked={traits.includes(trait)} />
+              {label}
+            </label>
+          ))
+        }
+      </div>
+
+      <h3>{f.health}</h3>
+      <div class="checks">
+        <label class="check"><input type="checkbox" name="vaccinated" checked={values.vaccinated} />{f.vaccinated}</label>
+        <label class="check"><input type="checkbox" name="sterilized" checked={values.sterilized} />{f.sterilized}</label>
+        <label class="check"><input type="checkbox" name="dewormed" checked={values.dewormed} />{f.dewormed}</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>{f.texts}</legend>
+      {
+        LOCALES.map((locale) => (
+          <details class="language" open={ENABLED_LOCALES[0] === locale}>
+            <summary>
+              {LOCALE_NAMES[locale]}
+              {translation(locale)?.description ? ' ✓' : ''}
+            </summary>
+            <label>
+              {f.description}
+              <textarea name={`description_${locale}`} rows="10" lang={locale}>{translation(locale)?.description ?? ''}</textarea>
+            </label>
+            <details>
+              <summary>{f.seo}</summary>
+              <small>{f.seoHelp}</small>
+              <label>
+                {f.seoTitle}
+                <input type="text" name={`seoTitle_${locale}`} value={translation(locale)?.seoTitle ?? ''} maxlength="120" />
+              </label>
+              <label>
+                {f.seoDescription}
+                <textarea name={`seoDescription_${locale}`} rows="2" maxlength="300">{translation(locale)?.seoDescription ?? ''}</textarea>
+              </label>
+            </details>
+          </details>
+        ))
+      }
+    </fieldset>
+
+    <fieldset class="card" id="photos">
+      <legend>{f.photos}</legend>
+      {
+        photos.length > 0 && (
+          <ul class="photos">
+            {photos.map((photo, index) => (
+              <li>
+                <img src={imageUrl('animals', photo.file, 400)} alt="" width="200" height="200" loading="lazy" />
+                {index === 0 && <span class="badge badge--published">{f.main}</span>}
+                <div>
+                  {index > 0 && <button type="submit" form="photo-form" name="_action" value={`photo-main:${photo.id}`} title={f.makeMain} aria-label={f.makeMain}>★</button>}
+                  {index > 0 && <button type="submit" form="photo-form" name="_action" value={`photo-left:${photo.id}`} title={f.left} aria-label={f.left}>←</button>}
+                  {index < photos.length - 1 && <button type="submit" form="photo-form" name="_action" value={`photo-right:${photo.id}`} title={f.right} aria-label={f.right}>→</button>}
+                  <button type="submit" form="photo-form" name="_action" value={`photo-delete:${photo.id}`} title={f.remove} aria-label={f.remove}>✕</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      <label>
+        {f.addPhotos}
+        <input type="file" name="photos" accept="image/jpeg,image/png,image/webp" multiple />
+        <small>{f.photosHelp}</small>
+      </label>
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>{f.video}</legend>
+      <label>
+        {f.videoUrl}
+        <input type="url" name="videoUrl" value={values.videoUrl ?? ''} />
+      </label>
+      {
+        existing?.animal.videoFile && (
+          <>
+            <video controls preload="none" src={`/media/videos/${existing.animal.videoFile}`} />
+            <label class="check"><input type="checkbox" name="removeVideo" />{f.removeVideo}</label>
+          </>
+        )
+      }
+      <label>
+        {f.videoFile}
+        <input type="file" name="video" accept="video/mp4" />
+      </label>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn" type="submit">{isNew ? f.create : f.save}</button>
+      {!isNew && <button class="btn btn--danger" type="submit" form="photo-form" name="_action" value="delete" data-confirm={f.confirmDelete}>{f.delete}</button>}
+    </div>
+  </form>
+
+  {/* Photo and delete buttons live inside the main form visually, but submit this one. */}
+  <form id="photo-form" method="post"></form>
+
+  <script is:inline>
+    document.querySelectorAll('[data-confirm]').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        if (!confirm(button.dataset.confirm)) event.preventDefault();
+      });
+    });
+  </script>
+</Admin>

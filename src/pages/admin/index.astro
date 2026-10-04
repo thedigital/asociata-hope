@@ -1,0 +1,126 @@
+---
+import { and, asc, eq } from 'drizzle-orm';
+import { db, schema } from '../../db/client.ts';
+import { useAdminUi } from '../../i18n/admin.ts';
+import { formatAge, useUi } from '../../i18n/ui.ts';
+import Admin from '../../layouts/Admin.astro';
+import { moveAnimal } from '../../lib/admin-animals.ts';
+import { COLLECTIONS, findCollection } from '../../lib/animals.ts';
+import { imageUrl } from '../../lib/media.ts';
+import type { PageKey } from '../../lib/site.ts';
+import { STATUSES, ageInMonths, type Status } from '../../lib/taxonomy.ts';
+
+const user = Astro.locals.user!;
+const t = useAdminUi(user.locale);
+const ui = useUi(user.locale);
+const { animals, animalPhotos } = schema;
+
+const params = Astro.url.searchParams;
+const collection = findCollection(params.get('c') ?? '') ?? COLLECTIONS[0];
+const status = STATUSES.find((s) => s === params.get('status')) as Status | undefined;
+const search = (params.get('q') ?? '').trim().toLowerCase();
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const direction = form.get('move');
+  if (direction === 'up' || direction === 'down') moveAnimal(Number(form.get('id')), direction);
+  return Astro.redirect(Astro.url.pathname + Astro.url.search, 303);
+}
+
+const inCollection = and(eq(animals.species, collection.species), eq(animals.adoptionType, collection.adoptionType));
+const rows = db.select().from(animals).where(inCollection).orderBy(asc(animals.sortOrder), asc(animals.id)).all();
+const mainPhotos = new Map(
+  db
+    .select({ animalId: animalPhotos.animalId, file: animalPhotos.file })
+    .from(animalPhotos)
+    .innerJoin(animals, eq(animals.id, animalPhotos.animalId))
+    .where(and(inCollection, eq(animalPhotos.sortOrder, 0)))
+    .all()
+    .map((p) => [p.animalId, p.file]),
+);
+const visible = rows.filter((a) => (!status || a.status === status) && (!search || a.name.toLowerCase().includes(search)));
+// Reordering only makes sense on the complete, unfiltered collection.
+const canReorder = !status && !search;
+const tabUrl = (path: string) => `/admin?c=${path}`;
+---
+
+<Admin title={t.nav.animals}>
+  <div class="toolbar">
+    <h1>{t.nav.animals}</h1>
+    <a class="btn" href={`/admin/animals/new?c=${collection.path}`}>+ {t.list.add}</a>
+  </div>
+
+  <nav class="tabs">
+    {
+      COLLECTIONS.map((c) => (
+        <a href={tabUrl(c.path)} aria-current={c.path === collection.path ? 'page' : undefined}>
+          {ui.pages[c.path as PageKey]}
+        </a>
+      ))
+    }
+  </nav>
+
+  <form class="filters-bar" method="get">
+    <input type="hidden" name="c" value={collection.path} />
+    <input type="search" name="q" value={search} placeholder={t.list.search} aria-label={t.list.search} />
+    <select name="status" aria-label={t.list.status}>
+      <option value="">{t.list.all}</option>
+      {STATUSES.map((s) => <option value={s} selected={s === status}>{t.status[s]}</option>)}
+    </select>
+    <button class="btn btn--light" type="submit">OK</button>
+  </form>
+
+  {
+    visible.length === 0 ? (
+      <p class="card">{t.list.empty}</p>
+    ) : (
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{t.list.photo}</th>
+            <th>{t.list.name}</th>
+            <th>{t.list.age}</th>
+            <th>{t.list.status}</th>
+            {canReorder && <th>{t.list.order}</th>}
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {visible.map((animal, index) => (
+            <tr>
+              <td>{mainPhotos.has(animal.id) && <img src={imageUrl('animals', mainPhotos.get(animal.id)!, 160)} alt="" width="56" height="56" loading="lazy" />}</td>
+              <td>
+                <a href={`/admin/animals/${animal.id}`}>
+                  <strong>{animal.name}</strong>
+                </a>
+              </td>
+              <td>
+                {animal.birthDate ? formatAge(ui, ageInMonths(animal.birthDate)) : '—'}
+                {animal.birthDateEstimated && <small title={t.list.estimated}> ≈</small>}
+              </td>
+              <td>
+                <span class={`badge badge--${animal.status}`}>{t.status[animal.status]}</span>
+              </td>
+              {canReorder && (
+                <td>
+                  <form class="order" method="post">
+                    <input type="hidden" name="id" value={animal.id} />
+                    <button type="submit" name="move" value="up" disabled={index === 0} title={t.list.up} aria-label={t.list.up}>
+                      ↑
+                    </button>
+                    <button type="submit" name="move" value="down" disabled={index === visible.length - 1} title={t.list.down} aria-label={t.list.down}>
+                      ↓
+                    </button>
+                  </form>
+                </td>
+              )}
+              <td>
+                <a href={`/admin/animals/${animal.id}`}>{t.list.edit}</a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+</Admin>
