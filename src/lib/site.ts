@@ -46,6 +46,4 @@ export const NAV: NavItem[] = [
 ];
 
 /** Paths that no longer exist, with their permanent redirect target. */
-export const LEGACY_REDIRECTS: Record<string, string> = {
-  '/shop': '/',
-};
+export const LEGACY_REDIRECTS: Record<string, string> = {};
