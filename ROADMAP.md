@@ -77,6 +77,10 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 ### Qualité
 - [ ] Pas de suite de tests en dehors de `pnpm seo:check`. Au minimum : redirections, formulaire de contact, connexion admin.
 - [ ] Comparaison visuelle page par page sur ordinateur et mobile, et audit de performance.
+- [ ] Analyse de sécurité complète : connexion admin et sessions, envoi de fichiers, formulaires publics, route `/donate`, en-têtes, dépendances.
+
+### Design
+- [ ] Revoir le design de toutes les pages pour les rendre plus lisibles et plus modernes, et harmoniser les couleurs.
 
 ## 3. Écarts voulus (rien à faire)
 
