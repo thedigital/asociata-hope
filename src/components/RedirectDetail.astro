@@ -1,0 +1,39 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { useUi } from '../i18n/ui.ts';
+import { redirectCampaign } from '../lib/redirect-form.ts';
+import RedirectActions from './RedirectActions.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+/**
+ * Detailed version of the 3.5 % redirection: the body of the redirection page, in every language.
+ * It replaces the text stored for that page, which carried a fixed year and a permanent link to an
+ * online form that is closed seven months a year.
+ */
+const { locale } = Astro.props;
+const t = useUi(locale).homePage;
+const campaign = redirectCampaign();
+---
+
+<p>{t.redirectPageLead}</p>
+
+<h2>{t.redirectPageFreeTitle}</h2>
+<p>{t.redirectPageFree(campaign.incomeYear)}</p>
+
+<h2>{t.redirectPageHowTitle}</h2>
+<ul>
+  <li>{t.redirectPageOnline}</li>
+  <li>{t.redirectPagePaper}</li>
+</ul>
+<RedirectActions locale={locale} note={false} />
+
+<h2>{t.redirectPageRealityTitle}</h2>
+<p>{t.redirectPageCosts}</p>
+<ul>
+  {t.redirectFacts.map((fact) => <li>{fact}</li>)}
+</ul>
+<p>{t.redirectPageEvery}</p>
+<p>{t.redirectPageThanks}</p>

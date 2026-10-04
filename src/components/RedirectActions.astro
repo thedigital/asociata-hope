@@ -1,0 +1,34 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { localizePath } from '../i18n/config.ts';
+import { useUi } from '../i18n/ui.ts';
+import { REDIRECT_FORM_PDF, redirectCampaign } from '../lib/redirect-form.ts';
+import { REDIRECT_FORM_URL } from '../lib/site.ts';
+
+interface Props {
+  locale: Locale;
+  /** False where the surrounding text already explains the two ways of sending the form. */
+  note?: boolean;
+}
+
+const { locale, note = true } = Astro.props;
+const ui = useUi(locale);
+const t = ui.homePage;
+// The online form only exists during the campaign; the paper form is offered all year.
+const campaign = redirectCampaign();
+---
+
+<p class="redirect-actions">
+  {campaign.open && <a class="button" href={REDIRECT_FORM_URL} rel="noopener" target="_blank">{t.redirectLink}</a>}
+  <a class={campaign.open ? 'button button--sand' : 'button'} href={REDIRECT_FORM_PDF}>{t.redirectDownload} {campaign.incomeYear}</a>
+</p>
+{
+  // With `note`, the two ways of sending the form are explained here; without it, only what the
+  // surrounding text cannot know: when the online form opens again.
+  (note || !campaign.open) && (
+    <p class="form-note">
+      {note ? (campaign.open ? t.redirectPaper : t.redirectClosed(campaign.filingYear)) : t.redirectReopens(campaign.filingYear)}{' '}
+      <a href={localizePath('/contact', locale)}>{ui.pages.contact}</a>
+    </p>
+  )
+}

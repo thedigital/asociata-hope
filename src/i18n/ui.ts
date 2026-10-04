@@ -26,13 +26,34 @@ export type Ui = {
     donateTitle: string;
     donateText: string;
     redirectTitle: string;
-    redirectIntro: string;
+    /** The year is the income year of the form (`redirectCampaign`). */
+    redirectIntro: (year: number) => string;
+    /** Shown only while the online form is open. */
+    redirectOnline: string;
+    /** Shown the rest of the year; the year is the one in which the online form opens again. */
+    redirectClosed: (year: number) => string;
+    redirectPaper: string;
     redirectLink: string;
     redirectDownload: string;
     redirectForms: string;
     redirectCosts: string;
     redirectFacts: string[];
     redirectThanks: string;
+    /** Label of the link from the short block to the redirection page. */
+    redirectMore: string;
+    /** Shown under the buttons of the redirection page when the online form is closed. */
+    redirectReopens: (year: number) => string;
+    /** Detailed version, on the redirection page (`RedirectDetail.astro`). */
+    redirectPageLead: string;
+    redirectPageFreeTitle: string;
+    redirectPageFree: (year: number) => string;
+    redirectPageHowTitle: string;
+    redirectPageOnline: string;
+    redirectPagePaper: string;
+    redirectPageRealityTitle: string;
+    redirectPageCosts: string;
+    redirectPageEvery: string;
+    redirectPageThanks: string;
   };
   cta: { dogs: Cta; cats: Cta; donate: Cta; volunteer: Cta };
   animal: {
@@ -121,21 +142,35 @@ const ro: Ui = {
     virtualDogs: 'Adoptii virtuale caini',
     donateTitle: 'Doneaza',
     donateText: 'Doneaza pentru ingrijirea cateilor si pisicilor Asociatiei pentru protectia animalelor HOPE',
-    redirectTitle: 'Redirectionare 3,5%',
-    redirectIntro:
-      'Printr-un gest GRATUIT puteti ajuta 170 de catei si pisicute. Completati va rugam formularul pentru directionarea a 3,5% din impozitul salarial pentru anul 2025. Dureaza 1 minut, este simplu, este online:',
-    redirectLink: 'Completeaza formularul',
-    redirectDownload: 'Descarca formular',
-    redirectForms: 'Toate formularele completate si semnate ajung automat la noi pe email iar ulterior le depunem la ANAF.',
-    redirectCosts: 'Cheltuielile lunare sunt uriase pentru a le asigura tuturor hrana si tratamentele.',
+    redirectTitle: 'Redirecționare 3,5%',
+    redirectIntro: (year) => `Printr-un gest GRATUIT puteți ajuta 170 de căței și pisicuțe. Completați, vă rugăm, formularul pentru direcționarea a 3,5% din impozitul pe salariu pentru anul ${year}.`,
+    redirectOnline: 'Durează 1 minut, este simplu, este online:',
+    redirectClosed: (year) => `Formularul online este deschis între 1 ianuarie și 25 mai și se redeschide la 1 ianuarie ${year}. Până atunci puteți descărca formularul pe hârtie, deja completat cu datele asociației: adăugați datele dumneavoastră, semnați-l și contactați-ne pentru a ni-l trimite.`,
+    redirectPaper: 'Preferați varianta pe hârtie? Descărcați formularul deja completat cu datele asociației, adăugați datele dumneavoastră, semnați-l și contactați-ne pentru a ni-l trimite.',
+    redirectLink: 'Completează formularul',
+    redirectDownload: 'Descarcă formularul',
+    redirectForms: 'Toate formularele completate și semnate ajung automat la noi pe email, iar ulterior le depunem la ANAF.',
+    redirectCosts: 'Cheltuielile lunare sunt uriașe pentru a le asigura tuturor hrana și tratamentele.',
     redirectFacts: [
-      '50 de animalute au varsta intre 10 si 17 ani.',
-      '3 pisici sunt oarbe complet.',
-      '2 catei sunt paralizati.',
-      '2 catei au alte dizabilitati.',
-      '170 de animalute ingrijim in total.',
+      '50 de animaluțe au vârste între 10 și 17 ani.',
+      '3 pisici sunt complet oarbe.',
+      '2 căței sunt paralizați.',
+      '2 căței au alte dizabilități.',
+      'În total, îngrijim 170 de animaluțe.',
     ],
-    redirectThanks: 'Va multumim pentru fiecare formular completat, semnat si trimis pentru animalutele Hope.',
+    redirectThanks: 'Vă mulțumim pentru fiecare formular completat, semnat și trimis pentru animaluțele Hope.',
+    redirectMore: 'Totul despre redirecționarea a 3,5%',
+    redirectReopens: (year) => `Formularul online se redeschide la 1 ianuarie ${year}. Pentru a ne trimite formularul pe hârtie:`,
+    redirectPageLead: 'Prin intermediul contribuțiilor tale ne vei ajuta să oferim o viață mai bună animalelor abandonate, în fiecare zi.',
+    redirectPageFreeTitle: 'Un gest GRATUIT care poate schimba vieți',
+    redirectPageFree: (year) => `Prin completarea formularului de redirecționare a 3,5% din impozitul pe salariu pentru anul ${year}, poți ajuta 170 de căței și pisicuțe care depind zilnic de noi.`,
+    redirectPageHowTitle: 'Cum procedezi',
+    redirectPageOnline: 'Online, între 1 ianuarie și 25 mai: durează doar 1 minut, este simplu și nu te costă nimic. Toate formularele completate și semnate ajung automat la noi pe email, iar noi ne ocupăm de depunerea lor la ANAF.',
+    redirectPagePaper: 'Pe hârtie, tot anul: descarcă formularul deja completat cu datele asociației, adaugă datele tale, semnează-l și contactează-ne pentru a ni-l trimite.',
+    redirectPageRealityTitle: 'Realitatea din spatele cifrelor',
+    redirectPageCosts: 'Cheltuielile lunare sunt uriașe pentru a le asigura tuturor hrană, tratamente și îngrijire medicală:',
+    redirectPageEvery: 'Fiecare formular contează. Fiecare semnătură înseamnă hrană, medicamente și o șansă la o viață mai bună.',
+    redirectPageThanks: 'Îți mulțumim din suflet pentru fiecare formular completat și trimis pentru animaluțele Hope. Pentru ele, acest gest mic înseamnă enorm.',
   },
   cta: {
     dogs: { title: 'Adoptii caini', text: 'Descoperă toți câinii disponibili pentru adopție', button: 'Vezi caini' },
@@ -259,8 +294,10 @@ const en: Ui = {
     donateTitle: 'Donate',
     donateText: 'Donate to support the care of the dogs and cats of the HOPE Animal Protection Association',
     redirectTitle: 'Redirect 3.5% of your income tax',
-    redirectIntro:
-      'With a FREE gesture you can help 170 dogs and cats. Please fill in the form to redirect 3.5% of your 2025 income tax. It takes one minute, it is simple and it is online:',
+    redirectIntro: (year) => `With a FREE gesture you can help 170 dogs and cats. Please fill in the form to redirect 3.5% of your ${year} income tax.`,
+    redirectOnline: 'It takes one minute, it is simple and it is online:',
+    redirectClosed: (year) => `The online form is open from 1 January to 25 May and opens again on 1 January ${year}. Until then you can download the paper form, already filled in with the association’s details: add your own, sign it and contact us to send it.`,
+    redirectPaper: 'Prefer paper? Download the form already filled in with the association’s details, add your own, sign it and contact us to send it.',
     redirectLink: 'Fill in the form',
     redirectDownload: 'Download the form',
     redirectForms: 'All completed and signed forms reach us automatically by email, and we then submit them to ANAF (the Romanian tax authority).',
@@ -273,6 +310,18 @@ const en: Ui = {
       'We care for 170 animals in total.',
     ],
     redirectThanks: 'Thank you for every form completed, signed and sent for the Hope animals.',
+    redirectMore: 'All about redirecting 3.5% of your tax',
+    redirectReopens: (year) => `The online form opens again on 1 January ${year}. To send us the paper form:`,
+    redirectPageLead: 'Through your contributions, you help us give abandoned animals a better life, every day.',
+    redirectPageFreeTitle: 'A FREE gesture that can change lives',
+    redirectPageFree: (year) => `By completing the form that redirects 3.5% of your ${year} income tax, you help 170 dogs and cats who depend on us every day.`,
+    redirectPageHowTitle: 'How to do it',
+    redirectPageOnline: 'Online, from 1 January to 25 May: it only takes one minute, it is simple and it costs you nothing. Completed and signed forms reach us automatically by email, and we submit them to ANAF (the Romanian tax authority).',
+    redirectPagePaper: 'On paper, all year round: download the form already filled in with the association’s details, add your own, sign it and contact us to send it.',
+    redirectPageRealityTitle: 'The reality behind the numbers',
+    redirectPageCosts: 'The monthly costs of providing food, treatment and medical care for all of them are huge:',
+    redirectPageEvery: 'Every form counts. Every signature means food, medicine and a chance at a better life.',
+    redirectPageThanks: 'Thank you from the bottom of our hearts for every form completed and sent for the Hope animals. For them, this small gesture means a lot.',
   },
   cta: {
     dogs: { title: 'Dogs for adoption', text: 'Discover all the dogs available for adoption', button: 'See the dogs' },
@@ -396,8 +445,10 @@ const fr: Ui = {
     donateTitle: 'Faire un don',
     donateText: 'Soutenez les chiens et les chats de l’association HOPE en faisant un don',
     redirectTitle: 'Redirection de 3,5 % de votre impôt sur le revenu',
-    redirectIntro:
-      'Un geste GRATUIT suffit pour aider 170 chiens et chats. Remplissez le formulaire pour reverser 3,5 % de votre impôt sur le revenu 2025. Cela prend une minute, c’est simple et en ligne :',
+    redirectIntro: (year) => `Un geste GRATUIT suffit pour aider 170 chiens et chats. Remplissez le formulaire pour reverser 3,5 % de votre impôt sur le revenu ${year}.`,
+    redirectOnline: 'Cela prend une minute, c’est simple et en ligne :',
+    redirectClosed: (year) => `Le formulaire en ligne est ouvert du 1er janvier au 25 mai et rouvrira le 1er janvier ${year}. D’ici là, vous pouvez télécharger le formulaire papier, déjà rempli avec les coordonnées de l’association : ajoutez les vôtres, signez-le et contactez-nous pour nous le transmettre.`,
+    redirectPaper: 'Vous préférez le papier ? Téléchargez le formulaire déjà rempli avec les coordonnées de l’association, ajoutez les vôtres, signez-le et contactez-nous pour nous le transmettre.',
     redirectLink: 'Remplir le formulaire',
     redirectDownload: 'Télécharger le formulaire',
     redirectForms: 'Tous les formulaires remplis et signés nous parviennent automatiquement par e-mail, puis nous les déposons auprès de l’ANAF (l’administration fiscale roumaine).',
@@ -410,6 +461,18 @@ const fr: Ui = {
       'Nous prenons soin de 170 animaux au total.',
     ],
     redirectThanks: 'Merci pour chaque formulaire rempli, signé et envoyé pour les animaux de Hope.',
+    redirectMore: 'Tout savoir sur la redirection de 3,5 %',
+    redirectReopens: (year) => `Le formulaire en ligne rouvrira le 1er janvier ${year}. Pour nous transmettre le formulaire papier :`,
+    redirectPageLead: 'Grâce à votre contribution, vous nous aidez à offrir chaque jour une vie meilleure aux animaux abandonnés.',
+    redirectPageFreeTitle: 'Un geste GRATUIT qui peut changer des vies',
+    redirectPageFree: (year) => `En remplissant le formulaire de redirection de 3,5 % de votre impôt sur le revenu ${year}, vous aidez 170 chiens et chats qui dépendent de nous au quotidien.`,
+    redirectPageHowTitle: 'Comment faire',
+    redirectPageOnline: 'En ligne, du 1er janvier au 25 mai : cela ne prend qu’une minute, c’est simple et cela ne vous coûte rien. Les formulaires remplis et signés nous parviennent automatiquement par e-mail, et nous nous chargeons de les déposer auprès de l’ANAF (l’administration fiscale roumaine).',
+    redirectPagePaper: 'Sur papier, toute l’année : téléchargez le formulaire déjà rempli avec les coordonnées de l’association, ajoutez les vôtres, signez-le et contactez-nous pour nous le transmettre.',
+    redirectPageRealityTitle: 'La réalité derrière les chiffres',
+    redirectPageCosts: 'Les dépenses mensuelles sont énormes pour assurer à tous nourriture, traitements et soins médicaux :',
+    redirectPageEvery: 'Chaque formulaire compte. Chaque signature, c’est de la nourriture, des médicaments et la chance d’une vie meilleure.',
+    redirectPageThanks: 'Nous vous remercions du fond du cœur pour chaque formulaire rempli et envoyé pour les animaux de Hope. Pour eux, ce petit geste compte énormément.',
   },
   cta: {
     dogs: { title: 'Chiens à adopter', text: 'Découvrez tous les chiens disponibles à l’adoption', button: 'Voir les chiens' },
@@ -533,8 +596,10 @@ const de: Ui = {
     donateTitle: 'Spenden',
     donateText: 'Unterstützen Sie mit Ihrer Spende die Hunde und Katzen des Tierschutzvereins HOPE',
     redirectTitle: '3,5 % der Einkommensteuer umleiten',
-    redirectIntro:
-      'Mit einer KOSTENLOSEN Geste können Sie 170 Hunden und Katzen helfen. Füllen Sie das Formular aus, um 3,5 % Ihrer Einkommensteuer 2025 umzuleiten. Es dauert eine Minute, ist einfach und online:',
+    redirectIntro: (year) => `Mit einer KOSTENLOSEN Geste können Sie 170 Hunden und Katzen helfen. Füllen Sie das Formular aus, um 3,5 % Ihrer Einkommensteuer ${year} umzuleiten.`,
+    redirectOnline: 'Es dauert eine Minute, ist einfach und online:',
+    redirectClosed: (year) => `Das Online-Formular ist vom 1. Januar bis zum 25. Mai geöffnet und öffnet wieder am 1. Januar ${year}. Bis dahin können Sie das Papierformular herunterladen, das bereits mit den Angaben des Vereins ausgefüllt ist: Ergänzen Sie Ihre Angaben, unterschreiben Sie es und kontaktieren Sie uns für die Übermittlung.`,
+    redirectPaper: 'Lieber auf Papier? Laden Sie das bereits mit den Angaben des Vereins ausgefüllte Formular herunter, ergänzen Sie Ihre Angaben, unterschreiben Sie es und kontaktieren Sie uns für die Übermittlung.',
     redirectLink: 'Formular ausfüllen',
     redirectDownload: 'Formular herunterladen',
     redirectForms: 'Alle ausgefüllten und unterschriebenen Formulare erreichen uns automatisch per E-Mail; wir reichen sie anschließend bei der ANAF (der rumänischen Steuerbehörde) ein.',
@@ -547,6 +612,18 @@ const de: Ui = {
       'Insgesamt versorgen wir 170 Tiere.',
     ],
     redirectThanks: 'Vielen Dank für jedes Formular, das für die Hope-Tiere ausgefüllt, unterschrieben und abgeschickt wird.',
+    redirectMore: 'Alles zur Umleitung von 3,5 %',
+    redirectReopens: (year) => `Das Online-Formular öffnet wieder am 1. Januar ${year}. So erreichen Sie uns für das Papierformular:`,
+    redirectPageLead: 'Mit Ihrem Beitrag helfen Sie uns, verlassenen Tieren jeden Tag ein besseres Leben zu ermöglichen.',
+    redirectPageFreeTitle: 'Eine KOSTENLOSE Geste, die Leben verändern kann',
+    redirectPageFree: (year) => `Mit dem Formular zur Umleitung von 3,5 % Ihrer Einkommensteuer ${year} helfen Sie 170 Hunden und Katzen, die täglich auf uns angewiesen sind (für Steuerpflichtige in Rumänien).`,
+    redirectPageHowTitle: 'So geht es',
+    redirectPageOnline: 'Online, vom 1. Januar bis zum 25. Mai: Es dauert nur eine Minute, ist einfach und kostet Sie nichts. Die ausgefüllten und unterschriebenen Formulare erreichen uns automatisch per E-Mail; wir reichen sie bei der ANAF (der rumänischen Steuerbehörde) ein.',
+    redirectPagePaper: 'Auf Papier, das ganze Jahr über: Laden Sie das bereits mit den Angaben des Vereins ausgefüllte Formular herunter, ergänzen Sie Ihre Angaben, unterschreiben Sie es und kontaktieren Sie uns für die Übermittlung.',
+    redirectPageRealityTitle: 'Die Wirklichkeit hinter den Zahlen',
+    redirectPageCosts: 'Die monatlichen Kosten für Futter, Behandlungen und medizinische Versorgung aller Tiere sind enorm:',
+    redirectPageEvery: 'Jedes Formular zählt. Jede Unterschrift bedeutet Futter, Medikamente und die Chance auf ein besseres Leben.',
+    redirectPageThanks: 'Wir danken Ihnen von Herzen für jedes Formular, das für die Hope-Tiere ausgefüllt und abgeschickt wird. Für sie bedeutet diese kleine Geste sehr viel.',
   },
   cta: {
     dogs: { title: 'Hunde zur Adoption', text: 'Entdecken Sie alle Hunde, die ein Zuhause suchen', button: 'Hunde ansehen' },

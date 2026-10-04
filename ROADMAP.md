@@ -43,6 +43,10 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [ ] **Dons Stripe** : test réel avec les clés de l'association (`STRIPE_SECRET_KEY`), en paiement unique et mensuel.
 - [ ] **E-mail du formulaire de contact** : configurer `SMTP_URL`, `MAIL_FROM`, `CONTACT_TO` et tester un envoi réel.
 - [ ] Le site réel a un module de don directement sur la page d'accueil (une fois / mensuel, montant). En local l'accueil n'a qu'un lien vers `/doneaza`. À remettre ou à assumer.
+- [x] **Formulaire 230 (redirection de 3,5 %)** : le scan pré-rempli pour 2023 est remplacé par `/formular-230.pdf`, généré à partir du formulaire vierge d'ANAF avec la bonne année et les coordonnées de l'association, mis en cache par année. Le bouton vers le formulaire en ligne n'apparaît que du 1er janvier au 25 mai ; le reste de l'année, seul le formulaire papier est proposé, avec la date de réouverture.
+- [x] **Textes sur la redirection harmonisés** : un seul bloc court, identique sur l'accueil et sur `/doneaza`, et une version détaillée sur `/redirectioneaza`, dans les quatre langues, avec l'année calculée. Les textes Wix correspondants (année 2025 en dur, lien permanent vers le formulaire en ligne) ne sont plus affichés.
+- [ ] Faire relire par l'association les textes de la redirection, surtout en roumain : la version détaillée reprend le texte Wix (tutoiement, diacritiques), le bloc court vouvoie comme l'accueil d'origine, et ses diacritiques ont été ajoutés lors de la refonte.
+- [ ] Formulaire 230, à confirmer avec l'association : que le modèle d'ANAF utilisé (`230_OPANAF_15_2021.pdf`) est toujours celui en vigueur ; comment un formulaire papier doit lui être transmis (le site renvoie aujourd'hui vers la page de contact, faute d'adresse d'envoi).
 - [ ] Créer les comptes admin de l'association (`pnpm user:create`) ; il n'y a qu'un compte aujourd'hui.
 
 ### Hébergement et bascule

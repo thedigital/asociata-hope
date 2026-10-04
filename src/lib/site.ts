@@ -4,6 +4,9 @@ export const SITE = {
   name: 'Hope',
   legalName: 'Asociatia Pentru Protectia Animalelor HOPE',
   email: 'asociatia.animale.hope@gmail.com',
+  /** Tax identification number and RON account, as written on the 3.5 % redirection form. */
+  fiscalCode: '36067265',
+  iban: 'RO63INGB0000999905937826',
   social: {
     facebook: 'https://www.facebook.com/Hope.Animal.Protection.Organization/',
     instagram: 'https://www.instagram.com/asociatia_hope',
@@ -71,4 +74,7 @@ export const UNLISTED_PAGES: readonly ContentPage[] = ['donation-thank-you-page'
 export const REMOVED_PATHS: readonly string[] = ['/shop'];
 
 /** Paths that no longer exist, with their permanent redirect target. */
-export const LEGACY_REDIRECTS: Record<string, string> = {};
+export const LEGACY_REDIRECTS: Record<string, string> = {
+  // The scanned redirection form of 2023, replaced by the form generated for the current year.
+  '/files/313291_0ee1b28245244859bb09190fb50db677.pdf': '/formular-230.pdf',
+};

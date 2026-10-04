@@ -12,8 +12,9 @@ import { bodyOutline } from '../src/lib/page-body.ts';
 import { CONTENT_PAGES } from '../src/lib/site.ts';
 
 let problems = 0;
-// The body of "In memoriam" is not displayed: the page is built from the deceased animals.
-const checked = CONTENT_PAGES.filter((page) => page !== 'in-memoriam');
+// Two stored bodies are not displayed: "In memoriam" is built from the deceased animals, the
+// redirection page from interface strings (RedirectDetail.astro).
+const checked = CONTENT_PAGES.filter((page) => page !== 'in-memoriam' && page !== 'redirectioneaza');
 for (const slug of checked) {
   const rows = db
     .select({ locale: schema.pageTranslations.locale, body: schema.pageTranslations.body })

@@ -4,7 +4,7 @@ import { localizePath } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import { imageSize } from '../lib/image-size.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
-import { REDIRECT_FORM_URL } from '../lib/site.ts';
+import RedirectSummary from './RedirectSummary.astro';
 
 interface Props {
   locale: Locale;
@@ -29,7 +29,6 @@ const sponsorships = [
 // Uncropped pictures keep their own proportions: the size is read from the file, never written here.
 const heroSize = await imageSize('pages', HERO);
 const sanctuarySize = await imageSize('pages', SANCTUARY);
-const FORM_PDF = '313291_0ee1b28245244859bb09190fb50db677.pdf';
 ---
 
 <section class="hero">
@@ -88,18 +87,6 @@ const FORM_PDF = '313291_0ee1b28245244859bb09190fb50db677.pdf';
 <section class="home-section home-redirect">
   <img src={imageUrl('pages', SANCTUARY, 800)} srcset={srcset('pages', SANCTUARY, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt="" width={sanctuarySize?.width} height={sanctuarySize?.height} loading="lazy" />
   <div>
-    <h2>{t.redirectTitle}</h2>
-    <p>{t.redirectIntro}</p>
-    <p class="home-redirect__actions">
-      <a class="button" href={REDIRECT_FORM_URL} rel="noopener" target="_blank">{t.redirectLink}</a>
-      <a class="button button--sand" href={`/files/${FORM_PDF}`}>{t.redirectDownload}</a>
-    </p>
-    <p>{t.redirectForms}</p>
-    <p>{t.redirectCosts}</p>
-    <ul>
-      {t.redirectFacts.map((fact) => <li>{fact}</li>)}
-    </ul>
-    <p>{t.redirectThanks}</p>
-    <p><a href={href('/redirectioneaza')}>{ui.pages.redirectioneaza} ›</a></p>
+    <RedirectSummary locale={locale} />
   </div>
 </section>

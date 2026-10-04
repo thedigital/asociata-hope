@@ -1,0 +1,34 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { localizePath } from '../i18n/config.ts';
+import { useUi } from '../i18n/ui.ts';
+import { redirectCampaign } from '../lib/redirect-form.ts';
+import RedirectActions from './RedirectActions.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+/**
+ * Short presentation of the 3.5 % redirection, identical wherever it appears (home page, donation
+ * page). The detailed version is the redirection page itself (`RedirectDetail.astro`).
+ */
+const { locale } = Astro.props;
+const ui = useUi(locale);
+const t = ui.homePage;
+const campaign = redirectCampaign();
+---
+
+<h2>{t.redirectTitle}</h2>
+<p>
+  {t.redirectIntro(campaign.incomeYear)}
+  {campaign.open && t.redirectOnline}
+</p>
+<RedirectActions locale={locale} />
+{campaign.open && <p>{t.redirectForms}</p>}
+<p>{t.redirectCosts}</p>
+<ul>
+  {t.redirectFacts.map((fact) => <li>{fact}</li>)}
+</ul>
+<p>{t.redirectThanks}</p>
+<p><a href={localizePath('/redirectioneaza', locale)}>{t.redirectMore} ›</a></p>
