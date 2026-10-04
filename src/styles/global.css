@@ -2552,35 +2552,179 @@ fieldset[aria-invalid='true'] {
 /* Call-to-action tiles and footer */
 .cta-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-  gap: clamp(1.5rem, 3vw, 2.5rem);
+  gap: clamp(1rem, 2vw, 1.5rem);
   padding: clamp(2.5rem, 6vw, 4.5rem) max(var(--gutter), (100% - 1240px) / 2);
   background: var(--surface);
   border-top: 1px solid var(--line);
-  text-align: center;
 }
 
+/* Each tile is one link: icon, title, sentence, then the action with its drawn arrow pushed to the bottom. */
 .cta-tiles__tile {
+  --tile-accent: var(--teal);
+  position: relative;
+  isolation: isolate;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  justify-items: center;
-  gap: 0.9rem;
+  grid-template-rows: auto auto 1fr auto;
+  justify-items: start;
+  gap: 0.75rem;
+  overflow: hidden;
+  padding: clamp(1.4rem, 3vw, 1.9rem);
+  border-radius: var(--radius);
+  background: var(--green-pale);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+/* Soft disc in the corner, which grows when the tile is pointed at. */
+.cta-tiles__tile::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -70px;
+  right: -70px;
+  width: 190px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.55);
+  transition: scale 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.cta-tiles__tile--help {
+  --tile-accent: var(--orange-dark);
+  background: var(--sand-pale);
+}
+
+/* Giving is the tile that stands out: the ground of the title bands. */
+.cta-tiles__tile--give {
+  background: linear-gradient(140deg, var(--teal-dark), var(--teal) 45%, var(--green-deep));
+  color: #fff;
+}
+
+.cta-tiles__tile--give::before {
+  background: rgb(214 240 190 / 0.14);
+}
+
+.cta-tiles__icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 0.4rem;
+  padding: 13px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  fill: none;
+  stroke: var(--tile-accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: rotate 0.3s, scale 0.3s;
+}
+
+.cta-tiles__tile--give .cta-tiles__icon {
+  background: var(--orange);
+  box-shadow: none;
+  fill: #fff;
+  stroke: #fff;
 }
 
 .cta-tiles h2 {
   margin: 0;
-  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
+  font-size: var(--title-3);
+}
+
+.cta-tiles__tile--give h2 {
+  color: #fff;
 }
 
 .cta-tiles p {
-  max-width: 28ch;
   margin: 0;
   color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.55;
+}
+
+.cta-tiles__tile--give p {
+  color: rgb(255 255 255 / 0.85);
+}
+
+.cta-tiles__more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 0.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(11 31 22 / 0.1);
+  color: var(--tile-accent);
+  font-size: var(--text-small);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.cta-tiles__tile--give .cta-tiles__more {
+  border-top-color: rgb(255 255 255 / 0.2);
+  color: #fff;
+}
+
+/* Drawn arrow, as on the home tiles. */
+.cta-tiles__more::after {
+  content: '';
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--tile-accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / 18px no-repeat;
+  transition: translate 0.2s, background-color 0.2s;
+}
+
+.cta-tiles__tile--give .cta-tiles__more::after {
+  background-color: var(--orange);
+}
+
+.cta-tiles__tile:hover {
+  box-shadow: var(--shadow-raised);
+  color: var(--ink);
+  transform: translateY(-4px);
+}
+
+.cta-tiles__tile--give:hover {
+  color: #fff;
+}
+
+.cta-tiles__tile:hover::before {
+  scale: 1.5;
+}
+
+.cta-tiles__tile:hover .cta-tiles__icon {
+  rotate: -8deg;
+  scale: 1.08;
+}
+
+.cta-tiles__tile:hover .cta-tiles__more::after {
+  background-color: var(--orange);
+  translate: 4px 0;
+}
+
+.cta-tiles__tile--give:hover .cta-tiles__more::after {
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c5431d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+}
+
+/* One, two or four columns: never three, which would leave a tile alone on its row. */
+@media (min-width: 560px) {
+  .cta-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1000px) {
+  .cta-tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .site-footer {
