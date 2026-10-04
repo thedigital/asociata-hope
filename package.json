@@ -1,0 +1,34 @@
+{
+  "name": "hope",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "start": "node dist/server/entry.mjs",
+    "check": "astro check",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node scripts/migrate.ts",
+    "user:create": "node scripts/create-user.ts",
+    "crawl": "node scripts/migration/crawl.ts",
+    "import:animals": "node scripts/migration/import-animals.ts"
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.1.6",
+    "@node-rs/argon2": "^2.2.1",
+    "astro": "^7.3.5",
+    "better-sqlite3": "^13.0.3",
+    "drizzle-orm": "^0.45.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.4",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^6.0.3"
+  }
+}
