@@ -40,7 +40,9 @@ const sanctuarySize = await imageSize('pages', SANCTUARY);
         <a class="button button--light" href={href('/adoptii-pisici')}>{ui.cta.cats.button}</a>
       </p>
     </div>
-    <img src={imageUrl('pages', HERO, 800)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 900px) 620px, 100vw" alt="" width={heroSize?.width} height={heroSize?.height} fetchpriority="high" />
+    <div class="hero__photo">
+      <img src={imageUrl('pages', HERO, 800)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 900px) 620px, 100vw" alt="" width={heroSize?.width} height={heroSize?.height} fetchpriority="high" />
+    </div>
   </div>
 </section>
 
