@@ -1,5 +1,6 @@
 import type { AdminLocale } from './config.ts';
 import type { FormError } from '../lib/admin-animals.ts';
+import type { IssueCode } from '../lib/animal-checks.ts';
 import type { AdoptionType, Species, Status } from '../lib/taxonomy.ts';
 
 /** Strings of the admin interface (Romanian and French). Taxonomy labels come from `ui.ts`. */
@@ -58,6 +59,17 @@ export type AdminUi = {
     videoRejected: string;
   };
   errors: Record<FormError, string>;
+  issues: {
+    title: (errors: number, warnings: number) => string;
+    intro: string;
+    column: string;
+    none: string;
+    filter: string;
+    error: string;
+    warning: string;
+    languages: string;
+    messages: Record<IssueCode, string>;
+  };
   species: Record<Species, string>;
   adoptionType: Record<AdoptionType, string>;
   status: Record<Status, string>;
@@ -148,6 +160,31 @@ const ro: AdminUi = {
     birthDate: 'Data nasterii nu este valida.',
     videoUrl: 'Linkul video trebuie sa inceapa cu http:// sau https://.',
     invalid: 'Formularul contine o valoare nevalida.',
+  },
+  issues: {
+    title: (errors, warnings) => [errors ? `${errors} ${errors === 1 ? 'anomalie' : 'anomalii'}` : '', warnings ? `${warnings} de verificat` : ''].filter(Boolean).join(', '),
+    intro: 'Aceste puncte sunt detectate automat din datele fisei. Dispar imediat ce sunt corectate.',
+    column: 'Anomalii',
+    none: 'Fara anomalii',
+    filter: 'Doar fisele cu anomalii',
+    error: 'De corectat',
+    warning: 'De verificat',
+    languages: 'Limbi',
+    messages: {
+      noPhoto: 'Nicio fotografie.',
+      noSex: 'Sexul nu este completat.',
+      noBirthDate: 'Data nasterii nu este completata: varsta nu poate fi afisata.',
+      noSize: 'Talia nu este completata.',
+      noColor: 'Coloritul nu este completat.',
+      noTraits: 'Niciun caracter selectat.',
+      noDescription: 'Descrierea in romana lipseste sau este prea scurta.',
+      missingTranslation: 'Traducerea descrierii lipseste.',
+      untranslated: 'Descrierea este identica cu textul in romana (netradusa).',
+      nameMissing: 'Numele animalului nu apare in traducere (posibil tradus din greseala).',
+      missingSeo: 'Titlul sau descrierea SEO lipseste.',
+      seoTooLong: 'Titlul SEO depaseste 65 de caractere sau descrierea SEO 200.',
+      birthDateEstimated: 'Data nasterii este estimata: de verificat, apoi debifati „Data estimata”.',
+    },
   },
   species: { dog: 'Caine', cat: 'Pisica' },
   adoptionType: { real: 'Adoptie reala', virtual: 'Adoptie virtuala' },
@@ -249,6 +286,31 @@ const fr: AdminUi = {
     birthDate: 'La date de naissance n’est pas valide.',
     videoUrl: 'Le lien vidéo doit commencer par http:// ou https://.',
     invalid: 'Le formulaire contient une valeur non valide.',
+  },
+  issues: {
+    title: (errors, warnings) => [errors ? `${errors} anomalie${errors > 1 ? 's' : ''}` : '', warnings ? `${warnings} point${warnings > 1 ? 's' : ''} à vérifier` : ''].filter(Boolean).join(', '),
+    intro: 'Ces points sont détectés automatiquement à partir des données de la fiche. Ils disparaissent dès qu’ils sont corrigés.',
+    column: 'Anomalies',
+    none: 'Aucune anomalie',
+    filter: 'Seulement les fiches avec anomalies',
+    error: 'À corriger',
+    warning: 'À vérifier',
+    languages: 'Langues',
+    messages: {
+      noPhoto: 'Aucune photo.',
+      noSex: 'Le sexe n’est pas renseigné.',
+      noBirthDate: 'La date de naissance n’est pas renseignée : l’âge ne peut pas être affiché.',
+      noSize: 'La taille n’est pas renseignée.',
+      noColor: 'La couleur n’est pas renseignée.',
+      noTraits: 'Aucun caractère sélectionné.',
+      noDescription: 'La description en roumain est absente ou trop courte.',
+      missingTranslation: 'La traduction de la description est absente.',
+      untranslated: 'La description est identique au texte roumain (non traduite).',
+      nameMissing: 'Le nom de l’animal n’apparaît pas dans la traduction (peut-être traduit par erreur).',
+      missingSeo: 'Le titre ou la description SEO est absent.',
+      seoTooLong: 'Le titre SEO dépasse 65 caractères ou la description SEO 200.',
+      birthDateEstimated: 'La date de naissance est estimée : à vérifier, puis décocher « Date estimée ».',
+    },
   },
   species: { dog: 'Chien', cat: 'Chat' },
   adoptionType: { real: 'Adoption réelle', virtual: 'Adoption virtuelle (parrainage)' },

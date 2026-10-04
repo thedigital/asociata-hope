@@ -5,6 +5,7 @@ import { useAdminUi } from '../../i18n/admin.ts';
 import { formatAge, useUi } from '../../i18n/ui.ts';
 import Admin from '../../layouts/Admin.astro';
 import { moveAnimal } from '../../lib/admin-animals.ts';
+import { checkAnimals, countByLevel } from '../../lib/animal-checks.ts';
 import { COLLECTIONS, findCollection } from '../../lib/animals.ts';
 import { imageUrl } from '../../lib/media.ts';
 import type { PageKey } from '../../lib/site.ts';
@@ -19,6 +20,7 @@ const params = Astro.url.searchParams;
 const collection = findCollection(params.get('c') ?? '') ?? COLLECTIONS[0];
 const status = STATUSES.find((s) => s === params.get('status')) as Status | undefined;
 const search = (params.get('q') ?? '').trim().toLowerCase();
+const onlyIssues = params.has('issues');
 
 if (Astro.request.method === 'POST') {
   const form = await Astro.request.formData();
@@ -38,9 +40,11 @@ const mainPhotos = new Map(
     .all()
     .map((p) => [p.animalId, p.file]),
 );
-const visible = rows.filter((a) => (!status || a.status === status) && (!search || a.name.toLowerCase().includes(search)));
+const issues = checkAnimals(rows);
+const visible = rows.filter((a) => (!status || a.status === status) && (!search || a.name.toLowerCase().includes(search)) && (!onlyIssues || issues.get(a.id)!.length > 0));
+const flagged = rows.filter((a) => issues.get(a.id)!.length > 0).length;
 // Reordering only makes sense on the complete, unfiltered collection.
-const canReorder = !status && !search;
+const canReorder = !status && !search && !onlyIssues;
 const tabUrl = (path: string) => `/admin?c=${path}`;
 ---
 
@@ -67,6 +71,10 @@ const tabUrl = (path: string) => `/admin?c=${path}`;
       <option value="">{t.list.all}</option>
       {STATUSES.map((s) => <option value={s} selected={s === status}>{t.status[s]}</option>)}
     </select>
+    <label class="check">
+      <input type="checkbox" name="issues" value="1" checked={onlyIssues} />
+      {t.issues.filter} ({flagged})
+    </label>
     <button class="btn btn--light" type="submit">OK</button>
   </form>
 
@@ -81,6 +89,7 @@ const tabUrl = (path: string) => `/admin?c=${path}`;
             <th>{t.list.name}</th>
             <th>{t.list.age}</th>
             <th>{t.list.status}</th>
+            <th>{t.issues.column}</th>
             {canReorder && <th>{t.list.order}</th>}
             <th />
           </tr>
@@ -100,6 +109,21 @@ const tabUrl = (path: string) => `/admin?c=${path}`;
               </td>
               <td>
                 <span class={`badge badge--${animal.status}`}>{t.status[animal.status]}</span>
+              </td>
+              <td>
+                {(() => {
+                  const list = issues.get(animal.id)!;
+                  const { errors, warnings } = countByLevel(list);
+                  const detail = list.map((issue) => t.issues.messages[issue.code] + (issue.locales ? ` (${issue.locales.join(', ').toUpperCase()})` : '')).join('\n');
+                  return list.length ? (
+                    <a class="flags" href={`/admin/animals/${animal.id}#issues`} title={detail}>
+                      {errors > 0 && <span class="flag flag--error">⚠ {errors}</span>}
+                      {warnings > 0 && <span class="flag flag--warning">● {warnings}</span>}
+                    </a>
+                  ) : (
+                    <span class="flag flag--ok" title={t.issues.none}>✓</span>
+                  );
+                })()}
               </td>
               {canReorder && (
                 <td>

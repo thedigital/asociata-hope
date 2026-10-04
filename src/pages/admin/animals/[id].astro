@@ -4,6 +4,7 @@ import { ENABLED_LOCALES, LOCALES, LOCALE_NAMES } from '../../../i18n/config.ts'
 import { gendered, useUi } from '../../../i18n/ui.ts';
 import Admin from '../../../layouts/Admin.astro';
 import { addPhotos, deleteAnimal, deletePhoto, getAnimalForEdit, movePhoto, parseAnimalForm, saveAnimal, setVideo, type FormError } from '../../../lib/admin-animals.ts';
+import { checkAnimal, countByLevel } from '../../../lib/animal-checks.ts';
 import { findCollection } from '../../../lib/animals.ts';
 import { imageUrl } from '../../../lib/media.ts';
 import { ADOPTION_TYPES, COLLECTION_PATHS, COLORS, SEXES, SIZES, SPECIES, STATUSES, TRAITS } from '../../../lib/taxonomy.ts';
@@ -82,6 +83,9 @@ const translation = (locale: string) => translations.find((tr) => tr.locale === 
 const photos = existing?.photos ?? [];
 const flags = Astro.url.searchParams;
 const title = isNew ? f.newTitle : existing!.animal.name;
+// Checked on the stored record, so the box reflects what is saved, not what is being typed.
+const issues = existing ? checkAnimal(existing.animal, existing.traits, existing.translations, existing.photos.length) : [];
+const issueCount = countByLevel(issues);
 const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[trait], null) })).sort((a, b) => a.label.localeCompare(b.label, user.locale));
 ---
 
@@ -98,6 +102,30 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
   {flags.has('rejected') && <p class="notice notice--error" role="alert">{f.rejected(Number(flags.get('rejected')))}</p>}
   {flags.has('video') && <p class="notice notice--error" role="alert">{f.videoRejected}</p>}
   {errors.map((error) => <p class="notice notice--error" role="alert">{t.errors[error]}</p>)}
+
+  {
+    issues.length > 0 && (
+      <section class="issues" id="issues" aria-label={t.issues.column}>
+        <h2>⚠ {t.issues.title(issueCount.errors, issueCount.warnings)}</h2>
+        <p>{t.issues.intro}</p>
+        <ul>
+          {issues.map((issue) => (
+            <li class={`issues__item issues__item--${issue.level}`}>
+              <span class={`flag flag--${issue.level}`}>{t.issues[issue.level]}</span>
+              {t.issues.messages[issue.code]}
+              {issue.locales && (
+                <em>
+                  {' '}
+                  {t.issues.languages} : {issue.locales.map((l) => LOCALE_NAMES[l]).join(', ')}
+                </em>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+  {existing && issues.length === 0 && <p class="notice notice--ok">✓ {t.issues.none}</p>}
 
   <form id="animal-form" class="form" method="post" enctype="multipart/form-data">
     <input type="hidden" name="_action" value="save" />

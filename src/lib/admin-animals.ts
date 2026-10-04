@@ -6,6 +6,7 @@ import sharp from 'sharp';
 import { db, schema } from '../db/client.ts';
 import { ENABLED_LOCALES, LOCALES, localizePath, type Locale } from '../i18n/config.ts';
 import { CACHE_DIR, IMAGE_WIDTHS, UPLOADS_DIR } from './media.ts';
+import { buildAnimalSeo } from './seo.ts';
 import {
   ADOPTION_TYPES,
   COLLECTION_PATHS,
@@ -103,9 +104,13 @@ export function saveAnimal(id: number | null, input: ReturnType<typeof parseAnim
 
   return db.transaction((tx) => {
     let animalId = id;
+    // What the SEO fields contained if they were generated from the record as it was before this save.
+    let previousSeo: (locale: Locale) => { title: string; description: string } | null = () => null;
     if (animalId) {
       const before = tx.select().from(animals).where(eq(animals.id, animalId)).get();
       if (!before) return { error: 'invalid' as const };
+      const beforeTraits = tx.select().from(animalTraits).where(eq(animalTraits.animalId, animalId)).orderBy(asc(animalTraits.position)).all().map((t) => t.trait);
+      previousSeo = (locale) => buildAnimalSeo({ ...before, traits: beforeTraits }, locale);
       tx.update(animals).set({ ...data, updatedAt: new Date() }).where(eq(animals.id, animalId)).run();
       const [from, to] = [animalPath(before), animalPath(data)];
       if (from !== to) {
@@ -131,9 +136,33 @@ export function saveAnimal(id: number | null, input: ReturnType<typeof parseAnim
     tx.delete(animalTraits).where(eq(animalTraits.animalId, animalId)).run();
     if (traits.length) tx.insert(animalTraits).values(traits.map((trait, position) => ({ animalId: animalId!, trait, position }))).run();
 
+    // SEO fields left empty are generated from the characteristics. A field still holding the text
+    // generated before this save follows the change; anything typed by hand is kept.
+    const withSeo = translations.map((t) => {
+      const generated = buildAnimalSeo(
+        {
+          name: data.name,
+          species: data.species,
+          adoptionType: data.adoptionType,
+          sex: data.sex ?? null,
+          size: data.size ?? null,
+          color: data.color ?? null,
+          vaccinated: Boolean(data.vaccinated),
+          sterilized: Boolean(data.sterilized),
+          dewormed: Boolean(data.dewormed),
+          traits,
+        },
+        t.locale,
+      );
+      const previous = previousSeo(t.locale);
+      return {
+        ...t,
+        seoTitle: !t.seoTitle || t.seoTitle === previous?.title ? generated.title : t.seoTitle,
+        seoDescription: !t.seoDescription || t.seoDescription === previous?.description ? generated.description : t.seoDescription,
+      };
+    });
     tx.delete(animalTranslations).where(eq(animalTranslations.animalId, animalId)).run();
-    const filled = translations.filter((t) => t.description || t.seoTitle || t.seoDescription);
-    if (filled.length) tx.insert(animalTranslations).values(filled.map((t) => ({ animalId: animalId!, ...t }))).run();
+    tx.insert(animalTranslations).values(withSeo.map((t) => ({ animalId: animalId!, ...t }))).run();
     return { id: animalId };
   });
 }
