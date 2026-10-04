@@ -151,7 +151,7 @@ const ro: AdminUi = {
   },
   species: { dog: 'Caine', cat: 'Pisica' },
   adoptionType: { real: 'Adoptie reala', virtual: 'Adoptie virtuala' },
-  status: { draft: 'Ciorna', published: 'Publicat', adopted: 'Adoptat', deceased: 'Decedat' },
+  status: { draft: 'Ciorna', published: 'Publicat', adopted: 'Adoptat', deceased: 'Decedat (In memoriam)' },
   redirects: {
     intro: 'O redirectionare trimite o adresa veche catre una noua, ca sa nu se piarda referentierea.',
     from: 'Adresa veche',
@@ -252,7 +252,7 @@ const fr: AdminUi = {
   },
   species: { dog: 'Chien', cat: 'Chat' },
   adoptionType: { real: 'Adoption réelle', virtual: 'Adoption virtuelle (parrainage)' },
-  status: { draft: 'Brouillon', published: 'Publié', adopted: 'Adopté', deceased: 'Décédé' },
+  status: { draft: 'Brouillon', published: 'Publié', adopted: 'Adopté', deceased: 'Décédé (In memoriam)' },
   redirects: {
     intro: 'Une redirection envoie une ancienne adresse vers une nouvelle, pour ne pas perdre le référencement.',
     from: 'Ancienne adresse',

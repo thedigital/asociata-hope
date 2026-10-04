@@ -17,7 +17,8 @@
     "user:reset": "node scripts/create-user.ts --reset",
     "crawl": "node scripts/migration/crawl.ts",
     "import:animals": "node scripts/migration/import-animals.ts",
-    "import:pages": "node scripts/migration/import-pages.ts"
+    "import:pages": "node scripts/migration/import-pages.ts",
+    "import:memoriam": "node scripts/migration/import-memoriam.ts"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.6",

@@ -276,10 +276,6 @@ a:hover {
     display: contents;
   }
 
-  .animal-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
   .site-nav {
     position: static;
     flex: 1;
@@ -563,7 +559,20 @@ a:hover {
   list-style: none;
 }
 
-.animal-card a {
+@media (min-width: 700px) {
+  .animal-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .animal-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.animal-card a,
+.animal-card__static {
   display: grid;
   height: 100%;
   overflow: hidden;
@@ -590,6 +599,15 @@ a:hover {
 .animal-card h3 {
   margin: 1rem 1rem 0;
   font-size: 1.25rem;
+}
+
+.animal-card__static h2 {
+  margin: 1rem;
+  font-size: 1.25rem;
+}
+
+.memoriam {
+  padding-block: 2.5rem 4rem;
 }
 
 .animal-card p {

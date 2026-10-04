@@ -64,8 +64,12 @@ function cleanRichText(node: Node): string {
 
 /** The four call-to-action tiles shared by every page. */
 function isCtaSection(el: HTMLElement): boolean {
-  const hrefs = el.querySelectorAll('a').map((a) => a.getAttribute('href') ?? '');
-  return ['/adoptii-caini', '/adoptii-pisici', '/doneaza', '/voluntariat'].every((path) => hrefs.some((h) => h.endsWith(path)));
+  // Buttons only, and only the two adoption lists: on some Wix pages the donate and volunteer
+  // buttons of this block point to the home page.
+  const hrefs = el.querySelectorAll('a').filter((a) => /wixui-button/.test(a.getAttribute('class') ?? '')).map((a) => a.getAttribute('href') ?? '');
+  if (!['/adoptii-caini', '/adoptii-pisici'].every((path) => hrefs.some((h) => h.endsWith(path)))) return false;
+  // Wix nests sections: only the innermost match is the block itself, its parents also hold page content.
+  return !el.querySelectorAll('section').some(isCtaSection);
 }
 
 function extract(el: HTMLElement, out: string[]): void {

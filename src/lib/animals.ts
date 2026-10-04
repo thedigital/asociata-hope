@@ -69,6 +69,27 @@ export function getAnimal({ species, adoptionType }: Collection, slug: string, l
   };
 }
 
+/** Deceased animals of every collection, shown on the "In memoriam" page. */
+export function listDeceased(): AnimalCard[] {
+  const rows = db.select().from(animals).where(eq(animals.status, 'deceased')).orderBy(asc(animals.sortOrder), asc(animals.id)).all();
+  const ids = rows.map((r) => r.id);
+  const photos = ids.length
+    ? db.select().from(animalPhotos).where(and(inArray(animalPhotos.animalId, ids), eq(animalPhotos.sortOrder, 0))).all()
+    : [];
+  return rows.map((row) => ({ ...row, photo: photos.find((p) => p.animalId === row.id) ?? null, traits: [], ageMonths: null }));
+}
+
+/** True when the URL belongs to an animal that has died: its page moves to "In memoriam". */
+export function isDeceased({ species, adoptionType }: Collection, slug: string): boolean {
+  return Boolean(
+    db
+      .select({ id: animals.id })
+      .from(animals)
+      .where(and(eq(animals.species, species), eq(animals.adoptionType, adoptionType), eq(animals.slug, slug), eq(animals.status, 'deceased')))
+      .get(),
+  );
+}
+
 /** Every published animal URL path (without language prefix), for the sitemap. */
 export function listAnimalPaths(): { path: string; updatedAt: Date }[] {
   return db

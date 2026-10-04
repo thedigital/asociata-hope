@@ -28,6 +28,7 @@ pnpm user:reset --email a@b.org    # new password and new authenticator app for 
 pnpm crawl [--media] [--refresh]   # re-crawl the Wix site into migration/
 pnpm import:animals [--dry-run]    # import migration/wix-export/*.csv (replaces all animals)
 pnpm import:pages [--dry-run]      # import content pages from the crawl (replaces all pages)
+pnpm import:memoriam               # create the deceased animals of the Wix "In memoriam" page (run after import:animals)
 ```
 
 Scripts in `scripts/` run directly with Node 24 (native type stripping): relative imports need the `.ts` extension, and no path aliases, enums or parameter properties. There is no test suite yet.
@@ -49,6 +50,7 @@ Astro in server mode (`@astrojs/node`, standalone) with SQLite through `better-s
 - Each URL has one language. On the first visit only (no `lang` cookie), the middleware answers 302 to the version matching `Accept-Language` (English when none of the browser languages is served), then sets the cookie so the language switcher is never overridden. Requests without `Accept-Language` are never redirected: that is what keeps every language crawlable by search engines, so do not add a default redirect for a missing header and do not move this logic to client-side JavaScript (Googlebot renders it).
 - Admin (`src/pages/admin/`): server-rendered pages that handle their own form POSTs in the frontmatter, no client framework. The middleware guards every `/admin` path except `/admin/login` and exposes the signed-in user as `Astro.locals.user`. Signing in always needs password + TOTP code from an authenticator app (`src/lib/totp.ts`, RFC 6238, no other second factor); both are enrolled together by the CLI, and an account without a TOTP secret cannot sign in. Sessions are random tokens stored hashed (`src/lib/auth.ts`); failed logins are throttled in memory per IP and per e-mail. Cross-site POSTs are rejected by Astro's `checkOrigin`, so tests with curl must send an `Origin` header. All writes go through `src/lib/admin-animals.ts`, which validates against the taxonomy, re-encodes uploaded images with sharp, and creates 301 redirects in every language when an animal's URL changes. Admin strings are in `src/i18n/admin.ts` (Romanian and French, chosen per user).
 - `DATA_DIR` (default `data`) holds uploads and the image cache, `DATABASE_PATH` the database: point both at a scratch copy to test admin writes without touching real data.
+- Statuses: only `published` animals have a public page and appear in lists. `deceased` animals are listed on `/in-memoriam` (built from the database, the stored page body is ignored) and their former URL answers 301 to it. `draft` and `adopted` answer 404.
 - List filters are plain GET parameters handled server-side; filtered URLs are `noindex` with the canonical pointing to the unfiltered list.
 - `redirects` table — 301/410 rules meant to be managed from the admin.
 

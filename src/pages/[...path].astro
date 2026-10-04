@@ -7,8 +7,8 @@ import { db, schema } from '../db/client.ts';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, localizePath, splitLocale } from '../i18n/config.ts';
 import { formatAge, useUi } from '../i18n/ui.ts';
 import Base from '../layouts/Base.astro';
-import { findCollection, getAnimal, listAnimals } from '../lib/animals.ts';
-import { imageUrl } from '../lib/media.ts';
+import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from '../lib/animals.ts';
+import { imageUrl, srcset } from '../lib/media.ts';
 import { CONTENT_PAGES, SITE, type ContentPage, type PageKey } from '../lib/site.ts';
 
 /**
@@ -34,10 +34,14 @@ function loadPage(slug: ContentPage) {
 }
 
 const animal = collection && segments.length === 2 ? getAnimal(collection, segments[1], locale) : null;
+// The page of an animal that has died is replaced by its place on "In memoriam".
+if (collection && segments.length === 2 && !animal && isDeceased(collection, segments[1])) return Astro.redirect(localizePath('/in-memoriam', locale), 301);
 const animals = collection && segments.length === 1 ? listAnimals(collection) : null;
 const page = enabled && segments.length === 1 && (CONTENT_PAGES as readonly string[]).includes(segments[0]) ? loadPage(segments[0] as ContentPage) : null;
 const isHome = enabled && segments.length === 0;
 const isContact = enabled && segments.length === 1 && segments[0] === 'contact';
+// "In memoriam" is built from the animals with the `deceased` status, not from a stored body.
+const memoriam = page && segments[0] === 'in-memoriam' ? listDeceased() : null;
 const found = isHome || isContact || animal || animals || page;
 if (!found) Astro.response.status = 404;
 
@@ -81,7 +85,32 @@ const contactAnimal = isContact ? Astro.url.searchParams.get('animal')?.slice(0,
         <section class="page-hero">
           <h1>{ui.pages[key]}</h1>
         </section>
-        <div class="container prose" set:html={page.body} />
+        {memoriam ? (
+          <div class="container memoriam">
+            <ul class="animal-grid">
+              {memoriam.map((item) => (
+                <li class="animal-card">
+                  <div class="animal-card__static">
+                    {item.photo && (
+                      <img
+                        src={imageUrl('animals', item.photo.file, 400)}
+                        srcset={srcset('animals', item.photo.file, [400, 800])}
+                        sizes="(min-width: 1100px) 300px, (min-width: 700px) 33vw, 50vw"
+                        alt={item.photo.alt || item.name}
+                        width="400"
+                        height="400"
+                        loading="lazy"
+                      />
+                    )}
+                    <h2>{item.name}</h2>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div class="container prose" set:html={page.body} />
+        )}
       </>
     )
   }
