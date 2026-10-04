@@ -3,10 +3,9 @@ import { and, eq } from 'drizzle-orm';
 import AnimalDetail from '../components/AnimalDetail.astro';
 import AnimalList from '../components/AnimalList.astro';
 import ContactForm from '../components/ContactForm.astro';
-import DonateForm from '../components/DonateForm.astro';
+import DonateMethods from '../components/DonateMethods.astro';
 import Home from '../components/Home.astro';
 import RedirectDetail from '../components/RedirectDetail.astro';
-import RedirectSummary from '../components/RedirectSummary.astro';
 import { db, schema } from '../db/client.ts';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, localizePath, splitLocale } from '../i18n/config.ts';
 import { describeContact, useFormsUi } from '../i18n/forms.ts';
@@ -16,7 +15,7 @@ import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from
 import { CONTACT_MAX_BYTES, REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
 import { imageSize } from '../lib/image-size.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
-import { interleaveGallery, structureBody, withoutRedirectSection } from '../lib/page-body.ts';
+import { interleaveGallery, structureBody } from '../lib/page-body.ts';
 import { CONTENT_PAGES, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
 
 /**
@@ -162,12 +161,7 @@ const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as Content
             </ul>
           </div>
         ) : isDonation ? (
-          <div class="container prose">
-            <DonateForm locale={locale} animal={donationAnimal} error={query.get('error')} cancelled={query.has('cancelled')} />
-            <h2>{useFormsUi(locale).donate.otherWays}</h2>
-            <Fragment set:html={withoutRedirectSection(pageBody ?? '')} />
-            <RedirectSummary locale={locale} />
-          </div>
+          <DonateMethods locale={locale} animal={donationAnimal} error={query.get('error')} cancelled={query.has('cancelled')} />
         ) : illustration ? (
           <div class="container page-split">
             <img class="page-split__image" src={imageUrl('pages', illustration, 800)} srcset={srcset('pages', illustration, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt="" width={illustrationSize?.width} height={illustrationSize?.height} />

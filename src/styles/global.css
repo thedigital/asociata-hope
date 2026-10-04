@@ -1503,17 +1503,29 @@ fieldset[aria-invalid='true'] {
   background: #fbeceb;
 }
 
-.donate-form {
-  margin-bottom: 2.5rem;
-  padding: clamp(1.25rem, 4vw, 2rem);
-  border-radius: var(--radius);
-  background: var(--green-pale);
+.donate-form__options {
+  display: grid;
+  gap: 0.5rem;
 }
 
-.donate-form h2 {
-  margin-top: 0;
-  padding-left: 0;
-  border-left: 0;
+.donate-form__options .segmented {
+  margin-bottom: 0;
+}
+
+@media (min-width: 640px) {
+  .donate-form__options {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+
+  .donate-form__options .segmented--small {
+    width: auto;
+  }
+
+  .donate-form__options .segmented--small span {
+    display: grid;
+    place-items: center;
+    height: 100%;
+  }
 }
 
 .donate-form__label {
@@ -1584,6 +1596,361 @@ fieldset[aria-invalid='true'] {
 .donate-form .button {
   width: 100%;
   margin-top: 0.5rem;
+}
+
+/* Donation page: the list of the ways of giving, then one sheet per method, all built alike */
+.give {
+  position: relative;
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  max-width: 960px;
+  margin-block: calc(-1 * var(--arc) / 2 - 0.5rem) clamp(3rem, 7vw, 5rem);
+}
+
+.give > * {
+  min-width: 0;
+}
+
+.give [hidden] {
+  display: none;
+}
+
+.give__intro,
+.give-method {
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.give__lead {
+  max-width: 46ch;
+  margin: 0 auto 1.5rem;
+  color: var(--teal);
+  font-size: var(--text-lead);
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.give-icon {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  padding: 11px;
+  border-radius: 50%;
+  background: var(--green-pale);
+  fill: none;
+  stroke: var(--teal);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.give-nav__title {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: var(--text-small);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.give-nav ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A row on small screens (icon, name, summary), a tile from five columns up. */
+.give-nav a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.9rem;
+  align-items: center;
+  height: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-small);
+  color: inherit;
+  line-height: 1.3;
+  text-decoration: none;
+  transition: border-color 0.15s, background-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.give-nav .give-icon {
+  grid-row: span 2;
+  transition: background-color 0.15s, stroke 0.15s;
+}
+
+.give-nav strong {
+  align-self: end;
+  color: var(--teal);
+  font-weight: 700;
+}
+
+.give-nav span {
+  align-self: start;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+
+.give-nav a:hover,
+.give-nav a:focus-visible {
+  border-color: var(--teal);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.give-nav a:hover .give-icon,
+.give-nav a:focus-visible .give-icon {
+  background: var(--teal);
+  stroke: #fff;
+}
+
+/* The free method is the one to notice. */
+.give-nav li:last-child a {
+  border-color: var(--sand);
+  background: var(--sand-pale);
+}
+
+.give-nav li:last-child .give-icon {
+  background: var(--sand);
+}
+
+.give-method {
+  scroll-margin-top: 96px;
+}
+
+/* Reached from the list: the sheet is outlined for a moment. */
+.give-method:target {
+  animation: give-target 1.6s ease-out;
+}
+
+@keyframes give-target {
+  from {
+    box-shadow: 0 0 0 4px var(--sand), var(--shadow-raised);
+  }
+}
+
+.give-method__head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.give-method__head .give-icon {
+  grid-row: span 2;
+  width: 56px;
+  height: 56px;
+  padding: 13px;
+  background: var(--teal);
+  stroke: #fff;
+}
+
+.give-method__head h2 {
+  align-self: end;
+  margin: 0;
+  font-size: var(--title-2);
+  font-weight: 700;
+}
+
+.give-method__head p {
+  align-self: start;
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.give-method .form-note:last-child,
+.give-method .prose > :last-child {
+  margin-bottom: 0;
+}
+
+.give-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+  gap: 1rem 1.5rem;
+  margin: 0 0 1.5rem;
+}
+
+.give-details dt,
+.give-sms dt,
+.give-copy__label,
+.give-accounts__currency {
+  color: var(--muted);
+  font-size: var(--text-small);
+  line-height: 1.4;
+}
+
+.give-details dd {
+  margin: 0;
+  color: var(--teal-dark);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.give-accounts {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A value to copy: its label, the value itself, and the button. */
+.give-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.15rem 1rem;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-small);
+  background: var(--green-pale);
+}
+
+.give-accounts__currency b {
+  color: var(--teal);
+  font-weight: 700;
+}
+
+.give-copy__value {
+  grid-column: 1;
+  color: var(--teal-dark);
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.give-copy button {
+  grid-area: 1 / 2 / span 2;
+  min-width: 5.5rem;
+  min-height: 40px;
+  padding: 0.4rem 0.9rem;
+  border: 1.5px solid var(--teal);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--teal);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+/* In a narrow sheet the button goes under the value, which then has the full width. */
+.give-copy--stacked {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+}
+
+.give-copy--stacked .give-copy__value {
+  font-size: 0.95rem;
+}
+
+.give-copy--stacked button {
+  grid-area: auto;
+  margin-top: 0.6rem;
+}
+
+.give-copy button:hover,
+.give-copy button.is-copied {
+  background: var(--teal);
+  color: #fff;
+}
+
+.give-sms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+}
+
+.give-sms div {
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-small);
+  background: var(--green-pale);
+}
+
+/* Text and number side by side, the amount under them. */
+.give-sms div:last-child {
+  grid-column: 1 / -1;
+}
+
+.give-sms dd {
+  margin: 0;
+  color: var(--teal);
+  font-size: var(--title-3);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+@media (min-width: 560px) {
+  .give-nav ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .give {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .give > * {
+    grid-column: 1 / -1;
+  }
+
+  /* The two short methods share a row. */
+  .give > .give-method--paypal,
+  .give > .give-method--sms {
+    grid-column: auto;
+  }
+
+  .give-nav ul {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .give-nav a {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    row-gap: 0.35rem;
+    padding: 1rem 0.9rem;
+  }
+
+  .give-nav .give-icon {
+    grid-row: auto;
+    margin-bottom: 0.4rem;
+  }
+
+  .give-details {
+    grid-template-columns: 2fr 1.4fr 1fr 1fr;
+  }
+
+  /* IBAN rows: currency, number and button on one line. */
+  .give-accounts .give-copy {
+    grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+  }
+
+  .give-accounts .give-copy__value {
+    grid-column: 2;
+  }
+
+  .give-accounts .give-copy button {
+    grid-area: 1 / 3;
+  }
 }
 
 /* Call-to-action tiles and footer */

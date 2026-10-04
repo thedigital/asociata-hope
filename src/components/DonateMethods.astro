@@ -1,0 +1,165 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { useFormsUi } from '../i18n/forms.ts';
+import { useUi } from '../i18n/ui.ts';
+import { DONATION_METHODS, SITE, type DonationMethod } from '../lib/site.ts';
+import DonateForm from './DonateForm.astro';
+import RedirectSummary from './RedirectSummary.astro';
+
+interface Props {
+  locale: Locale;
+  animal: string | null;
+  error: string | null;
+  cancelled: boolean;
+}
+
+/**
+ * Body of the donation page: the list of the ways of giving, then one section per method, all
+ * built the same way. The details come from `SITE` and the strings from `src/i18n/forms.ts`, so
+ * the page is identical in every language (the body stored for this page is ignored).
+ */
+const { locale, ...form } = Astro.props;
+const t = useFormsUi(locale).donate;
+const redirectTitle = useUi(locale).homePage.redirectTitle;
+const title = (method: DonationMethod) => (method === 'redirect' ? redirectTitle : t.titles[method]);
+
+/** Outline icons drawn on a 24 px grid. */
+const ICONS: Record<DonationMethod, string> = {
+  card: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
+  transfer: '<path d="M3 10l9-5.5 9 5.5M5.5 10v7.5M10 10v7.5M14 10v7.5M18.5 10v7.5M3 20h18"/>',
+  paypal: '<path d="M17 8V5H6.5a2.5 2.5 0 0 0 0 5H20v9.5H6.5A2.5 2.5 0 0 1 4 17V7.5"/><path d="M16 14.75h.01"/>',
+  sms: '<path d="M4 5h16v11.5H9.5L5 20v-3.5H4z"/><path d="M8 9.25h8M8 12.5h5"/>',
+  redirect: '<path d="M6 3.5h8.5l3.5 3.5v13.5H6z"/><path d="M14.5 3.5V7H18M9.5 17l5-5"/><path d="M9.75 12.25h.01M14.25 16.75h.01"/>',
+};
+
+/** An IBAN is easier to read, and to check, in groups of four. */
+const grouped = (iban: string) => iban.replace(/(.{4})(?=.)/g, '$1 ');
+---
+
+<div class="container give">
+  <div class="give__intro">
+    <p class="give__lead">{t.lead}</p>
+    <nav class="give-nav" aria-label={t.pick}>
+      <p class="give-nav__title">{t.pick}</p>
+      <ul>
+        {
+          DONATION_METHODS.map((method) => (
+            <li>
+              <a href={`#${method}`}>
+                <svg class="give-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={ICONS[method]} />
+                <strong>{t.methods[method].label}</strong>
+                <span>{t.methods[method].hint}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+
+  {
+    DONATION_METHODS.map((method) => (
+      <section class={`give-method give-method--${method}`} id={method} aria-labelledby={`${method}-title`}>
+        <header class="give-method__head">
+          <svg class="give-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={ICONS[method]} />
+          <h2 id={`${method}-title`}>{title(method)}</h2>
+          <p>{t.methods[method].hint}</p>
+        </header>
+
+        {method === 'card' && <DonateForm locale={locale} {...form} />}
+
+        {method === 'transfer' && (
+          <>
+            <dl class="give-details">
+              <div>
+                <dt>{t.transfer.beneficiary}</dt>
+                <dd>{SITE.legalName}</dd>
+              </div>
+              <div>
+                <dt>{t.transfer.fiscalCode}</dt>
+                <dd>{SITE.fiscalCode}</dd>
+              </div>
+              <div>
+                <dt>{t.transfer.bank}</dt>
+                <dd>{SITE.bank}</dd>
+              </div>
+              <div>
+                <dt>{t.transfer.swift}</dt>
+                <dd>{SITE.swift}</dd>
+              </div>
+            </dl>
+            <ul class="give-accounts">
+              {Object.entries(SITE.accounts).map(([currency, iban]) => (
+                <li class="give-copy">
+                  <span class="give-accounts__currency">
+                    IBAN <b>{currency}</b>
+                  </span>
+                  <span class="give-copy__value">{grouped(iban)}</span>
+                  <button type="button" data-copy={iban} data-copied={t.copied} hidden>
+                    {t.copy}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {method === 'paypal' && (
+          <div class="give-copy give-copy--stacked">
+            <span class="give-copy__label">{t.paypal.account}</span>
+            <span class="give-copy__value">{SITE.email}</span>
+            <button type="button" data-copy={SITE.email} data-copied={t.copied} hidden>
+              {t.copy}
+            </button>
+          </div>
+        )}
+
+        {method === 'sms' && (
+          <>
+            <dl class="give-sms">
+              <div>
+                <dt>{t.sms.text}</dt>
+                <dd>{SITE.sms.text}</dd>
+              </div>
+              <div>
+                <dt>{t.sms.number}</dt>
+                <dd>{SITE.sms.number}</dd>
+              </div>
+              <div>
+                <dt>{t.sms.gift}</dt>
+                <dd>{t.sms.amount}</dd>
+              </div>
+            </dl>
+            <p class="form-note">{t.sms.legal}</p>
+          </>
+        )}
+
+        {method === 'redirect' && (
+          <div class="prose prose--plain">
+            <RedirectSummary locale={locale} heading={false} />
+          </div>
+        )}
+      </section>
+    ))
+  }
+</div>
+
+<script is:inline>
+  // Copy buttons only exist where the clipboard does; the label confirms the copy for a moment.
+  (() => {
+    if (!navigator.clipboard) return;
+    document.querySelectorAll('[data-copy]').forEach((button) => {
+      const label = button.textContent;
+      button.hidden = false;
+      button.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(button.dataset.copy);
+        button.textContent = button.dataset.copied;
+        button.classList.add('is-copied');
+        setTimeout(() => {
+          button.textContent = label;
+          button.classList.remove('is-copied');
+        }, 2000);
+      });
+    });
+  })();
+</script>

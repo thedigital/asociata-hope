@@ -7,11 +7,21 @@ export const SITE = {
   /** Tax identification number and RON account, as written on the 3.5 % redirection form. */
   fiscalCode: '36067265',
   iban: 'RO63INGB0000999905937826',
+  /** Bank details for donations by transfer: one account per currency. */
+  bank: 'ING Bank',
+  swift: 'INGBROBU',
+  accounts: { RON: 'RO63INGB0000999905937826', EUR: 'RO54INGB0000999905938085', USD: 'RO87INGB0000999912576365' },
+  /** Donation by SMS: text to send and short number (Romanian operators). */
+  sms: { text: 'DAU', number: '8845' },
   social: {
     facebook: 'https://www.facebook.com/Hope.Animal.Protection.Organization/',
     instagram: 'https://www.instagram.com/asociatia_hope',
   },
 } as const;
+
+/** Ways of giving, in the order of the donation page; each one is a section with this anchor. */
+export const DONATION_METHODS = ['card', 'transfer', 'paypal', 'sms', 'redirect'] as const;
+export type DonationMethod = (typeof DONATION_METHODS)[number];
 
 /** The association's page on redirectioneaza.ro, where the 3.5 % income tax form is filled in. */
 export const REDIRECT_FORM_URL = 'https://redirectioneaza.ro/asociatia-pentru-protectia-animalelor-hope/';

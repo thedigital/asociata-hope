@@ -1,5 +1,6 @@
 import type { Locale } from './config.ts';
 import { CAT_CHOICE_KEYS, CAT_TEXTS, type CatChoice, type CatText, type ContactValues, type Reason } from '../lib/contact.ts';
+import type { DonationMethod } from '../lib/site.ts';
 import type { Currency, DonationError, Frequency } from '../lib/stripe.ts';
 
 /** Strings of the public forms (contact and donation), in the four site languages. */
@@ -33,7 +34,19 @@ export type FormsUi = {
     orEmail: string;
   };
   donate: {
-    title: string;
+    /** Opening sentence of the donation page. */
+    lead: string;
+    /** Name of the list of methods at the top of the page. */
+    pick: string;
+    /** Short name and one-line summary of each method, shown in that list and under each title. */
+    methods: Record<DonationMethod, { label: string; hint: string }>;
+    /** Section titles; the redirection one comes from `homePage.redirectTitle`. */
+    titles: Record<Exclude<DonationMethod, 'redirect'>, string>;
+    transfer: { beneficiary: string; fiscalCode: string; bank: string; swift: string };
+    paypal: { account: string };
+    sms: { text: string; number: string; gift: string; amount: string; legal: string };
+    copy: string;
+    copied: string;
     frequency: Record<Frequency, string>;
     currency: string;
     currencies: Record<Currency, string>;
@@ -45,7 +58,6 @@ export type FormsUi = {
     product: (frequency: Frequency, animal: string | null) => string;
     errors: Record<DonationError | 'unavailable', string>;
     cancelled: string;
-    otherWays: string;
   };
 };
 
@@ -96,7 +108,27 @@ const ro: FormsUi = {
     orEmail: 'Ne puteti scrie si direct la',
   },
   donate: {
-    title: 'Donatie prin plata cu cardul',
+    lead: 'Prin intermediul contribuțiilor tale ne vei ajuta să oferim o viață mai bună animalelor abandonate, în fiecare zi.',
+    pick: 'Alege modalitatea de a dona',
+    methods: {
+      card: { label: 'Card bancar', hint: 'Online, o singură dată sau lunar' },
+      transfer: { label: 'Virament bancar', hint: 'Conturi în RON, EUR și USD' },
+      paypal: { label: 'PayPal', hint: 'Către adresa asociației' },
+      sms: { label: 'SMS', hint: '2 euro pe lună, din România' },
+      redirect: { label: '3,5% din impozit', hint: 'Gratuit, dacă plătiți impozit în România' },
+    },
+    titles: { card: 'Donatie prin plata cu cardul', transfer: 'Donatie prin virament bancar', paypal: 'Donatie prin PayPal', sms: 'Donatie prin SMS' },
+    transfer: { beneficiary: 'Beneficiar', fiscalCode: 'CIF', bank: 'Banca', swift: 'Cod SWIFT' },
+    paypal: { account: 'Cont PayPal' },
+    sms: {
+      text: 'Textul mesajului',
+      number: 'La numărul',
+      gift: 'Donația ta',
+      amount: '2 euro / lună',
+      legal: 'Valoarea donaţiei este de 2 Euro/lună. Suma alocată cauzei este de 2 Euro. Nu se percepe TVA pentru donaţiile de pe abonament. În reţelele Digi Mobil, Orange şi Telekom România Mobile, pentru cartelele preplătite, TVA-ul a fost reţinut la achiziţionarea creditului. Pentru donaţiile de pe cartele preplătite, în reţeaua Vodafone utilizatorii nu plătesc TVA. Campanie realizată cu sprijinul Digi Mobil, Orange Romania, Telekom Romania şi Vodafone Romania.',
+    },
+    copy: 'Copiază',
+    copied: 'Copiat',
     frequency: { once: 'O singură dată', monthly: 'Lunar' },
     currency: 'Moneda',
     currencies: { ron: 'RON (lei)', eur: 'EUR (€)' },
@@ -112,7 +144,6 @@ const ro: FormsUi = {
       unavailable: 'Plata cu cardul nu este disponibila momentan. Va rugam sa folositi una dintre celelalte metode de mai jos.',
     },
     cancelled: 'Plata a fost anulata. Nu a fost retrasa nicio suma.',
-    otherWays: 'Alte modalitati de a dona',
   },
 };
 
@@ -163,7 +194,27 @@ const en: FormsUi = {
     orEmail: 'You can also write to us directly at',
   },
   donate: {
-    title: 'Donate by card',
+    lead: 'Through your contributions, you will help us provide a better life for abandoned animals, every day.',
+    pick: 'Choose how to give',
+    methods: {
+      card: { label: 'Card', hint: 'Online, one time or monthly' },
+      transfer: { label: 'Bank transfer', hint: 'Accounts in RON, EUR and USD' },
+      paypal: { label: 'PayPal', hint: 'To the association’s address' },
+      sms: { label: 'SMS', hint: '2 euros a month, from Romania' },
+      redirect: { label: '3.5% of your tax', hint: 'Free, if you pay income tax in Romania' },
+    },
+    titles: { card: 'Donate by card', transfer: 'Donate by bank transfer', paypal: 'Donate via PayPal', sms: 'Donate by SMS' },
+    transfer: { beneficiary: 'Beneficiary', fiscalCode: 'Tax ID (CIF)', bank: 'Bank', swift: 'SWIFT code' },
+    paypal: { account: 'PayPal account' },
+    sms: {
+      text: 'Text to send',
+      number: 'To the number',
+      gift: 'Your gift',
+      amount: '2 euros / month',
+      legal: 'The donation is 2 euros per month. The amount allocated to the cause is 2 euros. VAT is not charged on donations made from a subscription. On the Digi Mobil, Orange and Telekom Romania Mobile networks, VAT on prepaid cards was withheld when the credit was purchased. On the Vodafone network, users do not pay VAT on donations made from prepaid cards. Campaign carried out with the support of Digi Mobil, Orange Romania, Telekom Romania and Vodafone Romania.',
+    },
+    copy: 'Copy',
+    copied: 'Copied',
     frequency: { once: 'One time', monthly: 'Monthly' },
     currency: 'Currency',
     currencies: { ron: 'RON (lei)', eur: 'EUR (€)' },
@@ -179,7 +230,6 @@ const en: FormsUi = {
       unavailable: 'Card payment is temporarily unavailable. Please use one of the other methods below.',
     },
     cancelled: 'The payment was cancelled. Nothing has been charged.',
-    otherWays: 'Other ways to donate',
   },
 };
 
@@ -230,7 +280,27 @@ const fr: FormsUi = {
     orEmail: 'Vous pouvez aussi nous écrire directement à',
   },
   donate: {
-    title: 'Don par carte bancaire',
+    lead: 'Grâce à vos contributions, vous nous aidez à offrir une vie meilleure aux animaux abandonnés, jour après jour.',
+    pick: 'Choisissez votre façon de donner',
+    methods: {
+      card: { label: 'Carte bancaire', hint: 'En ligne, une fois ou chaque mois' },
+      transfer: { label: 'Virement bancaire', hint: 'Comptes en RON, EUR et USD' },
+      paypal: { label: 'PayPal', hint: 'Vers l’adresse de l’association' },
+      sms: { label: 'SMS', hint: '2 euros par mois, depuis la Roumanie' },
+      redirect: { label: '3,5 % de l’impôt', hint: 'Gratuit, si vous payez l’impôt en Roumanie' },
+    },
+    titles: { card: 'Don par carte bancaire', transfer: 'Don par virement bancaire', paypal: 'Don via PayPal', sms: 'Don par SMS' },
+    transfer: { beneficiary: 'Bénéficiaire', fiscalCode: 'Identifiant fiscal (CIF)', bank: 'Banque', swift: 'Code SWIFT' },
+    paypal: { account: 'Compte PayPal' },
+    sms: {
+      text: 'Texte à envoyer',
+      number: 'Au numéro',
+      gift: 'Votre don',
+      amount: '2 euros / mois',
+      legal: 'Le montant du don est de 2 euros par mois, intégralement reversés à la cause. La TVA n’est pas appliquée aux dons faits depuis un abonnement. Sur les réseaux Digi Mobil, Orange et Telekom Romania Mobile, la TVA des cartes prépayées a été prélevée à l’achat du crédit. Sur le réseau Vodafone, les dons faits depuis une carte prépayée sont exonérés de TVA. Campagne réalisée avec le soutien de Digi Mobil, Orange Romania, Telekom Romania et Vodafone Romania.',
+    },
+    copy: 'Copier',
+    copied: 'Copié',
     frequency: { once: 'Une fois', monthly: 'Chaque mois' },
     currency: 'Devise',
     currencies: { ron: 'RON (lei)', eur: 'EUR (€)' },
@@ -246,7 +316,6 @@ const fr: FormsUi = {
       unavailable: 'Le paiement par carte est momentanément indisponible. Merci d’utiliser l’un des autres moyens ci-dessous.',
     },
     cancelled: 'Le paiement a été annulé. Aucun montant n’a été prélevé.',
-    otherWays: 'Autres moyens de faire un don',
   },
 };
 
@@ -297,7 +366,27 @@ const de: FormsUi = {
     orEmail: 'Sie können uns auch direkt schreiben an',
   },
   donate: {
-    title: 'Spende per Karte',
+    lead: 'Mit deinem Beitrag hilfst du uns, ausgesetzten Tieren jeden Tag ein besseres Leben zu bieten.',
+    pick: 'Spendenmöglichkeit wählen',
+    methods: {
+      card: { label: 'Karte', hint: 'Online, einmalig oder monatlich' },
+      transfer: { label: 'Überweisung', hint: 'Konten in RON, EUR und USD' },
+      paypal: { label: 'PayPal', hint: 'An die Adresse des Vereins' },
+      sms: { label: 'SMS', hint: '2 Euro pro Monat, nur in Rumänien' },
+      redirect: { label: '3,5 % der Steuer', hint: 'Kostenlos, wenn Sie in Rumänien Steuern zahlen' },
+    },
+    titles: { card: 'Spende per Karte', transfer: 'Spende per Banküberweisung', paypal: 'Spende per PayPal', sms: 'Spende per SMS' },
+    transfer: { beneficiary: 'Empfänger', fiscalCode: 'Steuernummer (CIF)', bank: 'Bank', swift: 'SWIFT-Code' },
+    paypal: { account: 'PayPal-Konto' },
+    sms: {
+      text: 'SMS-Text',
+      number: 'An die Nummer',
+      gift: 'Ihre Spende',
+      amount: '2 Euro / Monat',
+      legal: 'Der Spendenbetrag beträgt 2 Euro/Monat. Der Betrag, der dem Zweck zugutekommt, beträgt 2 Euro. Für Spenden über einen Mobilfunkvertrag wird keine Mehrwertsteuer erhoben. In den Netzen von Digi Mobil, Orange und Telekom România Mobile wurde die Mehrwertsteuer bei Prepaid-Karten bereits beim Kauf des Guthabens einbehalten. Für Spenden von Prepaid-Karten im Vodafone-Netz zahlen die Nutzer keine Mehrwertsteuer. Die Kampagne wird mit Unterstützung von Digi Mobil, Orange Romania, Telekom Romania und Vodafone Romania durchgeführt.',
+    },
+    copy: 'Kopieren',
+    copied: 'Kopiert',
     frequency: { once: 'Einmalig', monthly: 'Monatlich' },
     currency: 'Währung',
     currencies: { ron: 'RON (Lei)', eur: 'EUR (€)' },
@@ -313,7 +402,6 @@ const de: FormsUi = {
       unavailable: 'Die Kartenzahlung ist vorübergehend nicht verfügbar. Bitte nutzen Sie eine der anderen Möglichkeiten unten.',
     },
     cancelled: 'Die Zahlung wurde abgebrochen. Es wurde nichts abgebucht.',
-    otherWays: 'Weitere Spendenmöglichkeiten',
   },
 };
 

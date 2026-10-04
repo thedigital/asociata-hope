@@ -43,15 +43,6 @@ function fixRedirectFormLink(body: string): string {
     .replace(/https:\/\/redirectioneaza\.ro\/asociatia-pentru-protectia\.\.\.\//g, link);
 }
 
-/**
- * The donation page stored by Wix ends with its own copy of the redirection text. It is cut off:
- * the page shows the shared block instead (`RedirectSummary.astro`), the same as on the home page.
- */
-export function withoutRedirectSection(body: string): string {
-  const start = body.lastIndexOf('<h2');
-  return start > 0 && body.slice(start).includes('redirectioneaza.ro') ? body.slice(0, start).trimEnd() : body;
-}
-
 /** Heading levels, lists and images of a body, in order: what must match from one language to the next. */
 export function bodyOutline(body: string): { headings: string; lists: number; images: number } {
   const structured = structureBody(body);

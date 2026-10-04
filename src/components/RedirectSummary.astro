@@ -7,19 +7,21 @@ import RedirectActions from './RedirectActions.astro';
 
 interface Props {
   locale: Locale;
+  /** False where the surrounding page already shows the title. */
+  heading?: boolean;
 }
 
 /**
  * Short presentation of the 3.5 % redirection, identical wherever it appears (home page, donation
  * page). The detailed version is the redirection page itself (`RedirectDetail.astro`).
  */
-const { locale } = Astro.props;
+const { locale, heading = true } = Astro.props;
 const ui = useUi(locale);
 const t = ui.homePage;
 const campaign = redirectCampaign();
 ---
 
-<h2>{t.redirectTitle}</h2>
+{heading && <h2>{t.redirectTitle}</h2>}
 <p>
   {t.redirectIntro(campaign.incomeYear)}
   {campaign.open && t.redirectOnline}
