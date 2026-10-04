@@ -54,6 +54,21 @@ export function bodyOutline(body: string): { headings: string; lists: number; im
 }
 
 /**
+ * Takes the photo that closes a body out of the text, for the pages shown with a photo beside the
+ * text: it joins the illustration in the photo column instead of ending the text column. A linked
+ * image (a document to download) or one followed by text stays where it is.
+ */
+export function splitClosingPhoto(body: string): { body: string; photo: string | null } {
+  const figure = body.match(/<div class="figure"><img src="\/media\/pages\/\d+\/([^"]+)"[^>]*><\/div>\s*$/);
+  return figure ? { body: body.slice(0, figure.index), photo: figure[1] } : { body, photo: null };
+}
+
+/** Puts a photo back into a body, right after its first paragraph (the introduction). */
+export function insertOpeningPhoto(body: string, file: string): string {
+  return body.replace('</p>', `</p>\n<div class="figure"><img src="/media/pages/800/${file}" alt="" loading="lazy"></div>`);
+}
+
+/**
  * Moves the photos of a closing gallery beside the paragraphs: the last paragraphs each get one
  * photo, the ones before stay as the introduction. The body is returned unchanged when it is not
  * made of paragraphs followed by a single gallery, or when there are more photos than paragraphs.

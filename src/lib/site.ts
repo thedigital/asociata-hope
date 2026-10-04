@@ -47,15 +47,20 @@ export type ContentPage = (typeof CONTENT_PAGES)[number];
 /**
  * Text-heavy pages shown with a photo beside the text, like the redirection block of the home page.
  * Files are in `data/uploads/pages`; a page without an entry keeps the single-column sheet.
+ * The photo that closes the body is shown in the same column (`splitClosingPhoto`), or under the introduction for `OPENING_PHOTO_PAGES`; naming it here
+ * makes it the only photo of the page.
  */
 export const PAGE_ILLUSTRATIONS: Partial<Record<ContentPage, string>> = {
   'despre-noi': '313291_9419d3ada2c44ed7a96a12b568a4523b_mv2.jpg',
   'ai-gasit-un-animal': '313291_079206781e9a4fb7b249e7f0bebe6f31_mv2.jpg',
-  'cum-pot-adopta': '313291_03e06de12b3844ab913818f48499f0fe_mv2.jpg',
+  'cum-pot-adopta': '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg',
   'ghid-de-crestere-si-ingrijire-pisici': '23c494_793de495bdea4797a48a44f4619b418b_mv2.jpg',
-  voluntariat: '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg',
+  voluntariat: '313291_8712b4a1e5f1447f9dc063ff9ccaee48_mv2.webp',
   redirectioneaza: '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg',
 };
+
+/** Illustrated pages whose closing photo is a landscape: it opens the text, under the introduction, instead of joining the illustration. */
+export const OPENING_PHOTO_PAGES: readonly ContentPage[] = ['despre-noi'];
 
 /** Pages whose closing photo gallery is spread along the text, one photo per paragraph (`interleaveGallery`). */
 export const STORY_PAGES: readonly ContentPage[] = ['proiect-2022'];

@@ -1281,6 +1281,42 @@ a:hover {
   width: 100%;
 }
 
+/* A document to download: its preview, what it is, and the button */
+.prose .download {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 1.5rem;
+  margin-block: 1.75rem;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  background: var(--sand-pale);
+}
+
+.prose .download img {
+  width: 104px;
+  border-radius: var(--radius-small);
+  box-shadow: var(--shadow);
+}
+
+.prose .download__text {
+  flex: 1 1 14rem;
+}
+
+.prose .download__title {
+  margin: 0;
+  color: var(--teal);
+  font-size: var(--title-3);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.prose .download__note {
+  margin: 0.2rem 0 0.9rem;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+
 .prose .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
@@ -1302,8 +1338,14 @@ a:hover {
   padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 7vw, 5rem);
 }
 
+.page-split__photos {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+}
+
 .page-split__image {
   width: 100%;
+  height: auto;
   border-radius: var(--radius);
   box-shadow: var(--shadow-raised);
 }
@@ -1329,7 +1371,8 @@ a:hover {
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   }
 
-  .page-split__image {
+  /* A single photo follows the reading; two are taller than the screen and scroll with the text. */
+  .page-split__photos:has(> :only-child) {
     position: sticky;
     top: 108px;
   }
