@@ -513,7 +513,7 @@ a:hover {
   background: var(--sand);
 }
 
-/* Sentence under the title of a list: what adopting or sponsoring means. */
+/* Sentence under the title of a page: what the page is about, in a few words. */
 .page-hero__lead {
   max-width: 56ch;
   margin: 1.25rem auto 0;

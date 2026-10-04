@@ -64,6 +64,9 @@ const split = illustration && pageBody ? splitClosingPhoto(pageBody) : null;
 const splitPhotos = illustration ? await Promise.all([...new Set([illustration, ...(split?.photo ? [split.photo] : [])])].map(async (file) => ({ file, size: await imageSize('pages', file) }))) : [];
 
 const key = segments[0] as PageKey;
+// Every content page has a sentence under its title; the about page states the mission, with the sentence of the home hero.
+const contentPage = segments[0] as ContentPage;
+const heroLead = page ? (contentPage === 'despre-noi' ? ui.homePage.lead : ui.pageLeads[contentPage]) : null;
 const organization = {
   '@context': 'https://schema.org',
   '@type': 'AnimalShelter',
@@ -138,7 +141,10 @@ const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as Content
   {
     page && (
       <>
-        <section class="page-hero">{ownHeading ? <h1 set:html={ownHeading[1]} /> : <h1>{ui.pages[key]}</h1>}</section>
+        <section class="page-hero">
+          {ownHeading ? <h1 set:html={ownHeading[1]} /> : <h1>{ui.pages[key]}</h1>}
+          {heroLead && <p class="page-hero__lead">{heroLead}</p>}
+        </section>
         {memoriam ? (
           <div class="container memoriam">
             <ul class="animal-grid">
@@ -205,9 +211,9 @@ const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as Content
       <>
         <section class="page-hero">
           <h1>{ui.notFound.title}</h1>
+          <p class="page-hero__lead">{ui.notFound.text}</p>
         </section>
         <div class="container prose">
-          <p>{ui.notFound.text}</p>
           <p>
             <a class="button" href={localizePath('/', enabled ? locale : DEFAULT_LOCALE)}>
               {ui.notFound.back}

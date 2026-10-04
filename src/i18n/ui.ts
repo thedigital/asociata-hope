@@ -1,5 +1,5 @@
 import type { Locale } from './config.ts';
-import type { PageKey } from '../lib/site.ts';
+import type { ContentPage, PageKey } from '../lib/site.ts';
 import type { Color, Sex, Size, Trait } from '../lib/taxonomy.ts';
 
 /** A label that agrees with the animal's sex: [masculine, feminine]. */
@@ -17,6 +17,8 @@ export type Ui = {
   nav: { virtual: string; info: string };
   pages: Record<PageKey, string>;
   /** `lists`: description of a collection list when it has its own, otherwise `description` is used. */
+  /** Short sentence under the title of a content page; the about page shows `homePage.lead` there. */
+  pageLeads: Record<Exclude<ContentPage, 'despre-noi'>, string>;
   seo: { homeTitle: string; description: string; lists?: Partial<Record<PageKey, string>> };
   homePage: {
     h1: string;
@@ -28,7 +30,7 @@ export type Ui = {
     virtualDogs: string;
     donateTitle: string;
     donateText: string;
-    /** Sentence under the title of the hero. */
+    /** The mission in one sentence: under the title of the home hero and of the about page. */
     lead: string;
     /** Captions of the figures of the hero: published animals, counted in the database. */
     stats: { dogs: string; cats: string; virtual: string };
@@ -142,6 +144,20 @@ const ro: Ui = {
     'termeni-si-conditii': 'Termeni si conditii',
     'donation-thank-you-page': 'Multumim pentru donatie',
     'confirmare-plata': 'Confirmare plata',
+  },
+  pageLeads: {
+    'proiect-2022': 'Patru ani de muncă pentru a le oferi câinilor noștri un adăpost sigur.',
+    'ai-gasit-un-animal': 'Ce este de făcut înainte de a-i căuta o familie.',
+    'cum-pot-adopta': 'Pașii și condițiile unei adopții responsabile.',
+    'raport-2024': 'Bilanțul activității noastre în 2024.',
+    'ghid-de-crestere-si-ingrijire-pisici': 'Regulile de aur pentru a avea grijă de pisica dumneavoastră.',
+    'in-memoriam': 'Au făcut parte din familia noastră. Nu îi uităm.',
+    voluntariat: 'Dăruiți puțin din timpul dumneavoastră animalelor fără cămin.',
+    redirectioneaza: 'Un gest gratuit pentru animale, dacă plătiți impozit pe venit în România.',
+    doneaza: 'Fiecare donație hrănește și îngrijește animalele pe care le-am salvat.',
+    'termeni-si-conditii': 'Condițiile de utilizare a acestui site.',
+    'donation-thank-you-page': 'Sprijinul dumneavoastră schimbă viața animalelor de care avem grijă.',
+    'confirmare-plata': 'Datorită dumneavoastră, putem continua să le hrănim și să le îngrijim.',
   },
   seo: {
     homeTitle: 'Adoptii caini pisici | Bucuresti | Asociatia protectia animalelor HOPE',
@@ -303,6 +319,20 @@ const en: Ui = {
     'donation-thank-you-page': 'Thank you for your donation',
     'confirmare-plata': 'Payment confirmation',
   },
+  pageLeads: {
+    'proiect-2022': 'Four years of work to give our dogs a safe shelter.',
+    'ai-gasit-un-animal': 'What to do before finding it a family.',
+    'cum-pot-adopta': 'The steps and conditions of a responsible adoption.',
+    'raport-2024': 'A summary of our work in 2024.',
+    'ghid-de-crestere-si-ingrijire-pisici': 'The golden rules for taking good care of your cat.',
+    'in-memoriam': 'They were part of our family. We do not forget them.',
+    voluntariat: 'Give a little of your time to animals without a home.',
+    redirectioneaza: 'A free gesture for the animals, if you pay income tax in Romania.',
+    doneaza: 'Every donation feeds and treats the animals we have rescued.',
+    'termeni-si-conditii': 'The conditions for using this website.',
+    'donation-thank-you-page': 'Your support changes the lives of the animals in our care.',
+    'confirmare-plata': 'Thanks to you, we can keep feeding and treating them.',
+  },
   seo: {
     homeTitle: 'Dog and cat adoption | Bucharest | HOPE Animal Protection Association',
     description: 'HOPE Animal Protection Association: dogs and cats for adoption in Bucharest, puppies and adults.',
@@ -462,6 +492,20 @@ const fr: Ui = {
     'donation-thank-you-page': 'Merci pour votre don',
     'confirmare-plata': 'Confirmation de paiement',
   },
+  pageLeads: {
+    'proiect-2022': 'Quatre ans de travail pour offrir à nos chiens un refuge sûr.',
+    'ai-gasit-un-animal': 'Ce qu’il faut faire avant de lui chercher une famille.',
+    'cum-pot-adopta': 'Les étapes et les conditions d’une adoption responsable.',
+    'raport-2024': 'Le bilan de notre activité en 2024.',
+    'ghid-de-crestere-si-ingrijire-pisici': 'Les règles d’or pour bien prendre soin de son chat.',
+    'in-memoriam': 'Ils ont fait partie de notre famille. Nous ne les oublions pas.',
+    voluntariat: 'Donnez un peu de votre temps aux animaux sans foyer.',
+    redirectioneaza: 'Un geste gratuit pour les animaux, si vous payez l’impôt en Roumanie.',
+    doneaza: 'Chaque don nourrit et soigne les animaux que nous avons recueillis.',
+    'termeni-si-conditii': 'Les conditions d’utilisation de ce site.',
+    'donation-thank-you-page': 'Votre soutien change la vie des animaux dont nous prenons soin.',
+    'confirmare-plata': 'Grâce à vous, nous pouvons continuer à les nourrir et à les soigner.',
+  },
   seo: {
     homeTitle: 'Adoption de chiens et de chats | Bucarest | Association de protection des animaux HOPE',
     description: 'Association de protection des animaux HOPE : chiens et chats à adopter à Bucarest, jeunes et adultes.',
@@ -620,6 +664,20 @@ const de: Ui = {
     'termeni-si-conditii': 'Allgemeine Geschäftsbedingungen',
     'donation-thank-you-page': 'Danke für Ihre Spende',
     'confirmare-plata': 'Zahlungsbestätigung',
+  },
+  pageLeads: {
+    'proiect-2022': 'Vier Jahre Arbeit, um unseren Hunden eine sichere Zuflucht zu geben.',
+    'ai-gasit-un-animal': 'Was zu tun ist, bevor Sie ein Zuhause für das Tier suchen.',
+    'cum-pot-adopta': 'Die Schritte und Bedingungen einer verantwortungsvollen Adoption.',
+    'raport-2024': 'Unsere Arbeit im Jahr 2024 im Überblick.',
+    'ghid-de-crestere-si-ingrijire-pisici': 'Die goldenen Regeln für die gute Pflege Ihrer Katze.',
+    'in-memoriam': 'Sie waren Teil unserer Familie. Wir vergessen sie nicht.',
+    voluntariat: 'Schenken Sie Tieren ohne Zuhause ein wenig Ihrer Zeit.',
+    redirectioneaza: 'Eine kostenlose Geste für die Tiere, wenn Sie in Rumänien Einkommensteuer zahlen.',
+    doneaza: 'Jede Spende ernährt und versorgt die Tiere, die wir gerettet haben.',
+    'termeni-si-conditii': 'Die Bedingungen für die Nutzung dieser Website.',
+    'donation-thank-you-page': 'Ihre Unterstützung verändert das Leben der Tiere in unserer Obhut.',
+    'confirmare-plata': 'Dank Ihnen können wir sie weiter füttern und versorgen.',
   },
   seo: {
     homeTitle: 'Hunde und Katzen adoptieren | Bukarest | Tierschutzverein HOPE',
