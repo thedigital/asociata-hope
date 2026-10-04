@@ -11,6 +11,8 @@ Rebuild of https://www.adoptii-animale-hope.org (animal protection association H
 - **Everything technical is in English**: identifiers, database values, tags, filter values, code comments, CLI messages. Human-facing labels are translated by the front end from those identifiers (`src/lib/taxonomy.ts`).
 - **Animal names are never translated.** `animals.name` is deliberately outside the translations table. The Wix auto-translations mangled several names ("Brownie" → "Brown", "Patraulea" → "Patrol"); do not reintroduce that.
 - **SEO parity is the main constraint.** URLs must stay identical to the Wix site: Romanian at the root, other languages under `/en`, `/fr`, `/de`, same slugs in every language, no trailing slash. `migration/seo-baseline.json` is the reference for titles, descriptions, h1, canonical and hreflang of all 351 existing URLs. Slugs imported from Wix are kept as-is even when odd (`/adoptii-pisici/-marzipan`, `/adoptii-virtuale-pisici/garfields`).
+- **A page looks the same in every language.** Layout and styles never depend on the locale. When a page reads better in one language, the cause is its stored HTML (Wix kept a different structure per language), so fix the structure, not the stylesheet: `structureBody` (`src/lib/page-body.ts`) handles the patterns that can be detected, a structured file in `migration/translations/{locale}/pages/` the rest. `pnpm pages:check` must report no difference, and any change to content pages is checked visually in the four languages.
+- **Visual identity is the Wix one, modernised.** Keep the palette (green, teal, orange, sand: the tokens at the top of `src/styles/global.css`), Poppins, and the curved edges between sections. The bright logo green (`--green`) is for small accents only; large surfaces use `--green-deep` or teal. Titles must stand out (bold, type scale tokens) and running text stays at weight 400. Proposals for other directions live in an artifact, not in the code.
 - An animal is either a real adoption or a virtual one (`adoptionType`: `real` | `virtual`), never both.
 - A hook blocks `rm -rf`; use `gio trash` instead.
 
@@ -32,9 +34,10 @@ pnpm import:memoriam               # create the deceased animals of the Wix "In 
 pnpm import:translations           # import migration/translations/ (German texts, missing EN/FR, corrections) — run after the other imports
 pnpm seo:fill [--dry-run]          # fill empty SEO title/description of animals in every language (never overwrites)
 pnpm seo:check [--url <origin>]    # compare a running server (default http://127.0.0.1:4321) with migration/seo-baseline.json
+pnpm pages:check                   # every content page must have the same headings and images in the four languages
 ```
 
-Scripts in `scripts/` run directly with Node 24 (native type stripping): relative imports need the `.ts` extension, and no path aliases, enums or parameter properties. There is no test suite yet, apart from `pnpm seo:check`.
+Scripts in `scripts/` run directly with Node 24 (native type stripping): relative imports need the `.ts` extension, and no path aliases, enums or parameter properties. There is no test suite yet, apart from `pnpm seo:check` and `pnpm pages:check`.
 
 pnpm must be allowed to build `better-sqlite3` and `esbuild` (`pnpm-workspace.yaml`). TypeScript is pinned to 6.x because `@astrojs/check` does not support 7.
 
@@ -64,11 +67,16 @@ Astro in server mode (`@astrojs/node`, standalone) with SQLite through `better-s
 - `/shop` was published by mistake on Wix: it is not rebuilt and answers 410 (`REMOVED_PATHS` in `src/lib/site.ts`). The post-payment pages (`UNLISTED_PAGES`) are `noindex` and left out of the sitemap.
 - Content pages: when the stored body has its own `h1`, it becomes the page heading instead of the UI label, so there is always exactly one `h1`. Romanian SEO title/description written by hand in Wix are imported from the baseline by `import:pages`.
 
+- Content page bodies go through `structureBody` at display, in every language: bold-only or numbered short paragraphs become headings, lines starting with a dash become lists. The stored body is not modified, so the rules survive a new import.
+- Content pages have three presentations, chosen per page and never per language (`src/lib/site.ts`): the default white sheet over the title band; a photo beside the text for text-heavy pages (`PAGE_ILLUSTRATIONS`, file names from `data/uploads/pages`); one photo per paragraph for pages that end with a gallery (`STORY_PAGES`, `interleaveGallery`).
+- Styles: `src/styles/global.css` for the public site (design tokens first, then one block per component), `src/styles/admin.css` for the admin; the two are independent. Home tile photos are anchored to the top (`object-position`) because the sources are portraits.
+- To take screenshots with headless Chrome, pass `--accept-lang=<locale of the URL>`: otherwise the first-visit language redirect sends every URL to the browser's language.
+
 ## Migration data (`migration/`)
 
 - `wix-export/*.csv` — the four Wix collection exports, source of truth for animals.
 - `content.json`, `seo-baseline.json`, `urls.json`, `social-links.json` — output of the crawl. English and French animal descriptions come from the crawl because Wix does not export translations; they are Wix machine translations, only partly reviewed.
-- `translations/{locale}/` — hand-written translations: `animals*.md` (one `### collection/slug` section per animal) and `pages/{slug}.html`. German was translated from the Romanian originals. `fixes.json` corrects Wix machine translations (altered animal names, wrong phrases); `"key": "*"` applies to every animal of a language.
+- `translations/{locale}/` — hand-written translations: `animals*.md` (one `### collection/slug` section per animal) and `pages/{slug}.html`. German was translated from the Romanian originals. Page files also exist for Romanian and English where the Wix text had no usable structure (the cat care guide, split into headed sections with the original wording; the English adoption guide): they replace the crawled text, so after a new crawl compare them with the Wix page and carry over any change made there. `fixes.json` corrects Wix machine translations (altered animal names, wrong phrases); `"key": "*"` applies to every animal of a language.
 - Animal SEO fields are generated by `src/lib/seo.ts` from structured data only (no age, nothing from the free text) and stored, so the admin can override them.
 - `raw/` and `media/` are not versioned; `pnpm crawl --media` regenerates them.
 

@@ -28,6 +28,22 @@ export const CONTENT_PAGES = [
 ] as const;
 export type ContentPage = (typeof CONTENT_PAGES)[number];
 
+/**
+ * Text-heavy pages shown with a photo beside the text, like the redirection block of the home page.
+ * Files are in `data/uploads/pages`; a page without an entry keeps the single-column sheet.
+ */
+export const PAGE_ILLUSTRATIONS: Partial<Record<ContentPage, string>> = {
+  'despre-noi': '313291_9419d3ada2c44ed7a96a12b568a4523b_mv2.jpg',
+  'ai-gasit-un-animal': '313291_079206781e9a4fb7b249e7f0bebe6f31_mv2.jpg',
+  'cum-pot-adopta': '313291_03e06de12b3844ab913818f48499f0fe_mv2.jpg',
+  'ghid-de-crestere-si-ingrijire-pisici': '23c494_793de495bdea4797a48a44f4619b418b_mv2.jpg',
+  voluntariat: '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg',
+  redirectioneaza: '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg',
+};
+
+/** Pages whose closing photo gallery is spread along the text, one photo per paragraph (`interleaveGallery`). */
+export const STORY_PAGES: readonly ContentPage[] = ['proiect-2022'];
+
 /** Keys of `ui.pages` (src/i18n/ui.ts); each one is also the URL path of the page. */
 export type PageKey = ContentPage | 'contact' | 'adoptii-caini' | 'adoptii-pisici' | 'adoptii-virtuale-caini' | 'adoptii-virtuale-pisici';
 

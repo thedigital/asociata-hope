@@ -67,6 +67,35 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [ ] Toutes les pages anglaises (et françaises, allemandes) partagent la même description générique. C'était déjà le cas sur Wix, mais une description par page serait mieux.
 - [ ] Les 6 images de la page d'accueil ont un `alt` vide ; 4 images sans `alt` sur `/proiect-2022` (déjà le cas sur Wix).
 
+### Écarts de contenu entre langues, à faire trancher par l'association
+
+Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et française en ligne sur Wix. Rien n'a été perdu à la migration : ces écarts existent déjà sur Wix et le nouveau site les reproduit tels quels. L'allemand, traduit depuis le roumain, suit le roumain. Aucun texte n'a été modifié en attendant la décision.
+
+**`/cum-pot-adopta` (Comment adopter)** : le roumain (original), le français et l'allemand concordent ; l'anglais en dit plus.
+
+| Passage | Roumain, français, allemand | Anglais |
+|---|---|---|
+| Section 6, frais | « Nu percepem o „taxa de adopție". » et rien d'autre | Ajoute : « However, we request a donation to help cover: Vaccinations, Medical treatments, Food, Veterinary care. Your support helps save the next animal. » |
+| Section 4, étapes | « Vizită la domiciliu » | « Home visit (if required) » |
+| Section 10, liens | Voir les animaux, Nous contacter | Ajoute « Submit Adoption Application » |
+
+- [ ] **Question 1.** La demande de don à l'adoption et la visite à domicile « si nécessaire » sont-elles voulues, ou est-ce un ancien texte resté en anglais ? Selon la réponse : retirer ces passages de l'anglais, ou les ajouter au roumain, au français et à l'allemand.
+- [ ] **Question 2.** Le lien « Submit Adoption Application » doit-il exister (vers le formulaire de contact) dans toutes les langues, ou disparaître de l'anglais ?
+
+**`/ghid-de-crestere-si-ingrijire-pisici` (Guide de soins du chat)** : le roumain, l'anglais et l'allemand concordent ; le français est une réécriture plus courte et plus douce.
+
+| Passage | Roumain, anglais, allemand | Français |
+|---|---|---|
+| Section 8, vétérinaires | « Din pacate, multi medici veterinari nu sunt ceea ce trebuie, ori nu stiu meserie, ori sunt nepasatori, ori ii intereseaza doar banii ori toate la un loc. » | Absent |
+| Section 9, plantes | « Multe pisicute si-au gasit sfarsitul. » | Remplacé par « Certaines peuvent être mortelles s'ils en ingèrent une petite quantité. » |
+| Section 6, fenêtres | Cite le magasin : « magazinele de profil gen Hornbach » | « magasins spécialisés (type bricolage) », sans nom |
+| Sections 7 et 9 | « Cautati pe google si veti gasi mai multe » / « liste intregi de plante » | Absent |
+| Section 7, aliments toxiques | Une phrase : « ciocolata, strugurii, ceapa, usturoiul sunt cateva dintre ele » | Une liste à puces (chocolat, raisins, oignon, ail) |
+
+- [ ] **Question 3.** Le français doit-il reprendre le texte complet, critique des vétérinaires comprise, ou la version adoucie est-elle un choix ? Dans le second cas, faut-il adoucir aussi les autres langues ?
+- [ ] Une fois les réponses connues, aligner les langues concernées. Les textes roumain et anglais du guide du chat et l'anglais de « Comment adopter » sont dans `migration/translations/{ro,en}/pages/` ; le français de ces deux pages vient du crawl Wix et demandera un fichier dans `migration/translations/fr/pages/`.
+- [ ] Les titres des dix sections du guide du chat en roumain, anglais et allemand (« 1. Sterilizarea », « 6. Geamuri si balcoane »…) ont été ajoutés lors de la refonte pour aligner la présentation sur le français : à faire valider.
+
 ### SEO, finitions
 - [ ] Balises Twitter : seule `twitter:card` est présente ; Wix envoie aussi `twitter:title`, `twitter:description` et `twitter:image`.
 - [ ] JSON-LD de l'accueil : Wix a `LocalBusiness` + `WebSite`, le local a `AnimalShelter` seul. Ajouter `WebSite`.
@@ -75,12 +104,15 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [ ] Statistiques de fréquentation : rien en local. Choisir un outil (de préférence sans cookie) pour suivre le trafic après la bascule.
 
 ### Qualité
-- [ ] Pas de suite de tests en dehors de `pnpm seo:check`. Au minimum : redirections, formulaire de contact, connexion admin.
+- [ ] Deux contrôles automatiques existent : `pnpm seo:check` (parité SEO avec Wix) et `pnpm pages:check` (même structure des pages de contenu dans les quatre langues). Il n'y a toujours pas de suite de tests. Au minimum : redirections, formulaire de contact, connexion admin.
 - [ ] Comparaison visuelle page par page sur ordinateur et mobile, et audit de performance.
 - [ ] Analyse de sécurité complète : connexion admin et sessions, envoi de fichiers, formulaires publics, route `/donate`, en-têtes, dépendances.
 
 ### Design
-- [ ] Revoir le design de toutes les pages pour les rendre plus lisibles et plus modernes, et harmoniser les couleurs.
+- [x] Refonte fidèle à la charte Wix (4 octobre 2026) : titres plus marqués, texte plus lisible, composants harmonisés, bandeau d'accueil en vert profond, photo à côté du texte sur six pages, photos réparties dans le texte sur `/proiect-2022`, même présentation dans les quatre langues.
+- [ ] Choisir la direction graphique définitive : cinq pistes sont présentées dans un artefact (https://claude.ai/artifact/XW2oNzJxWH2QzAgKUpDuA8, privé, à partager depuis la page). La piste 1 est celle du code.
+- [ ] Faire valider par l'association les photos d'illustration choisies pour les six pages de texte (`PAGE_ILLUSTRATIONS` dans `src/lib/site.ts`).
+- [ ] Contrôle visuel restant : contact, in memoriam, listes de chats et de parrainages, et l'ensemble du site sur mobile (seules quelques pages ont été vues en largeur mobile).
 
 ## 3. Écarts voulus (rien à faire)
 

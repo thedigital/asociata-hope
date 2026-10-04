@@ -13,7 +13,8 @@ import Base from '../layouts/Base.astro';
 import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from '../lib/animals.ts';
 import { REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
-import { CONTENT_PAGES, REMOVED_PATHS, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
+import { interleaveGallery, structureBody } from '../lib/page-body.ts';
+import { CONTENT_PAGES, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
 
 /**
  * Single entry point of the public site. URLs are the Wix ones: an optional language prefix,
@@ -50,7 +51,11 @@ const found = isHome || isContact || animal || animals || page;
 if (!found) Astro.response.status = REMOVED_PATHS.includes(path) ? 410 : 404;
 // A body that brings its own h1 (as on Wix) provides the page heading, so the page keeps a single h1.
 const ownHeading = page?.body.match(/<h1[^>]*>([\s\S]*?)<\/h1>\s*/);
-const pageBody = page && ownHeading ? page.body.replace(ownHeading[0], '') : page?.body;
+// Every language goes through the same structuring, so a page looks the same whatever the language.
+const pageBody = page ? structureBody(ownHeading ? page.body.replace(ownHeading[0], '') : page.body) : undefined;
+
+const isStory = page !== null && STORY_PAGES.includes(segments[0] as ContentPage);
+const illustration = page ? PAGE_ILLUSTRATIONS[segments[0] as ContentPage] : undefined;
 
 const key = segments[0] as PageKey;
 const organization = {
@@ -150,6 +155,13 @@ const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as Content
             <h2>{useFormsUi(locale).donate.otherWays}</h2>
             <Fragment set:html={pageBody} />
           </div>
+        ) : illustration ? (
+          <div class="container page-split">
+            <img class="page-split__image" src={imageUrl('pages', illustration, 800)} srcset={srcset('pages', illustration, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt="" width="800" height="800" />
+            <div class="prose prose--plain" set:html={pageBody} />
+          </div>
+        ) : isStory ? (
+          <div class="container prose prose--story" set:html={interleaveGallery(pageBody ?? '')} />
         ) : (
           <div class="container prose" set:html={pageBody} />
         )}

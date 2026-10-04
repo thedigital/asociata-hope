@@ -29,8 +29,16 @@ const REDIRECT_FORM = 'https://redirectioneaza.ro/asociatia-pentru-protectia-ani
 ---
 
 <section class="hero">
-  <h1>{t.h1}</h1>
-  <img src={imageUrl('pages', HERO, 1200)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 1100px) 1000px, 100vw" alt="" width="1300" height="828" fetchpriority="high" />
+  <div class="hero__inner">
+    <div class="hero__text">
+      <h1>{t.h1}</h1>
+      <p class="hero__actions">
+        <a class="button" href={href('/adoptii-caini')}>{ui.cta.dogs.button}</a>
+        <a class="button button--light" href={href('/adoptii-pisici')}>{ui.cta.cats.button}</a>
+      </p>
+    </div>
+    <img src={imageUrl('pages', HERO, 800)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 900px) 620px, 100vw" alt="" width="1300" height="828" fetchpriority="high" />
+  </div>
 </section>
 
 <section class="home-section">
