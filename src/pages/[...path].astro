@@ -12,6 +12,7 @@ import { formatAge, useUi } from '../i18n/ui.ts';
 import Base from '../layouts/Base.astro';
 import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from '../lib/animals.ts';
 import { REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
+import { imageSize } from '../lib/image-size.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
 import { interleaveGallery, structureBody } from '../lib/page-body.ts';
 import { CONTENT_PAGES, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
@@ -56,6 +57,8 @@ const pageBody = page ? structureBody(ownHeading ? page.body.replace(ownHeading[
 
 const isStory = page !== null && STORY_PAGES.includes(segments[0] as ContentPage);
 const illustration = page ? PAGE_ILLUSTRATIONS[segments[0] as ContentPage] : undefined;
+// The photo keeps its own proportions: its real size is given to the browser to avoid a layout shift.
+const illustrationSize = illustration ? await imageSize('pages', illustration) : null;
 
 const key = segments[0] as PageKey;
 const organization = {
@@ -157,7 +160,7 @@ const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as Content
           </div>
         ) : illustration ? (
           <div class="container page-split">
-            <img class="page-split__image" src={imageUrl('pages', illustration, 800)} srcset={srcset('pages', illustration, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt="" width="800" height="800" />
+            <img class="page-split__image" src={imageUrl('pages', illustration, 800)} srcset={srcset('pages', illustration, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt="" width={illustrationSize?.width} height={illustrationSize?.height} />
             <div class="prose prose--plain" set:html={pageBody} />
           </div>
         ) : isStory ? (

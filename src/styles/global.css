@@ -689,10 +689,9 @@ a:hover {
   text-align: left;
 }
 
+/* Photos beside a text keep their own proportions, they are never cropped. */
 .home-redirect img {
   width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
   border-radius: var(--radius);
   box-shadow: var(--shadow-raised);
 }
@@ -1240,8 +1239,6 @@ a:hover {
 
 .page-split__image {
   width: 100%;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
   border-radius: var(--radius);
   box-shadow: var(--shadow-raised);
 }
@@ -1270,7 +1267,6 @@ a:hover {
   .page-split__image {
     position: sticky;
     top: 108px;
-    aspect-ratio: 1;
   }
 }
 
@@ -1292,8 +1288,6 @@ a:hover {
 
 .story-row img {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
   border-radius: var(--radius);
   box-shadow: var(--shadow-raised);
 }
