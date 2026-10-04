@@ -21,7 +21,7 @@ if (Astro.request.method === 'POST') {
     error = t.login.locked;
     Astro.response.status = 429;
   } else {
-    const user = await authenticate(email, password);
+    const user = await authenticate(email, password, String(form.get('code') ?? ''));
     if (user) {
       keys.forEach(clearFailures);
       const { token, expiresAt } = createSession(user.id);
@@ -48,6 +48,11 @@ if (Astro.request.method === 'POST') {
     <label>
       {t.login.password}
       <input type="password" name="password" autocomplete="current-password" required />
+    </label>
+    <label>
+      {t.login.code}
+      <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" required />
+      <small>{t.login.codeHelp}</small>
     </label>
     <button class="btn" type="submit">{t.login.submit}</button>
   </form>

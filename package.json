@@ -14,6 +14,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node scripts/migrate.ts",
     "user:create": "node scripts/create-user.ts",
+    "user:reset": "node scripts/create-user.ts --reset",
     "crawl": "node scripts/migration/crawl.ts",
     "import:animals": "node scripts/migration/import-animals.ts",
     "import:pages": "node scripts/migration/import-pages.ts"
@@ -25,12 +26,14 @@
     "astro": "^7.3.5",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.3",
+    "qrcode": "^1.5.4",
     "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^26.6.4",
+    "@types/qrcode": "^1.5.6",
     "drizzle-kit": "^0.31.11",
     "node-html-parser": "^9.0.4",
     "typescript": "^6.0.3"

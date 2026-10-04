@@ -5,7 +5,7 @@ import type { AdoptionType, Species, Status } from '../lib/taxonomy.ts';
 /** Strings of the admin interface (Romanian and French). Taxonomy labels come from `ui.ts`. */
 export type AdminUi = {
   title: string;
-  login: { title: string; email: string; password: string; submit: string; failed: string; locked: string };
+  login: { title: string; email: string; password: string; code: string; codeHelp: string; submit: string; failed: string; locked: string };
   nav: { animals: string; redirects: string; site: string; logout: string };
   list: { add: string; search: string; all: string; empty: string; photo: string; name: string; age: string; status: string; order: string; up: string; down: string; edit: string; estimated: string };
   form: {
@@ -70,8 +70,10 @@ const ro: AdminUi = {
     title: 'Autentificare',
     email: 'E-mail',
     password: 'Parola',
+    code: 'Cod de autentificare',
+    codeHelp: 'Codul din 6 cifre afisat de aplicatia de autentificare.',
     submit: 'Intra in cont',
-    failed: 'E-mail sau parola incorecte.',
+    failed: 'E-mail, parola sau cod incorecte.',
     locked: 'Prea multe incercari. Incercati din nou peste 15 minute.',
   },
   nav: { animals: 'Animale', redirects: 'Redirectionari', site: 'Vezi site-ul', logout: 'Deconectare' },
@@ -169,8 +171,10 @@ const fr: AdminUi = {
     title: 'Connexion',
     email: 'E-mail',
     password: 'Mot de passe',
+    code: 'Code d’authentification',
+    codeHelp: 'Le code à 6 chiffres affiché par l’application d’authentification.',
     submit: 'Se connecter',
-    failed: 'E-mail ou mot de passe incorrect.',
+    failed: 'E-mail, mot de passe ou code incorrect.',
     locked: 'Trop de tentatives. Réessayez dans 15 minutes.',
   },
   nav: { animals: 'Animaux', redirects: 'Redirections', site: 'Voir le site', logout: 'Déconnexion' },

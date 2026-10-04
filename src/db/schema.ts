@@ -11,6 +11,10 @@ export const users = sqliteTable('users', {
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
   passwordHash: text('password_hash').notNull(),
+  // Base32 secret of the authenticator app. An account without one cannot sign in.
+  totpSecret: text('totp_secret'),
+  // Time step of the last accepted code, so a code cannot be used twice.
+  totpLastStep: integer('totp_last_step').notNull().default(0),
   locale: text('locale', { enum: ADMIN_LOCALES }).notNull().default('ro'),
   createdAt: timestamp('created_at'),
 });

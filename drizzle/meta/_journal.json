@@ -8,6 +8,13 @@
       "when": 1791139258168,
       "tag": "0000_many_warbound",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791141375178,
+      "tag": "0001_cute_chameleon",
+      "breakpoints": true
     }
   ]
 }

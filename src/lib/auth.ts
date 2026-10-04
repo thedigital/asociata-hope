@@ -3,6 +3,7 @@ import { eq, lt } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
 import type { AdminLocale } from '../i18n/config.ts';
 import { hashPassword, verifyPassword } from './password.ts';
+import { verifyTotp } from './totp.ts';
 
 const { users, sessions } = schema;
 
@@ -40,12 +41,21 @@ export const deleteSession = (token: string) => void db.delete(sessions).where(e
 
 let dummyHash: Promise<string> | undefined;
 
-/** Verifies a hash even for unknown e-mails, so response time does not reveal which accounts exist. */
-export async function authenticate(email: string, password: string): Promise<AdminUser | null> {
+/**
+ * Signing in needs the password and a code from the authenticator app. The caller gets no hint
+ * about which one was wrong. A hash is verified even for unknown e-mails, so response time does
+ * not reveal which accounts exist.
+ */
+export async function authenticate(email: string, password: string, code: string): Promise<AdminUser | null> {
   const user = db.select().from(users).where(eq(users.email, email.trim().toLowerCase())).get();
   dummyHash ??= hashPassword(randomBytes(16).toString('hex'));
-  const valid = await verifyPassword(user?.passwordHash ?? (await dummyHash), password).catch(() => false);
-  return user && valid ? { id: user.id, email: user.email, name: user.name, locale: user.locale } : null;
+  const passwordOk = await verifyPassword(user?.passwordHash ?? (await dummyHash), password).catch(() => false);
+  if (!user || !passwordOk || !user.totpSecret) return null;
+  const step = verifyTotp(user.totpSecret, code, user.totpLastStep);
+  if (step === null) return null;
+  // Remember the step: the same code cannot be replayed, even inside its validity window.
+  db.update(users).set({ totpLastStep: step }).where(eq(users.id, user.id)).run();
+  return { id: user.id, email: user.email, name: user.name, locale: user.locale };
 }
 
 /** Failed logins per key (IP address, e-mail), kept in memory: enough for a single-process server. */
