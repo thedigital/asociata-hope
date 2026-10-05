@@ -72,6 +72,15 @@ export const STORY_PAGES: readonly ContentPage[] = ['proiect-2022'];
 /** Keys of `ui.pages` (src/i18n/ui.ts); each one is also the URL path of the page. */
 export type PageKey = ContentPage | 'contact' | 'campanii' | 'adoptii-caini' | 'adoptii-pisici' | 'adoptii-virtuale-caini' | 'adoptii-virtuale-pisici';
 
+/** Name under which the SEO fields of the home page are stored: it has no path segment of its own. */
+export const HOME_PAGE = 'home';
+/**
+ * Every page with a fixed address, in the order of the admin (`/admin/pages`): their SEO title and
+ * description can be written there in each language. Animals and campaigns have theirs in their own form.
+ */
+export const SEO_PAGES = [HOME_PAGE, 'adoptii-caini', 'adoptii-pisici', 'adoptii-virtuale-caini', 'adoptii-virtuale-pisici', 'campanii', 'contact', ...CONTENT_PAGES] as const satisfies readonly (PageKey | typeof HOME_PAGE)[];
+export type SeoPage = (typeof SEO_PAGES)[number];
+
 type NavItem = { page: PageKey } | { group: 'virtual' | 'info'; items: PageKey[] };
 
 /** Same order and grouping as the Wix menu. */
@@ -87,7 +96,9 @@ export const NAV: NavItem[] = [
 ];
 
 /** Pages reached only after a payment: not indexed and kept out of the sitemap. */
-export const UNLISTED_PAGES: readonly ContentPage[] = ['donation-thank-you-page', 'confirmare-plata'];
+const UNLISTED = ['donation-thank-you-page', 'confirmare-plata'] as const satisfies readonly ContentPage[];
+export type UnlistedPage = (typeof UNLISTED)[number];
+export const UNLISTED_PAGES: readonly ContentPage[] = UNLISTED;
 
 /** Wix paths dropped on purpose (the shop page was published by mistake): they answer 410 Gone in every language. */
 export const REMOVED_PATHS: readonly string[] = ['/shop'];

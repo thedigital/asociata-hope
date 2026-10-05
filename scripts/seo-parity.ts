@@ -4,9 +4,16 @@
  *   node scripts/seo-parity.ts                              # against http://127.0.0.1:4321
  *   node scripts/seo-parity.ts --url https://staging.example.org
  *
- * Every URL: status, canonical, hreflang, language, a single h1, a description.
- * Romanian content pages: title and description identical to Wix.
- * Animal pages: the title starts with the animal's name, in every language.
+ * Every page of the Wix site is checked in every language served (`ENABLED_LOCALES`), with the same
+ * rules: a language Wix did not have, like German, is checked exactly like the others.
+ * Every URL: status, language, canonical on itself, hreflang towards every language, a single h1,
+ * a description, indexable or not as expected.
+ * Home, lists and content pages: a title and a description of their own, never shared by two pages
+ * of a language.
+ * Animal pages: the title starts with the animal's name, which is never translated.
+ * Where Wix recorded a value worth keeping, it must still be there: canonical and hreflang of the
+ * 351 URLs, and in Romanian (the only language Wix wrote them in) the titles and the description of
+ * the home page.
  * Exits with code 1 when a check fails.
  */
 import { readFile } from 'node:fs/promises';
@@ -14,6 +21,7 @@ import { get as httpGet } from 'node:http';
 import { get as httpsGet } from 'node:https';
 import { join } from 'node:path';
 import { parse } from 'node-html-parser';
+import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, isLocale, localizePath } from '../src/i18n/config.ts';
 import { COLLECTIONS } from '../src/lib/animals.ts';
 import { REMOVED_PATHS, UNLISTED_PAGES } from '../src/lib/site.ts';
 
@@ -56,59 +64,78 @@ function fetchPage(path: string): Promise<{ status: number; body: string }> {
   });
 }
 
+/** Pages already seen with a title or a description, by language: home, lists and content pages each have their own. */
+const seen = new Map<string, string>();
+/** The paths of the site are those Wix had in Romanian; each one exists in every language. */
+const paths = Object.keys(baseline).filter((path) => !isLocale(path.split('/')[1] ?? '') || path.split('/')[1] === DEFAULT_LOCALE);
+let checked = 0;
 let failures = 0;
-for (const [path, recorded] of Object.entries(baseline)) {
-  const errors: string[] = [];
-  const segments = path.split('/').filter(Boolean);
-  const romanian = !['en', 'fr'].includes(segments[0]);
-  const local = romanian ? segments : segments.slice(1);
-  const localPath = `/${local.join('/')}`;
+for (const localPath of paths) {
+  const local = localPath.split('/').filter(Boolean);
   const own = WIX_MISDIRECTED[localPath];
   const ownUrl = (url: string) => (own ? url.replace(own.to, localPath) : url);
-  const expected: Entry = own
-    ? { ...recorded, canonical: recorded.canonical && ownUrl(recorded.canonical), hreflang: Object.fromEntries(Object.entries(recorded.hreflang).map(([lang, href]) => [lang, ownUrl(href)])) }
-    : recorded;
-  const { status, body } = await fetchPage(path);
+  const isAnimal = local.length === 2 && collectionPaths.includes(local[0]);
+  const unlisted = (UNLISTED_PAGES as readonly string[]).includes(local[0]);
 
-  if (REMOVED_PATHS.includes(localPath)) {
-    if (status !== 410) errors.push(`status ${status}, expected 410`);
-  } else if (status !== 200) {
-    errors.push(`status ${status}, expected 200`);
-  } else {
-    const root = parse(body);
-    const title = normalize(root.querySelector('title')?.text);
-    const description = normalize(root.querySelector('meta[name="description"]')?.getAttribute('content'));
-    const robots = root.querySelector('meta[name="robots"]')?.getAttribute('content') ?? '';
-    const unlisted = (UNLISTED_PAGES as readonly string[]).includes(local[0]);
+  for (const locale of ENABLED_LOCALES) {
+    const path = localizePath(localPath, locale);
+    const errors: string[] = [];
+    // What Wix had at this URL: nothing for a language added since.
+    const recorded: Entry | undefined = baseline[path];
+    const { status, body } = await fetchPage(path);
+    checked++;
 
-    if (root.querySelector('html')?.getAttribute('lang') !== expected.htmlLang) errors.push(`lang is not "${expected.htmlLang}"`);
-    // A page the crawl failed to read has no canonical in the baseline: it must then be the URL itself.
-    const canonical = expected.canonical || SITE_ORIGIN + path;
-    if (stripSlash(root.querySelector('link[rel="canonical"]')?.getAttribute('href')) !== stripSlash(canonical)) errors.push('canonical differs');
-    for (const [lang, href] of Object.entries(expected.hreflang)) {
-      const found = root.querySelector(`link[rel="alternate"][hreflang="${lang}"]`)?.getAttribute('href');
-      if (stripSlash(found) !== stripSlash(href)) errors.push(`hreflang ${lang} differs`);
+    if (REMOVED_PATHS.includes(localPath)) {
+      if (status !== 410) errors.push(`status ${status}, expected 410`);
+    } else if (status !== 200) {
+      errors.push(`status ${status}, expected 200`);
+    } else {
+      const root = parse(body);
+      const title = normalize(root.querySelector('title')?.text);
+      const description = normalize(root.querySelector('meta[name="description"]')?.getAttribute('content'));
+      const robots = root.querySelector('meta[name="robots"]')?.getAttribute('content') ?? '';
+      const link = (selector: string) => stripSlash(root.querySelector(selector)?.getAttribute('href'));
+
+      if (root.querySelector('html')?.getAttribute('lang') !== locale) errors.push(`lang is not "${locale}"`);
+      if (link('link[rel="canonical"]') !== stripSlash(SITE_ORIGIN + path)) errors.push('canonical is not the URL itself');
+      if (recorded?.canonical && stripSlash(ownUrl(recorded.canonical)) !== stripSlash(SITE_ORIGIN + path)) errors.push('canonical differs from Wix');
+      const alternates = { 'x-default': DEFAULT_LOCALE, ...Object.fromEntries(ENABLED_LOCALES.map((l) => [HREFLANG[l], l])) };
+      for (const [lang, target] of Object.entries(alternates)) {
+        if (link(`link[rel="alternate"][hreflang="${lang}"]`) !== stripSlash(SITE_ORIGIN + localizePath(localPath, target))) errors.push(`hreflang ${lang} differs`);
+      }
+      for (const [lang, href] of Object.entries(recorded?.hreflang ?? {})) {
+        if (link(`link[rel="alternate"][hreflang="${lang}"]`) !== stripSlash(ownUrl(href))) errors.push(`hreflang ${lang} differs from Wix`);
+      }
+      const h1 = root.querySelectorAll('h1').length;
+      if (h1 !== 1) errors.push(`${h1} h1`);
+      if (!title) errors.push('no title');
+      if (!description) errors.push('no description');
+      if (/noindex/.test(robots) !== unlisted) errors.push(unlisted ? 'should be noindex' : 'is noindex');
+
+      if (isAnimal) {
+        // The Romanian Wix title of an animal page is its bare name, which is never translated
+        // (the English and French Wix titles are machine-translated names).
+        const name = own?.name ?? normalize(baseline[localPath]?.title);
+        if (!title.startsWith(name)) errors.push(`title "${title}" does not start with the name "${name}"`);
+      } else if (!unlisted) {
+        for (const [what, text] of [['title', title], ['description', description]]) {
+          const other = seen.get(`${locale} ${what} ${text}`);
+          if (other) errors.push(`same ${what} as ${other}`);
+          else seen.set(`${locale} ${what} ${text}`, path);
+        }
+        // Wix wrote titles and descriptions in Romanian only, and showed them in every language.
+        if (locale === DEFAULT_LOCALE && recorded) {
+          const wanted = ACCEPTED_TITLES[path] ?? normalize(recorded.title);
+          if (title !== wanted) errors.push(`title "${title}", expected "${wanted}"`);
+          if (path === '/' && description !== normalize(recorded.description)) errors.push(`description "${description}", expected "${normalize(recorded.description)}"`);
+        }
+      }
     }
-    const h1 = root.querySelectorAll('h1').length;
-    if (h1 !== 1) errors.push(`${h1} h1`);
-    if (!description) errors.push('no description');
-    if (/noindex/.test(robots) !== unlisted) errors.push(unlisted ? 'should be noindex' : 'is noindex');
-
-    if (local.length === 2 && collectionPaths.includes(local[0])) {
-      // The Romanian Wix title of an animal page is its bare name, which is never translated
-      // (the English and French Wix titles are machine-translated names).
-      const name = own?.name ?? normalize(baseline[localPath]?.title);
-      if (!title.startsWith(name)) errors.push(`title "${title}" does not start with the name "${name}"`);
-    } else if (romanian && !unlisted) {
-      const wanted = ACCEPTED_TITLES[path] ?? normalize(expected.title);
-      if (title !== wanted) errors.push(`title "${title}", expected "${wanted}"`);
-      if (description !== normalize(expected.description)) errors.push(`description "${description}", expected "${normalize(expected.description)}"`);
+    if (errors.length) {
+      failures++;
+      console.log(`${path}\n${errors.map((e) => `  - ${e}`).join('\n')}`);
     }
-  }
-  if (errors.length) {
-    failures++;
-    console.log(`${path}\n${errors.map((e) => `  - ${e}`).join('\n')}`);
   }
 }
-console.log(`${Object.keys(baseline).length} URLs checked against ${origin}, ${failures} with differences.`);
+console.log(`${checked} URLs checked against ${origin} (${paths.length} pages in ${ENABLED_LOCALES.length} languages), ${failures} with differences.`);
 process.exit(failures ? 1 : 0);

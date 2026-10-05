@@ -14,6 +14,7 @@ import { DEFAULT_LOCALE, ENABLED_LOCALES, localizePath, splitLocale } from '../i
 import { describeContact, useFormsUi } from '../i18n/forms.ts';
 import { formatAge, useUi } from '../i18n/ui.ts';
 import Base from '../layouts/Base.astro';
+import { getPageSeo } from '../lib/admin-pages.ts';
 import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from '../lib/animals.ts';
 import { CAMPAIGNS_PATH, campaignForAnimal, getCampaign, listCampaigns } from '../lib/campaigns.ts';
 import { CONTACT_MAX_BYTES, REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
@@ -21,7 +22,8 @@ import { imageSize, sizeBodyImages } from '../lib/image-size.ts';
 import { breadcrumbLd, organizationLd, webPageLd, websiteLd, type Crumb } from '../lib/json-ld.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
 import { splitClosingPhoto, structureBody } from '../lib/page-body.ts';
-import { CONTENT_PAGES, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
+import { automaticPageSeo } from '../lib/seo.ts';
+import { CONTENT_PAGES, HOME_PAGE, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey, type SeoPage } from '../lib/site.ts';
 
 /**
  * Single entry point of the public site. URLs are the Wix ones: an optional language prefix,
@@ -37,7 +39,7 @@ const truncate = (text: string, max = 158) => (text.length <= max ? text : `${te
 
 function loadPage(slug: ContentPage) {
   const rows = db
-    .select({ locale: schema.pageTranslations.locale, body: schema.pageTranslations.body, seoTitle: schema.pageTranslations.seoTitle, seoDescription: schema.pageTranslations.seoDescription })
+    .select({ locale: schema.pageTranslations.locale, body: schema.pageTranslations.body })
     .from(schema.pageTranslations)
     .innerJoin(schema.pages, eq(schema.pages.id, schema.pageTranslations.pageId))
     .where(and(eq(schema.pages.slug, slug)))
@@ -80,23 +82,22 @@ const heroLead = page ? (contentPage === 'despre-noi' ? ui.homePage.lead : ui.pa
 let title = titleOf(ui.notFound.title);
 let description = ui.seo.description;
 let image: string | undefined;
-if (isHome) title = ui.seo.homeTitle;
-else if (animal && collection) {
+if (animal && collection) {
   const facts = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMonths), animal.sex ? ui.sex[animal.sex] : null].filter(Boolean).join(', ');
   title = animal.translation?.seoTitle || `${animal.name} | ${ui.pages[collection.path as PageKey]} | ${SITE.name}`;
   description = animal.translation?.seoDescription || truncate(`${animal.name}${facts ? ` (${facts})` : ''} – ${(animal.translation?.description ?? '').replace(/\s+/g, ' ')}`);
   if (animal.photos[0]) image = imageUrl('animals', animal.photos[0].file, 1200);
 } else if (campaign) {
   title = `${campaign.title} | ${ui.pages.campanii} | ${SITE.name}`;
-  description = campaign.summary || (campaign.description ? truncate(campaign.description.replace(/\s+/g, ' ')) : ui.seo.descriptions?.campanii) || description;
+  description = campaign.summary || (campaign.description ? truncate(campaign.description.replace(/\s+/g, ' ')) : ui.seo.descriptions.campanii);
   if (campaign.image) image = imageUrl(campaign.image.kind, campaign.image.file, 1200);
-} else if (animals || isContact || campaigns) {
-  title = titleOf(ui.pages[key]);
-  description = ui.seo.descriptions?.[key] || description;
-}
-else if (page) {
-  title = page.seoTitle || titleOf(ui.pages[key]);
-  description = page.seoDescription || ui.seo.descriptions?.[key] || description;
+} else if (found) {
+  // Every page with a fixed address: what was written in the admin for this language, else the automatic values.
+  const seoPage: SeoPage = isHome ? HOME_PAGE : key;
+  const written = getPageSeo(seoPage, locale);
+  const automatic = automaticPageSeo(seoPage, locale);
+  title = written?.seoTitle || automatic.title;
+  description = written?.seoDescription || automatic.description;
 }
 const query = Astro.url.searchParams;
 

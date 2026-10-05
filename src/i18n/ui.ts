@@ -1,5 +1,5 @@
 import type { Locale } from './config.ts';
-import type { ContentPage, PageKey } from '../lib/site.ts';
+import type { ContentPage, PageKey, UnlistedPage } from '../lib/site.ts';
 import type { CampaignScope, Color, Sex, Size, Trait } from '../lib/taxonomy.ts';
 
 /** A label that agrees with the animal's sex: [masculine, feminine]. */
@@ -21,8 +21,8 @@ export type Ui = {
   pageLeads: Record<Exclude<ContentPage, 'despre-noi'>, string>;
   /** Alternative text of the photos shown by the templates, by file name in `data/uploads/pages`. */
   photoAlts: Record<string, string>;
-  /** `description` is the default; `descriptions` gives a page its own (Romanian keeps the Wix ones). */
-  seo: { homeTitle: string; description: string; descriptions?: Partial<Record<PageKey, string>> };
+  /** `description` is the one of the home page and the default; `descriptions` gives every other indexable page its own, in every language. */
+  seo: { homeTitle: string; description: string; descriptions: Record<Exclude<PageKey, UnlistedPage>, string> };
   homePage: {
     h1: string;
     adoptions: string;
@@ -214,7 +214,25 @@ const ro: Ui = {
   seo: {
     homeTitle: 'Adoptii caini pisici | Bucuresti | Asociatia protectia animalelor HOPE',
     description: 'Asociatia protectia animalelor HOPE : Adoptii caini, pui si adulti',
-    descriptions: { campanii: 'Campaniile de strângere de fonduri ale asociației HOPE pentru câinii și pisicile salvate.', 'adoptii-virtuale-caini': 'Adopta un caine virtual cu asociația Hope' },
+    descriptions: {
+      campanii: 'Campaniile de strângere de fonduri ale asociației HOPE pentru câinii și pisicile salvate.',
+      'despre-noi': 'HOPE este o asociație pentru protecția animalelor înființată la București în 2016: salvăm, îngrijim și dăm spre adopție câini și pisici fără stăpân.',
+      'adoptii-caini': 'Câini pentru adopție în București: pui și câini adulți salvați de asociația HOPE, fiecare în așteptarea unei familii.',
+      'adoptii-pisici': 'Pisici pentru adopție în București: pui și pisici adulte salvate de asociația HOPE, fiecare în așteptarea unei familii.',
+      'adoptii-virtuale-caini': 'Adoptă virtual un câine al asociației HOPE: îi susții de la distanță hrana și îngrijirea, iar el rămâne în grija noastră.',
+      'adoptii-virtuale-pisici': 'Adoptă virtual o pisică a asociației HOPE: îi susții de la distanță hrana și îngrijirea, iar ea rămâne în grija noastră.',
+      redirectioneaza: 'Redirecționează 3,5% din impozitul pe venit către asociația HOPE: nu te costă nimic și ajută la hrănirea și tratarea animalelor salvate.',
+      'proiect-2022': 'Povestea sanctuarului HOPE: patru ani de muncă pentru a construi un adăpost sigur pentru câinii noștri, cu ajutorul donatorilor.',
+      'ai-gasit-un-animal': 'Ai găsit un câine sau o pisică fără stăpân? Ce trebuie făcut mai întâi, înainte de a-i căuta o familie: sfaturile asociației HOPE.',
+      'cum-pot-adopta': 'Cum poți adopta un câine sau o pisică de la asociația HOPE: pașii și condițiile unei adopții responsabile.',
+      'raport-2024': 'Raportul de activitate al asociației HOPE pentru 2024: bilanțul muncii noastre pentru câinii și pisicile fără stăpân, cu cifrele-cheie.',
+      'ghid-de-crestere-si-ingrijire-pisici': 'Ghidul asociației HOPE pentru îngrijirea pisicilor: regulile de aur, de la sterilizare la geamuri și balcoane sigure, hrană și plante toxice.',
+      'in-memoriam': 'În amintirea câinilor și pisicilor asociației HOPE care nu mai sunt printre noi. Au făcut parte din familia noastră.',
+      voluntariat: 'Devino voluntar al asociației HOPE din București: oferă puțin din timpul tău câinilor și pisicilor fără cămin.',
+      contact: 'Contactează asociația HOPE din București: adopția unui câine sau a unei pisici, adopție virtuală, voluntariat sau orice altă întrebare.',
+      doneaza: 'Donează pentru asociația HOPE: cu cardul, prin transfer bancar, PayPal, SMS sau redirecționând 3,5% din impozitul pe venit.',
+      'termeni-si-conditii': 'Termenii și condițiile de utilizare a site-ului Asociației pentru protecția animalelor HOPE.',
+    },
   },
   homePage: {
     h1: 'Asociatia pentru protectia animalelor HOPE',
@@ -1067,6 +1085,9 @@ const de: Ui = {
 
 const DICTIONARIES: Record<Locale, Ui> = { ro, en, fr, de };
 export const useUi = (locale: Locale): Ui => DICTIONARIES[locale];
+
+/** Meta description of a page when none was written in the admin; pages left out of search engines share the one of the site. */
+export const pageDescription = (ui: Ui, page: PageKey): string => (ui.seo.descriptions as Partial<Record<PageKey, string>>)[page] ?? ui.seo.description;
 
 /** Picks the form that agrees with the animal's sex (masculine for groups and unknown). */
 export const gendered = (label: Gendered, sex: Sex | null): string => (typeof label === 'string' ? label : label[sex === 'female' ? 1 : 0]);

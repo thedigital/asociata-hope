@@ -3,8 +3,9 @@ import { useAdminUi } from '../../../i18n/admin.ts';
 import { LOCALES, LOCALE_NAMES, localizePath, type Locale } from '../../../i18n/config.ts';
 import { useUi } from '../../../i18n/ui.ts';
 import Admin from '../../../layouts/Admin.astro';
-import { SEO_DESCRIPTION_MAX, SEO_TITLE_MAX, getPageForEdit, isContentPage, parsePageForm, savePage, type PageFormError } from '../../../lib/admin-pages.ts';
-import { SITE } from '../../../lib/site.ts';
+import { SEO_DESCRIPTION_MAX, SEO_TITLE_MAX, getPageForEdit, isSeoPage, parsePageForm, savePage, type PageFormError } from '../../../lib/admin-pages.ts';
+import { automaticPageSeo } from '../../../lib/seo.ts';
+import { HOME_PAGE } from '../../../lib/site.ts';
 
 const user = Astro.locals.user!;
 const t = useAdminUi(user.locale);
@@ -12,7 +13,9 @@ const p = t.pages;
 const f = t.form;
 
 const slug = Astro.params.slug ?? '';
-if (!isContentPage(slug)) return new Response('Not found', { status: 404 });
+if (!isSeoPage(slug)) return new Response('Not found', { status: 404 });
+// The home page is stored under a name of its own: its address is the root of the site.
+const path = slug === HOME_PAGE ? '/' : `/${slug}`;
 
 let errors: PageFormError[] = [];
 let submitted: ReturnType<typeof parsePageForm>['translations'] | null = null;
@@ -29,19 +32,16 @@ if (Astro.request.method === 'POST') {
 const stored = getPageForEdit(slug);
 // Values shown in the form: what was just submitted (on error), else what is stored.
 const translation = (locale: Locale) => (submitted ?? stored.translations).find((tr) => tr.locale === locale);
-const title = useUi(user.locale).pages[slug];
+const title = slug === HOME_PAGE ? p.home : useUi(user.locale).pages[slug];
 // What the public page uses when a field is left empty (src/pages/[...path].astro).
-const automatic = (locale: Locale) => {
-  const ui = useUi(locale);
-  return { title: `${ui.pages[slug]} | ${SITE.name}`, description: ui.seo.descriptions?.[slug] || ui.seo.description };
-};
+const automatic = (locale: Locale) => automaticPageSeo(slug, locale);
 ---
 
 <Admin title={title}>
   <div class="toolbar">
     <h1>{title}</h1>
     <div>
-      <a class="btn btn--light" href={`/${slug}`} target="_blank" rel="noopener">{f.view} ↗</a>
+      <a class="btn btn--light" href={path} target="_blank" rel="noopener">{f.view} ↗</a>
       <a class="btn btn--light" href="/admin/pages">{f.back}</a>
     </div>
   </div>
@@ -61,7 +61,7 @@ const automatic = (locale: Locale) => {
               {translation(locale)?.seoTitle || translation(locale)?.seoDescription ? ' ✓' : ''}
             </summary>
             <p>
-              <a href={localizePath(`/${slug}`, locale)} target="_blank" rel="noopener">
+              <a href={localizePath(path, locale)} target="_blank" rel="noopener">
                 {f.view} ↗
               </a>
             </p>

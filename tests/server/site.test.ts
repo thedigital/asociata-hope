@@ -1,7 +1,8 @@
 /**
  * Checks on the built server (`pnpm test:server` builds it first): redirects and headers of the
- * middleware, the contact form and the admin sign-in, as a browser would use them. The server runs
- * on a scratch database and data directory; nothing outside this machine is called.
+ * middleware, the contact form, the admin sign-in and the screens of the admin, as a browser would
+ * use them. The server runs on a scratch database and data directory; nothing outside this machine
+ * is called.
  */
 import { SCRATCH } from '../helpers/scratch.ts';
 import assert from 'node:assert/strict';
@@ -12,7 +13,8 @@ import { get } from 'node:http';
 import { createServer } from 'node:net';
 import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
+import sharp from 'sharp';
 import { db, schema } from '../../src/db/client.ts';
 import { authenticate } from '../../src/lib/auth.ts';
 import { hashPassword } from '../../src/lib/password.ts';
@@ -220,6 +222,17 @@ describe('headers', () => {
   });
 });
 
+describe('meta descriptions', () => {
+  it('gives the home page, the lists and the contact page their own description, in every language', async () => {
+    const description = async (path: string) => (await (await request(path)).text()).match(/<meta name="description" content="([^"]+)"/)?.[1];
+    for (const prefix of ['', '/en', '/fr', '/de']) {
+      const found = await Promise.all(['', '/adoptii-caini', '/adoptii-pisici', '/adoptii-virtuale-caini', '/adoptii-virtuale-pisici', '/contact'].map((path) => description(`${prefix}${path}` || '/')));
+      assert.ok(found.every(Boolean), prefix);
+      assert.equal(new Set(found).size, found.length, `${prefix || '/ro'}: ${found.join(' | ')}`);
+    }
+  });
+});
+
 describe('form posts', () => {
   const urlencoded = { 'content-type': 'application/x-www-form-urlencoded' };
 
@@ -390,6 +403,33 @@ describe('admin sign-in', () => {
     assert.match(await (await request('/voluntariat')).text(), /<title>Voluntariat \| Hope<\/title>/);
   });
 
+  it('edits the SEO fields of the home page, a list and the contact page like those of any page', async () => {
+    const head = async (path: string) => {
+      const html = await (await request(path)).text();
+      return [html.match(/<title>([^<]*)<\/title>/)?.[1], html.match(/<meta name="description" content="([^"]*)"/)?.[1]];
+    };
+    const list = await (await request('/admin/pages', { headers: { cookie } })).text();
+    for (const slug of ['home', 'adoptii-caini', 'adoptii-virtuale-pisici', 'campanii', 'contact', 'despre-noi']) assert.ok(list.includes(`href="/admin/pages/${slug}"`), slug);
+
+    const before = { home: await head('/de'), romanian: await head('/'), list: await head('/fr/adoptii-caini'), contact: await head('/en/contact') };
+    const form = await (await request('/admin/pages/home', { headers: { cookie } })).text();
+    assert.ok(form.includes(`placeholder="${before.home[0]}"`), 'the automatic title is shown in the empty field');
+
+    const saved = await request('/admin/pages/home', { form: { seoTitle_de: 'Hunde und Katzen adoptieren | HOPE', seoDescription_de: 'Eine von Hand geschriebene Beschreibung.' }, headers: { cookie } });
+    assert.deepEqual([saved.status, saved.headers.get('location')], [303, '/admin/pages/home?saved=1']);
+    assert.deepEqual(await head('/de'), ['Hunde und Katzen adoptieren | HOPE', 'Eine von Hand geschriebene Beschreibung.']);
+    assert.deepEqual(await head('/'), before.romanian, 'the other languages keep their own values');
+
+    await request('/admin/pages/adoptii-caini', { form: { seoTitle_fr: 'Adopter un chien à Bucarest | Hope' }, headers: { cookie } });
+    assert.deepEqual(await head('/fr/adoptii-caini'), ['Adopter un chien à Bucarest | Hope', before.list[1]]);
+    await request('/admin/pages/contact', { form: { seoDescription_en: 'Write to the HOPE association.' }, headers: { cookie } });
+    assert.deepEqual(await head('/en/contact'), [before.contact[0], 'Write to the HOPE association.']);
+
+    // Emptied fields go back to the automatic values.
+    for (const slug of ['home', 'adoptii-caini', 'contact']) await request(`/admin/pages/${slug}`, { form: {}, headers: { cookie } });
+    assert.deepEqual([await head('/de'), await head('/fr/adoptii-caini'), await head('/en/contact')], [before.home, before.list, before.contact]);
+  });
+
   it('creates an account through a link used once, where the person sets their own credentials', async () => {
     assert.equal((await request('/admin/setup')).status, 404, 'no token');
     assert.equal((await request('/admin/setup?token=unknown')).status, 404);
@@ -475,6 +515,180 @@ describe('admin sign-in', () => {
     // Card payment is not configured on this server: the donor comes back to the page of the campaign.
     const gift = await request('/donate', { form: { campaign: 'hrana', locale: 'fr', currency: 'ron', frequency: 'once', amount: '50' } });
     assert.deepEqual([gift.status, gift.headers.get('location')], [303, '/fr/campanii/hrana?error=unavailable#card']);
+  });
+
+  /** A form of the admin, sent by the signed-in user; a list is a repeated field, as checkboxes and several files are. */
+  const admin = (path: string, fields?: Record<string, string | File | (string | File)[]>) => {
+    if (!fields) return request(path, { headers: { cookie } });
+    const data = new FormData();
+    for (const [name, value] of Object.entries(fields)) for (const item of [value].flat()) data.append(name, item);
+    return request(path, { body: data, headers: { cookie, origin } });
+  };
+  const answer = async (response: Promise<Response>) => [(await response).status, (await response).headers.get('location')];
+  const cat = { species: 'cat', adoptionType: 'real', status: 'published' };
+  let catId = 0;
+
+  it('creates an animal with its photos and its video, shown at once on the public site', async () => {
+    assert.equal((await admin('/admin/animals/new?c=adoptii-pisici')).status, 200);
+    assert.equal((await admin('/admin/animals/999')).status, 404);
+    const invalid = await admin('/admin/animals/new', { ...cat, name: '', description_ro: 'Un text deja scris.' });
+    assert.equal(invalid.status, 422);
+    assert.match(await invalid.text(), /Un text deja scris\./, 'what was typed is shown again');
+
+    const photo = async (background: string) => new File([await sharp({ create: { width: 900, height: 600, channels: 3, background } }).jpeg().toBuffer()], 'photo.jpg', { type: 'image/jpeg' });
+    const film = new File([Buffer.concat([Buffer.from([0, 0, 0, 24]), Buffer.from('ftypisom'), Buffer.alloc(64)])], 'film.mp4', { type: 'video/mp4' });
+    const created = await admin('/admin/animals/new', {
+      ...cat,
+      name: 'Mița',
+      sex: 'female',
+      color: 'black',
+      birthDate: '2022-04-01',
+      vaccinated: 'on',
+      traits: ['calm', 'playful'],
+      description_ro: 'Mița este o pisică blândă.',
+      description_fr: 'Mița est une chatte très douce.',
+      photos: [await photo('#2a9d8f'), new File(['not a picture'], 'fake.jpg', { type: 'image/jpeg' }), await photo('#e76f51')],
+      video: film,
+    });
+    assert.equal(created.status, 303);
+    const [, id] = created.headers.get('location')!.match(/^\/admin\/animals\/(\d+)\?saved=1&rejected=1$/) ?? [];
+    assert.ok(id, created.headers.get('location')!);
+    catId = Number(id);
+    const edit = await (await admin(`/admin/animals/${catId}`)).text();
+    assert.match(edit, /value="mita"/, 'the address is written from the name');
+    assert.match(edit, /Mița est une chatte très douce\./);
+
+    const french = await (await request('/fr/adoptii-pisici/mita')).text();
+    assert.match(french, /<h1[^>]*>\s*Mița\s*<\/h1>/);
+    assert.match(french, /Mița est une chatte très douce\./);
+    assert.match(french, /<title>Mița [^<]*\| Hope<\/title>/, 'the SEO title is generated');
+    assert.match(await (await request('/adoptii-pisici')).text(), /Mița/);
+    assert.match(await (await request('/sitemap.xml')).text(), /\/de\/adoptii-pisici\/mita</);
+
+    const pictures = db.select().from(schema.animalPhotos).where(eq(schema.animalPhotos.animalId, catId)).all();
+    assert.equal(pictures.length, 2, 'the file that is not a picture is refused');
+    assert.ok(french.includes(`/media/animals/800/${pictures[0].file}`) || french.includes(`/media/animals/1200/${pictures[0].file}`));
+    const resized = await request(`/media/animals/400/${pictures[0].file}`);
+    assert.deepEqual([resized.status, resized.headers.get('content-type')], [200, 'image/webp']);
+    assert.equal((await sharp(Buffer.from(await resized.arrayBuffer())).metadata()).width, 400);
+
+    const { videoFile } = db.select().from(schema.animals).where(eq(schema.animals.id, catId)).get()!;
+    assert.ok(french.includes(`/media/videos/${videoFile}`));
+    const part = await request(`/media/videos/${videoFile}`, { headers: { range: 'bytes=4-7' } });
+    assert.deepEqual([part.status, await part.text()], [206, 'ftyp']);
+  });
+
+  it('orders and deletes the photos of an animal', async () => {
+    const order = () => db.select().from(schema.animalPhotos).where(eq(schema.animalPhotos.animalId, catId)).orderBy(asc(schema.animalPhotos.sortOrder)).all();
+    const [first, second] = order();
+    assert.deepEqual(await answer(admin(`/admin/animals/${catId}`, { _action: `photo-main:${second.id}` })), [303, `/admin/animals/${catId}#photos`]);
+    assert.deepEqual(order().map((p) => p.id), [second.id, first.id]);
+    assert.match(await (await request('/adoptii-pisici')).text(), new RegExp(`/media/animals/\\d+/${second.file}`), 'the list shows the main photo');
+    assert.equal((await admin(`/admin/animals/${catId}`, { _action: `photo-delete:${second.id}` })).status, 303);
+    assert.deepEqual(order().map((p) => [p.id, p.sortOrder]), [[first.id, 0]]);
+    assert.equal(existsSync(join(SCRATCH, 'uploads', 'animals', second.file)), false);
+    assert.equal((await request(`/media/animals/400/${second.file}`)).status, 404);
+  });
+
+  it('redirects the old URL of an animal in every language when its address changes', async () => {
+    const moved = await admin(`/admin/animals/${catId}`, { ...cat, name: 'Mița', slug: 'mitzi', sex: 'female', color: 'black' });
+    assert.deepEqual([moved.status, moved.headers.get('location')], [303, `/admin/animals/${catId}?saved=1`]);
+    assert.equal((await request('/adoptii-pisici/mitzi')).status, 200);
+    assert.deepEqual(await location('/adoptii-pisici/mita'), [301, '/adoptii-pisici/mitzi']);
+    assert.deepEqual(await location('/de/adoptii-pisici/mita'), [301, '/de/adoptii-pisici/mitzi']);
+    const sitemap = await (await request('/sitemap.xml')).text();
+    assert.ok(sitemap.includes('/adoptii-pisici/mitzi<') && !sitemap.includes('/adoptii-pisici/mita<'));
+    assert.ok(db.select().from(schema.animals).where(eq(schema.animals.id, catId)).get()!.videoFile, 'a save without a new file keeps the video');
+
+    const clash = await admin('/admin/animals/new', { ...cat, name: 'Mitzi' });
+    assert.equal(clash.status, 422);
+    assert.equal(db.select().from(schema.animals).where(eq(schema.animals.slug, 'mitzi')).all().length, 1);
+  });
+
+  it('takes an animal off the public site when it is no longer published, then deletes it', async () => {
+    assert.equal((await admin(`/admin/animals/${catId}`, { ...cat, name: 'Mița', slug: 'mitzi', status: 'draft' })).status, 303);
+    assert.equal((await request('/adoptii-pisici/mitzi')).status, 404);
+    assert.doesNotMatch(await (await request('/adoptii-pisici')).text(), /Mița/);
+    assert.match(await (await admin('/admin?c=adoptii-pisici')).text(), /Mița/, 'still listed in the admin');
+
+    const { videoFile } = db.select().from(schema.animals).where(eq(schema.animals.id, catId)).get()!;
+    assert.deepEqual(await answer(admin(`/admin/animals/${catId}`, { _action: 'delete' })), [303, '/admin?c=adoptii-pisici']);
+    assert.equal((await admin(`/admin/animals/${catId}`)).status, 404);
+    assert.equal((await request(`/media/videos/${videoFile}`)).status, 404);
+    assert.deepEqual(readdirSync(join(SCRATCH, 'uploads', 'animals')), []);
+  });
+
+  it('lists the animals of a collection, filters them and changes their order', async () => {
+    const names = async (query: string) => [...(await (await admin(`/admin?${query}`)).text()).matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1]);
+    assert.deepEqual(await names('c=adoptii-caini'), ['Rex', 'Azor', 'Draft']);
+    assert.deepEqual(await names('c=adoptii-caini&q=azo'), ['Azor']);
+    assert.deepEqual(await names('c=adoptii-caini&status=draft'), ['Draft']);
+    assert.deepEqual(await names('c=adoptii-virtuale-pisici'), ['Adopted']);
+    // None of them has a photo: all are flagged.
+    assert.deepEqual(await names('c=adoptii-caini&issues=1'), ['Rex', 'Azor', 'Draft']);
+
+    const rex = db.select().from(schema.animals).where(eq(schema.animals.slug, 'rex')).get()!;
+    assert.deepEqual(await answer(admin('/admin?c=adoptii-caini', { id: String(rex.id), move: 'down' })), [303, '/admin?c=adoptii-caini']);
+    assert.deepEqual(await names('c=adoptii-caini'), ['Azor', 'Rex', 'Draft']);
+    await admin('/admin?c=adoptii-caini', { id: String(rex.id), move: 'up' });
+    assert.deepEqual(await names('c=adoptii-caini'), ['Rex', 'Azor', 'Draft']);
+  });
+
+  it('manages the redirection rules, which never leave the site', async () => {
+    const rule = (from: string) => db.select().from(schema.redirects).where(eq(schema.redirects.fromPath, from)).get();
+    assert.deepEqual(await answer(admin('/admin/redirects', { from: '/veche/', to: '/contact' })), [303, '/admin/redirects']);
+    assert.deepEqual(await location('/veche'), [301, '/contact']);
+    // The same address again replaces the rule; without a target the page is gone.
+    await admin('/admin/redirects', { from: '/veche', to: '' });
+    assert.deepEqual(await location('/veche'), [410, null]);
+
+    for (const [from, to] of [['veche', '/contact'], ['/a', '//evil.example'], ['/a', 'https://evil.example/'], ['/a', '/\\evil.example'], ['/admin/users', '/'], ['/a', '/a'], ['/a b', '/']]) {
+      assert.equal((await admin('/admin/redirects', { from, to })).status, 422, `${from} → ${to}`);
+    }
+    assert.equal(rule('/a'), undefined);
+    assert.equal(rule('/admin/users'), undefined);
+
+    assert.equal((await admin('/admin/redirects', { delete: String(rule('/veche')!.id) })).status, 303);
+    assert.equal((await request('/veche')).status, 404);
+  });
+
+  it('changes the theme of the public site, and refuses a colour too light for white text', async () => {
+    const themes = ['classic', 'christmas', 'valentine', 'easter', 'summer', 'halloween'];
+    const shown = async () => (await (await request('/')).text()).match(/--band-middle:(#[0-9a-f]{6})/)?.[1];
+    const classic = await shown();
+    const page = await (await admin('/admin/theme')).text();
+    const fields = (changes: Record<string, string>) => ({
+      ...Object.fromEntries(themes.flatMap((id) => [[`color-${id}`, page.match(new RegExp(`name="color-${id}" value="(#[0-9a-f]{6})"`))![1]], [`pattern-${id}`, 'paws']])),
+      ...changes,
+    });
+
+    assert.deepEqual(await answer(admin('/admin/theme', fields({ active: 'christmas', 'color-christmas': '#7a1020' }))), [303, '/admin/theme?saved']);
+    assert.equal(await shown(), '#7a1020');
+    assert.equal((await admin('/admin/theme', fields({ active: 'summer', 'color-summer': '#ffee88' }))).status, 422);
+    assert.equal((await admin('/admin/theme', fields({ active: 'spring' }))).status, 422);
+    assert.equal(await shown(), '#7a1020', 'a refused form changes nothing');
+
+    await admin('/admin/theme', fields({ active: 'classic' }));
+    assert.equal(await shown(), classic);
+  });
+
+  it('marks a contact message as handled and deletes it with its attachment', async () => {
+    const { contactMessages } = schema;
+    const message = () => db.select().from(contactMessages).where(eq(contactMessages.reason, 'redirection')).get();
+    const { id, attachment } = message()!;
+    assert.match(await (await admin('/admin/messages')).text(), new RegExp(`/admin/attachments/${id}"`));
+
+    assert.deepEqual(await answer(admin('/admin/messages', { id: String(id), _action: 'handled' })), [303, '/admin/messages']);
+    assert.ok(message()!.handledAt instanceof Date);
+    assert.doesNotMatch(await (await admin('/admin/messages')).text(), new RegExp(`/admin/attachments/${id}"`), 'no longer among the messages to handle');
+    assert.match(await (await admin('/admin/messages?view=handled')).text(), new RegExp(`/admin/attachments/${id}"`));
+    await admin('/admin/messages?view=handled', { id: String(id), _action: 'pending' });
+    assert.equal(message()!.handledAt, null);
+
+    assert.equal((await admin('/admin/messages', { id: String(id), _action: 'delete' })).status, 303);
+    assert.equal(message(), undefined);
+    assert.equal(existsSync(join(SCRATCH, 'contact', attachment!)), false);
+    assert.equal((await admin(`/admin/attachments/${id}`)).status, 404);
   });
 
   it('ends the session at sign-out', async () => {

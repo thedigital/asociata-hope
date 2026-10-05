@@ -8,9 +8,9 @@
  * buttons). The shared call-to-action tiles at the bottom of every Wix page are dropped: the
  * layout renders them. Images are copied to data/uploads/pages, PDFs to data/uploads/files.
  *
- * Romanian SEO fields written by hand in Wix are taken from migration/seo-baseline.json: a title
- * that is not the automatic "{page name} | Hope", a description that is not the site-wide one.
- * Other languages only had the Romanian values on Wix and keep the translated defaults.
+ * Romanian titles written by hand in Wix are taken from migration/seo-baseline.json: a title that
+ * is not the automatic "{page name} | Hope". Descriptions are not imported: Wix had the same one on
+ * every page, and each page now has its own in every language (`seo.descriptions`, src/i18n/ui.ts).
  *
  * WARNING: replaces every content page already in the database.
  */
@@ -122,17 +122,13 @@ function groupImages(parts: string[]): string {
   return out.join('\n');
 }
 
-type Baseline = Record<string, { title: string | null; description: string | null }>;
+type Baseline = Record<string, { title: string | null }>;
 const baseline: Baseline = JSON.parse(await readFile(join(MIGRATION, 'seo-baseline.json'), 'utf8'));
-const defaultDescription = baseline['/'].description;
 
-/** Hand-written Romanian SEO fields of a page, null where Wix only had its default. */
-function wixSeo(slug: string): { seoTitle: string | null; seoDescription: string | null } {
-  const { title, description } = baseline[`/${slug}`] ?? { title: null, description: null };
-  return {
-    seoTitle: title && !title.endsWith(`| ${SITE.name}`) ? title : null,
-    seoDescription: description && description !== defaultDescription ? description : null,
-  };
+/** Hand-written Romanian title of a page, null where Wix only had its default. */
+function wixSeo(slug: string): { seoTitle: string | null } {
+  const title = baseline[`/${slug}`]?.title;
+  return { seoTitle: title && !title.endsWith(`| ${SITE.name}`) ? title : null };
 }
 
 const rows: { slug: string; locale: (typeof LOCALES)[number]; body: string }[] = [];

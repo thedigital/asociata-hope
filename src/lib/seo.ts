@@ -1,5 +1,6 @@
 import type { Locale } from '../i18n/config.ts';
-import { gendered, joinList, useUi } from '../i18n/ui.ts';
+import { gendered, joinList, pageDescription, useUi } from '../i18n/ui.ts';
+import { HOME_PAGE, SITE, type SeoPage } from './site.ts';
 import type { AdoptionType, Color, Sex, Size, Species, Trait } from './taxonomy.ts';
 
 /** The structured facts an animal's search snippet is written from. */
@@ -70,6 +71,17 @@ const WORDING: Record<Locale, Wording> = {
     },
   },
 };
+
+/**
+ * Search title and description of a page with a fixed address when none was written in the admin,
+ * built the same way in every language: the home page has the ones of the site, any other page its
+ * name followed by the name of the site, and its own description.
+ */
+export function automaticPageSeo(page: SeoPage, locale: Locale): { title: string; description: string } {
+  const ui = useUi(locale);
+  if (page === HOME_PAGE) return { title: ui.seo.homeTitle, description: ui.seo.description };
+  return { title: `${ui.pages[page]} | ${SITE.name}`, description: pageDescription(ui, page) };
+}
 
 /**
  * Search title and description of an animal, written from its structured data only: no age

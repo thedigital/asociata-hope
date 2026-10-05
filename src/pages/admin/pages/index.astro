@@ -4,7 +4,7 @@ import { LOCALE_NAMES } from '../../../i18n/config.ts';
 import { useUi } from '../../../i18n/ui.ts';
 import Admin from '../../../layouts/Admin.astro';
 import { listPagesForAdmin } from '../../../lib/admin-pages.ts';
-import { UNLISTED_PAGES } from '../../../lib/site.ts';
+import { HOME_PAGE, UNLISTED_PAGES, type ContentPage } from '../../../lib/site.ts';
 
 const user = Astro.locals.user!;
 const t = useAdminUi(user.locale);
@@ -37,13 +37,13 @@ const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium', timeSty
           <tr>
             <td class="table__main">
               <a href={`/admin/pages/${row.slug}`}>
-                <strong>{ui.pages[row.slug]}</strong>
+                <strong>{row.slug === HOME_PAGE ? p.home : ui.pages[row.slug]}</strong>
               </a>
-              {UNLISTED_PAGES.includes(row.slug) && <span class="badge">{p.unlisted}</span>}
+              {UNLISTED_PAGES.includes(row.slug as ContentPage) && <span class="badge">{p.unlisted}</span>}
             </td>
             <td>
-              <a href={`/${row.slug}`} target="_blank" rel="noopener">
-                <code>/{row.slug}</code>
+              <a href={row.slug === HOME_PAGE ? '/' : `/${row.slug}`} target="_blank" rel="noopener">
+                <code>{row.slug === HOME_PAGE ? '/' : `/${row.slug}`}</code>
               </a>
             </td>
             <td data-label={p.written}>{row.written.length ? row.written.map((l) => LOCALE_NAMES[l]).join(', ') : p.automatic}</td>

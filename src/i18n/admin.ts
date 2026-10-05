@@ -83,6 +83,8 @@ export type AdminUi = {
   redirects: { intro: string; from: string; to: string; toHelp: string; code: string; add: string; gone: string; empty: string; invalid: string };
   pages: {
     intro: string;
+    /** The home page has no name in the public menu (the logo leads to it). */
+    home: string;
     page: string;
     address: string;
     updated: string;
@@ -326,7 +328,8 @@ const ro: AdminUi = {
     invalid: 'Adresele trebuie sa inceapa cu / si sa fie diferite.',
   },
   pages: {
-    intro: 'Titlul si descrierea SEO ale paginilor de continut, in cele patru limbi. Textul paginilor nu se modifica aici.',
+    intro: 'Titlul si descrierea SEO ale paginilor site-ului, in cele patru limbi: pagina principala, listele de animale, campaniile, contactul si paginile de continut. Animalele si campaniile le au in propria fisa. Textul paginilor nu se modifica aici.',
+    home: 'Pagina principala',
     written: 'Scrise de mana',
     page: 'Pagina',
     address: 'Adresa',
@@ -587,7 +590,8 @@ const fr: AdminUi = {
     invalid: 'Les adresses doivent commencer par / et être différentes.',
   },
   pages: {
-    intro: 'Le titre et la description SEO des pages de contenu, dans les quatre langues. Le texte des pages ne se modifie pas ici.',
+    intro: 'Le titre et la description SEO des pages du site, dans les quatre langues : l’accueil, les listes d’animaux, les collectes, le contact et les pages de contenu. Les animaux et les collectes ont les leurs dans leur propre fiche. Le texte des pages ne se modifie pas ici.',
+    home: 'Accueil',
     written: 'Écrits à la main',
     page: 'Page',
     address: 'Adresse',

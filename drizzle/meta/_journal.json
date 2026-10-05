@@ -57,6 +57,13 @@
       "when": 1791198656541,
       "tag": "0007_furry_franklin_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1791213965736,
+      "tag": "0008_clear_wix_page_descriptions",
+      "breakpoints": true
     }
   ]
 }
