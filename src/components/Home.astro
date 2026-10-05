@@ -8,6 +8,7 @@ import { CAMPAIGNS_PATH, listCampaigns } from '../lib/campaigns.ts';
 import { DONATION_METHODS, SITE } from '../lib/site.ts';
 import AnimalGrid from './AnimalGrid.astro';
 import CampaignGrid from './CampaignGrid.astro';
+import Icon from './Icon.astro';
 import Picture from './Picture.astro';
 import PhotoTiles from './PhotoTiles.astro';
 import RedirectSummary from './RedirectSummary.astro';
@@ -67,8 +68,8 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
       <h1>{t.h1}</h1>
       <p class="hero__lead">{t.lead}</p>
       <p class="hero__actions">
-        <a class="button" href={href('/adoptii-caini')}>{ui.cta.dogs.button}</a>
-        <a class="button button--light" href={href('/adoptii-pisici')}>{ui.cta.cats.button}</a>
+        <a class="button" href={href('/adoptii-caini')}><Icon name="dog" class="button__icon" />{ui.cta.dogs.button}</a>
+        <a class="button button--light" href={href('/adoptii-pisici')}><Icon name="cat" class="button__icon" />{ui.cta.cats.button}</a>
       </p>
       <ul class="hero__stats">
         {

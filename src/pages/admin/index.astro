@@ -1,26 +1,28 @@
 ---
-import { and, asc, eq } from 'drizzle-orm';
+import { asc } from 'drizzle-orm';
 import { db, schema } from '../../db/client.ts';
 import { useAdminUi } from '../../i18n/admin.ts';
 import { formatAge, useUi } from '../../i18n/ui.ts';
 import Admin from '../../layouts/Admin.astro';
 import { moveAnimal } from '../../lib/admin-animals.ts';
 import { checkAnimals, countByLevel } from '../../lib/animal-checks.ts';
-import { COLLECTIONS, findCollection } from '../../lib/animals.ts';
+import { coverPhotos } from '../../lib/animal-photos.ts';
+import { COLLECTIONS, findCollection, inCollection } from '../../lib/animals.ts';
 import { imageUrl } from '../../lib/media.ts';
 import type { PageKey } from '../../lib/site.ts';
-import { STATUSES, ageInMonths, type Status } from '../../lib/taxonomy.ts';
+import { oneOf } from '../../lib/input.ts';
+import { STATUSES, ageInMonths } from '../../lib/taxonomy.ts';
 import Toolbar from '../../components/admin/Toolbar.astro';
 import Tabs from '../../components/admin/Tabs.astro';
 
 const user = Astro.locals.user!;
 const t = useAdminUi(user.locale);
 const ui = useUi(user.locale);
-const { animals, animalPhotos } = schema;
+const { animals } = schema;
 
 const params = Astro.url.searchParams;
 const collection = findCollection(params.get('c') ?? '') ?? COLLECTIONS[0];
-const status = STATUSES.find((s) => s === params.get('status')) as Status | undefined;
+const status = oneOf(STATUSES, params.get('status'));
 const search = (params.get('q') ?? '').trim().toLowerCase();
 const onlyIssues = params.has('issues');
 
@@ -31,17 +33,8 @@ if (Astro.request.method === 'POST') {
   return Astro.redirect(Astro.url.pathname + Astro.url.search, 303);
 }
 
-const inCollection = and(eq(animals.species, collection.species), eq(animals.adoptionType, collection.adoptionType));
-const rows = db.select().from(animals).where(inCollection).orderBy(asc(animals.sortOrder), asc(animals.id)).all();
-const mainPhotos = new Map(
-  db
-    .select({ animalId: animalPhotos.animalId, file: animalPhotos.file })
-    .from(animalPhotos)
-    .innerJoin(animals, eq(animals.id, animalPhotos.animalId))
-    .where(and(inCollection, eq(animalPhotos.sortOrder, 0)))
-    .all()
-    .map((p) => [p.animalId, p.file]),
-);
+const rows = db.select().from(animals).where(inCollection(collection)).orderBy(asc(animals.sortOrder), asc(animals.id)).all();
+const mainPhotos = coverPhotos(rows.map((a) => a.id));
 const issues = checkAnimals(rows);
 const visible = rows.filter((a) => (!status || a.status === status) && (!search || a.name.toLowerCase().includes(search)) && (!onlyIssues || issues.get(a.id)!.length > 0));
 const flagged = rows.filter((a) => issues.get(a.id)!.length > 0).length;
@@ -94,7 +87,7 @@ const tabUrl = (path: string) => `/admin?c=${path}`;
         <tbody>
           {visible.map((animal, index) => (
             <tr>
-              <td>{mainPhotos.has(animal.id) && <img src={imageUrl('animals', mainPhotos.get(animal.id)!, 160)} alt="" width="56" height="56" loading="lazy" />}</td>
+              <td>{mainPhotos.has(animal.id) && <img src={imageUrl('animals', mainPhotos.get(animal.id)!.file, 160)} alt="" width="56" height="56" loading="lazy" />}</td>
               <td class="table__main">
                 <a href={`/admin/animals/${animal.id}`}>
                   <strong>{animal.name}</strong>

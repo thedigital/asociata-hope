@@ -74,11 +74,10 @@ const menu = [
     {
       user && (
         <script is:inline nonce={Astro.locals.cspNonce}>
-          // Handle confirmation dialogs on buttons with data-confirm
-          document.querySelectorAll('[data-confirm]').forEach((button) => {
-            button.addEventListener('click', (event) => {
-              if (!confirm(button.dataset.confirm)) event.preventDefault();
-            });
+          // Buttons with data-confirm ask before they act.
+          document.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-confirm]');
+            if (button && !confirm(button.dataset.confirm)) event.preventDefault();
           });
         </script>
       )

@@ -160,7 +160,20 @@ export const themeChoice = (id: ThemeId, settings: ThemeSettings): ThemeChoice =
 /** Darker towards the start, slightly lighter towards the end, like the hand-picked gradients. */
 const shades = (color: string): Gradient => [mix(color, 0, 0.35), color, mix(color, 255, 0.1)];
 
-const patternUrl = (pattern: Pattern) => `url("data:image/svg+xml,${encodeURIComponent(pattern.svg)}") 0 0 / ${pattern.width}px ${pattern.height}px`;
+/** The two properties that draw a pattern. The tile is encoded once per pattern, not at every page. */
+function patternVariables(id: PatternId): Record<string, string> {
+  let variables = patternCache.get(id);
+  if (!variables) {
+    const pattern = id === 'none' ? null : PATTERNS[id];
+    variables = {
+      '--band-pattern': pattern ? `url("data:image/svg+xml,${encodeURIComponent(pattern.svg)}") 0 0 / ${pattern.width}px ${pattern.height}px` : 'none',
+      '--band-pattern-opacity': pattern ? String(pattern.opacity) : '0',
+    };
+    patternCache.set(id, variables);
+  }
+  return variables;
+}
+const patternCache = new Map<PatternId, Record<string, string>>();
 
 /** Custom properties read by global.css: `--primary` and `--primary-dark` there are the middle and the start of the gradient. */
 export function themeVariables(id: ThemeId, { color, pattern }: ThemeChoice): Record<string, string> {
@@ -174,18 +187,14 @@ export function themeVariables(id: ThemeId, { color, pattern }: ThemeChoice): Re
     '--band-glow': theme.glow,
     '--band-call': (theme.call ?? WIX_ORANGE)[0],
     '--band-call-dark': (theme.call ?? WIX_ORANGE)[1],
-    '--band-pattern': pattern === 'none' ? 'none' : patternUrl(PATTERNS[pattern]),
-    '--band-pattern-opacity': pattern === 'none' ? '0' : String(PATTERNS[pattern].opacity),
+    ...patternVariables(pattern),
   };
 }
 
 const declarations = (variables: Record<string, string>) => Object.entries(variables).map(([name, value]) => `${name}:${value}`).join(';');
 
 /** Every pattern as custom properties, for the previews of the admin. */
-export const patternStyles = (): Record<PatternId, string> =>
-  Object.fromEntries(
-    PATTERN_IDS.map((id) => [id, declarations({ '--band-pattern': id === 'none' ? 'none' : patternUrl(PATTERNS[id]), '--band-pattern-opacity': id === 'none' ? '0' : String(PATTERNS[id].opacity) })]),
-  ) as Record<PatternId, string>;
+export const patternStyles = () => Object.fromEntries(PATTERN_IDS.map((id) => [id, declarations(patternVariables(id))])) as Record<PatternId, string>;
 
 export const themeStyle = (id: ThemeId, choice: ThemeChoice) => declarations(themeVariables(id, choice));
 

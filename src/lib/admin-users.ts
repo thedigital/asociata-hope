@@ -1,7 +1,9 @@
-import { createHash, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
-import { ADMIN_LOCALES, type AdminLocale } from '../i18n/config.ts';
+import { isAdminLocale, type AdminLocale } from '../i18n/config.ts';
+import { hashToken } from './auth.ts';
+import { formText, isEmail } from './input.ts';
 import { MIN_PASSWORD_LENGTH, hashPassword } from './password.ts';
 import { generateSecret, verifyTotp } from './totp.ts';
 
@@ -16,9 +18,6 @@ export type UserFormError = 'email' | 'name' | 'emailTaken';
 export type SetupError = 'password' | 'mismatch' | 'code';
 /** `ready`: can sign in. `pending`: waits for the person to use the link. `expired`: the link was not used in time. */
 export type UserState = 'ready' | 'pending' | 'expired';
-
-const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
-const isAdminLocale = (value: string): value is AdminLocale => (ADMIN_LOCALES as readonly string[]).includes(value);
 
 /**
  * Credentials that cannot be used, and the token of the link with which the person sets their own:
@@ -38,12 +37,12 @@ function pendingCredentials() {
 }
 
 export function parseUserForm(form: FormData): { input: UserInput; errors: UserFormError[] } {
-  const text = (key: string) => String(form.get(key) ?? '').trim();
+  const text = formText(form);
   const email = text('email').toLowerCase();
   const name = text('name').replace(/\s+/g, ' ');
   const locale = text('locale');
   const errors: UserFormError[] = [];
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 200) errors.push('email');
+  if (!isEmail(email) || email.length > 200) errors.push('email');
   if (!name || name.length > 80) errors.push('name');
   return { input: { email, name, locale: isAdminLocale(locale) ? locale : 'ro' }, errors };
 }

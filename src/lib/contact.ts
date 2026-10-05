@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
 import type { Locale } from '../i18n/config.ts';
 import { env } from './env.ts';
+import { isEmail, oneOf } from './input.ts';
 import { DATA_DIR } from './media.ts';
 import { SITE } from './site.ts';
 
@@ -74,7 +75,7 @@ export const emptyContact = (reason: Reason | '' = '', animalName = ''): Contact
 /** Reads the form; `errors` lists the fields to correct. `spam` is true for bot-like submissions. */
 export async function parseContactForm(form: FormData, now = Date.now()): Promise<{ values: ContactValues; attachment: ContactAttachment | null; errors: ContactField[]; spam: boolean }> {
   const text = (key: string, max: number) => String(form.get(key) ?? '').replace(/\r\n/g, '\n').trim().slice(0, max);
-  const reason = REASONS.find((r) => r === form.get('reason')) ?? '';
+  const reason = oneOf(REASONS, form.get('reason')) ?? '';
   const values: ContactValues = {
     reason,
     firstName: text('firstName', LIMITS.name),
@@ -88,14 +89,14 @@ export async function parseContactForm(form: FormData, now = Date.now()): Promis
   if (!reason) errors.push('reason');
   if (!values.firstName) errors.push('firstName');
   if (!values.lastName) errors.push('lastName');
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(values.email)) errors.push('email');
+  if (!isEmail(values.email)) errors.push('email');
   if (!values.message) errors.push('message');
   if ((reason === 'adopt-dog' || reason === 'adopt-cat') && !values.animalName) errors.push('animalName');
 
   // The questionnaire only exists for cat adoptions; answers sent with another reason are ignored.
   if (reason === 'adopt-cat') {
     for (const key of CAT_CHOICE_KEYS) {
-      const value = (CAT_CHOICES[key] as readonly string[]).find((option) => option === form.get(key));
+      const value = oneOf<string>(CAT_CHOICES[key], form.get(key));
       if (value) values.answers[key] = value;
       else errors.push(key);
     }

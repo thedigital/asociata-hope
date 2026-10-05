@@ -7,6 +7,7 @@ import type { Campaign } from '../lib/campaigns.ts';
 import { imageUrl } from '../lib/media.ts';
 import CampaignProgress from './CampaignProgress.astro';
 import DetailList from './DetailList.astro';
+import Icon from './Icon.astro';
 import Paragraphs from './Paragraphs.astro';
 import Picture from './Picture.astro';
 
@@ -111,7 +112,7 @@ const [main, ...others] = animal.photos;
       <div class="animal__actions">
         {isVirtual && <a class="button" href={`${localizePath('/doneaza', locale)}?animal=${encodeURIComponent(animal.name)}#card`}>{ui.animal.sponsor}</a>}
         <a class={isVirtual ? 'button button--sand' : 'button'} href={`${localizePath('/contact', locale)}?reason=${contactReason}&animal=${encodeURIComponent(animal.name)}#contact-body`}>{ui.animal.contact}</a>
-        <a class="button button--sand" href={listUrl}>{ui.animal.seeOthers[animal.species]}</a>
+        <a class="button button--sand" href={listUrl}><Icon name={animal.species} class="button__icon" />{ui.animal.seeOthers[animal.species]}</a>
       </div>
     </div>
   </div>
@@ -121,22 +122,20 @@ const [main, ...others] = animal.photos;
   // Thumbnails swap the main picture in place; without JavaScript they open the full-size image.
   (() => {
     const main = document.getElementById('animal-photo');
-    const thumbs = document.querySelectorAll('.animal__thumbs a');
-    if (!main) return;
-    thumbs.forEach((thumb) => {
-      thumb.addEventListener('click', (event) => {
-        event.preventDefault();
-        const file = thumb.dataset.file;
-        const url = (width) => `/media/animals/${width}/${file}`;
-        main.srcset = [400, 800, 1200].map((w) => `${url(w)} ${w}w`).join(', ');
-        main.src = url(800);
-        main.alt = thumb.querySelector('img').alt;
-        main.removeAttribute('width');
-        main.removeAttribute('height');
-        main.parentElement.href = url(1200);
-        thumbs.forEach((other) => other.removeAttribute('aria-current'));
-        thumb.setAttribute('aria-current', 'true');
-      });
+    // One listener on the list, whatever the number of photos.
+    document.querySelector('.animal__thumbs')?.addEventListener('click', (event) => {
+      const thumb = event.target.closest('a');
+      if (!main || !thumb) return;
+      event.preventDefault();
+      const url = (width) => `/media/animals/${width}/${thumb.dataset.file}`;
+      main.srcset = [400, 800, 1200].map((w) => `${url(w)} ${w}w`).join(', ');
+      main.src = url(800);
+      main.alt = thumb.querySelector('img').alt;
+      main.removeAttribute('width');
+      main.removeAttribute('height');
+      main.parentElement.href = thumb.href;
+      event.currentTarget.querySelector('[aria-current]')?.removeAttribute('aria-current');
+      thumb.setAttribute('aria-current', 'true');
     });
   })();
 </script>

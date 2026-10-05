@@ -2,7 +2,7 @@
  * Structured data (schema.org, JSON-LD) written in the head of public pages. Every block is built
  * in the language of the page; names of animals and the legal name of the association are never translated.
  */
-import { DEFAULT_LOCALE, localizePath, type Locale } from '../i18n/config.ts';
+import { DEFAULT_LOCALE, absoluteUrl as urlOf, type Locale } from '../i18n/config.ts';
 import type { useUi } from '../i18n/ui.ts';
 import { SITE } from './site.ts';
 
@@ -14,8 +14,6 @@ const CONTEXT = 'https://schema.org';
 /** Pages with a more precise schema.org type than WebPage. */
 const PAGE_TYPES: Record<string, string> = { 'despre-noi': 'AboutPage', contact: 'ContactPage' };
 
-/** Absolute URL of a path in a language; the home page has no trailing slash, as its canonical. */
-const urlOf = (origin: string, path: string, locale: Locale) => origin + localizePath(path, locale).replace(/^\/$/, '');
 // The association and the site are the same in every language: one identifier each, on the Romanian home page.
 const organizationId = (origin: string) => `${origin}/#organization`;
 const websiteId = (origin: string) => `${origin}/#website`;

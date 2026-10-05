@@ -62,6 +62,9 @@ export const COLLECTION_PATHS: Record<Species, Record<AdoptionType, string>> = {
   cat: { real: 'adoptii-pisici', virtual: 'adoptii-virtuale-pisici' },
 };
 
+/** Public path of an animal, without language prefix. */
+export const animalPath = (animal: { species: Species; adoptionType: AdoptionType; slug: string }) => `/${COLLECTION_PATHS[animal.species][animal.adoptionType]}/${animal.slug}`;
+
 /** Whole months elapsed since `birthDate` (ISO `YYYY-MM-DD`). */
 export function ageInMonths(birthDate: string, now = new Date()): number {
   const [year, month, day] = birthDate.split('-').map(Number);

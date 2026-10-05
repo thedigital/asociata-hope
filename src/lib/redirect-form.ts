@@ -3,6 +3,8 @@
  * It is filled in between 1 January and 25 May for the income of the year before (the dates shown
  * on redirectioneaza.ro, where the online form is closed the rest of the year).
  */
+import { dateInRomania } from './input.ts';
+
 const LAST_DAY = { month: 5, day: 25 };
 
 export interface RedirectCampaign {
@@ -16,7 +18,7 @@ export interface RedirectCampaign {
 
 export function redirectCampaign(now = new Date()): RedirectCampaign {
   // The deadline is a Romanian one, whatever the time zone of the server.
-  const [year, month, day] = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Bucharest', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now).split('-').map(Number);
+  const [year, month, day] = dateInRomania(now).split('-').map(Number);
   const open = month < LAST_DAY.month || (month === LAST_DAY.month && day <= LAST_DAY.day);
   return open ? { open, incomeYear: year - 1, filingYear: year } : { open, incomeYear: year, filingYear: year + 1 };
 }

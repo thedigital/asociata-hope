@@ -4,22 +4,12 @@ import { join } from 'node:path';
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
 import { ENABLED_LOCALES, LOCALES, localizePath, type Locale } from '../i18n/config.ts';
+import { inCollection } from './animals.ts';
+import { formText, isIsoDate, oneOf } from './input.ts';
 import { UPLOADS_DIR } from './media.ts';
 import { buildAnimalSeo } from './seo.ts';
 import { removeImage, storeImage } from './uploads.ts';
-import {
-  ADOPTION_TYPES,
-  COLLECTION_PATHS,
-  COLORS,
-  SEXES,
-  SIZES,
-  SPECIES,
-  STATUSES,
-  TRAITS,
-  type AdoptionType,
-  type Species,
-  type Trait,
-} from './taxonomy.ts';
+import { ADOPTION_TYPES, COLORS, SEXES, SIZES, SPECIES, STATUSES, TRAITS, animalPath, type Trait } from './taxonomy.ts';
 
 const { animals, animalPhotos, animalTraits, animalTranslations, redirects } = schema;
 
@@ -36,8 +26,6 @@ const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
  */
 export const MAX_UPLOAD_BYTES = 95 * 1024 * 1024;
 
-const oneOf = <T extends string>(values: readonly T[], value: string): T | null => ((values as readonly string[]).includes(value) ? (value as T) : null);
-
 export function slugify(name: string): string {
   return name
     .normalize('NFD')
@@ -49,7 +37,7 @@ export function slugify(name: string): string {
 
 /** Reads and validates the animal form. Unknown taxonomy values are rejected, never stored. */
 export function parseAnimalForm(form: FormData) {
-  const text = (key: string) => String(form.get(key) ?? '').trim();
+  const text = formText(form);
   const errors: FormError[] = [];
 
   const name = text('name');
@@ -62,7 +50,7 @@ export function parseAnimalForm(form: FormData) {
   const status = oneOf(STATUSES, text('status'));
   if (!species || !adoptionType || !status) errors.push('invalid');
   const birthDate = text('birthDate');
-  if (birthDate && (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate) || Number.isNaN(Date.parse(birthDate)) || Date.parse(birthDate) > Date.now())) errors.push('birthDate');
+  if (birthDate && (!isIsoDate(birthDate) || Date.parse(birthDate) > Date.now())) errors.push('birthDate');
   const videoUrl = text('videoUrl');
   if (videoUrl && !/^https?:\/\/\S+$/.test(videoUrl)) errors.push('videoUrl');
 
@@ -107,8 +95,6 @@ export function moveUrl(tx: Transaction, from: string, to: string): void {
   }
 }
 
-const animalPath = (a: { species: Species; adoptionType: AdoptionType; slug: string }) => `/${COLLECTION_PATHS[a.species][a.adoptionType]}/${a.slug}`;
-
 /**
  * Creates or updates an animal with its traits and translations.
  * When the public URL changes, the old one is redirected (301) in every language.
@@ -118,7 +104,7 @@ export function saveAnimal(id: number | null, input: ReturnType<typeof parseAnim
   const clash = db
     .select({ id: animals.id })
     .from(animals)
-    .where(and(eq(animals.species, data.species), eq(animals.adoptionType, data.adoptionType), eq(animals.slug, data.slug), id ? ne(animals.id, id) : undefined))
+    .where(and(inCollection(data), eq(animals.slug, data.slug), id ? ne(animals.id, id) : undefined))
     .get();
   if (clash) return { error: 'slugTaken' };
 
@@ -138,7 +124,7 @@ export function saveAnimal(id: number | null, input: ReturnType<typeof parseAnim
       const first = tx
         .select({ sortOrder: animals.sortOrder })
         .from(animals)
-        .where(and(eq(animals.species, data.species), eq(animals.adoptionType, data.adoptionType)))
+        .where(inCollection(data))
         .orderBy(asc(animals.sortOrder))
         .get();
       animalId = tx.insert(animals).values({ ...data, sortOrder: (first?.sortOrder ?? 1) - 1 }).returning({ id: animals.id }).get().id;
@@ -228,12 +214,12 @@ export async function setVideo(animalId: number, upload: File | null, remove: bo
   if (!current || (!hasUpload && !remove)) return true;
   let videoFile: string | null = null;
   if (upload && hasUpload) {
-    const buffer = Buffer.from(await upload.arrayBuffer());
-    // An MP4 file starts with a box whose type, at offset 4, is "ftyp".
-    if (upload.size > MAX_VIDEO_BYTES || buffer.subarray(4, 8).toString('latin1') !== 'ftyp') return false;
+    // An MP4 file starts with a box whose type, at offset 4, is "ftyp". Only those bytes are read:
+    // the file itself goes to the disk as a stream, without a second copy of it in memory.
+    if (upload.size > MAX_VIDEO_BYTES || (await upload.slice(4, 8).text()) !== 'ftyp') return false;
     videoFile = `${randomBytes(12).toString('hex')}.mp4`;
     await mkdir(join(UPLOADS_DIR, 'videos'), { recursive: true });
-    await writeFile(join(UPLOADS_DIR, 'videos', videoFile), buffer);
+    await writeFile(join(UPLOADS_DIR, 'videos', videoFile), upload.stream());
   }
   if (current.videoFile) await rm(join(UPLOADS_DIR, 'videos', current.videoFile), { force: true });
   db.update(animals).set({ videoFile }).where(eq(animals.id, animalId)).run();
@@ -247,7 +233,7 @@ export function moveAnimal(id: number, direction: 'up' | 'down') {
   const ids = db
     .select({ id: animals.id })
     .from(animals)
-    .where(and(eq(animals.species, animal.species), eq(animals.adoptionType, animal.adoptionType)))
+    .where(inCollection(animal))
     .orderBy(asc(animals.sortOrder), asc(animals.id))
     .all()
     .map((a) => a.id);

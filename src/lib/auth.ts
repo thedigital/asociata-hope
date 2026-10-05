@@ -11,7 +11,7 @@ export const SESSION_COOKIE = 'session';
 export const SESSION_DAYS = 14;
 export type AdminUser = { id: number; email: string; name: string; locale: AdminLocale };
 
-const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
+export const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
 
 /** Only the SHA-256 of the token is stored: a leaked database does not give usable sessions. */
 export function createSession(userId: number): { token: string; expiresAt: Date } {

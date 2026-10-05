@@ -1,4 +1,5 @@
 import { env } from './env.ts';
+import { oneOf } from './input.ts';
 import { CURRENCIES, type Currency } from './stripe.ts';
 
 /** Value of one euro in each currency. */
@@ -14,7 +15,7 @@ export const FALLBACK_RATES: Rates = { ron: 5.3488, eur: 1, usd: 1.1225 };
 export function parseRates(xml: string): Rates | null {
   const rates: Partial<Rates> = { eur: 1 };
   for (const [, code, rate] of xml.matchAll(/currency=["']([A-Z]{3})["']\s+rate=["']([\d.]+)["']/g)) {
-    const currency = CURRENCIES.find((c) => c === code.toLowerCase());
+    const currency = oneOf(CURRENCIES, code.toLowerCase());
     if (currency && Number(rate) > 0) rates[currency] = Number(rate);
   }
   return CURRENCIES.every((c) => rates[c]) ? (rates as Rates) : null;

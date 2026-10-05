@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
+import { oneOf } from './input.ts';
 import { CURRENCIES } from './stripe.ts';
 
 const { campaigns, campaignDonations } = schema;
@@ -56,7 +57,7 @@ export function recordCampaignDonation(event: StripeEvent): boolean {
     [amount, metadata] = [object.amount_paid, object.parent?.subscription_details?.metadata ?? object.subscription_details?.metadata];
   }
   const campaignId = Number(metadata?.campaign);
-  const currency = CURRENCIES.find((c) => c === object.currency);
+  const currency = oneOf(CURRENCIES, object.currency);
   if (!Number.isInteger(amount) || !amount || amount < 0 || !currency || !Number.isInteger(campaignId)) return false;
   if (!db.select({ id: campaigns.id }).from(campaigns).where(eq(campaigns.id, campaignId)).get()) return false;
   return db.insert(campaignDonations).values({ stripeId: object.id, campaignId, amount, currency }).onConflictDoNothing().run().changes > 0;

@@ -1,6 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
 import { LOCALES, type Locale } from '../i18n/config.ts';
+import { formText } from './input.ts';
 import { SEO_PAGES, type SeoPage } from './site.ts';
 
 const { pages, pageTranslations } = schema;
@@ -17,7 +18,8 @@ export const isSeoPage = (slug: string): slug is SeoPage => (SEO_PAGES as readon
 
 /** Reads the form of a page: its SEO title and description in every language. The text of a page is not edited in the admin. */
 export function parsePageForm(form: FormData): { translations: PageSeoInput[]; errors: PageFormError[] } {
-  const text = (key: string) => String(form.get(key) ?? '').trim().replace(/\s+/g, ' ');
+  const read = formText(form);
+  const text = (key: string) => read(key).replace(/\s+/g, ' ');
   const errors = new Set<PageFormError>();
   const translations = LOCALES.map((locale) => {
     const seoTitle = text(`seoTitle_${locale}`);

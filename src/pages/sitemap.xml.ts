@@ -1,12 +1,12 @@
 import type { APIRoute } from 'astro';
-import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, localizePath } from '../i18n/config.ts';
+import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, absoluteUrl, type Locale } from '../i18n/config.ts';
 import { COLLECTIONS, listAnimalPaths } from '../lib/animals.ts';
 import { CAMPAIGNS_PATH, listCampaignPaths } from '../lib/campaigns.ts';
 import { CONTENT_PAGES, UNLISTED_PAGES } from '../lib/site.ts';
 
 export const GET: APIRoute = ({ site }) => {
   const origin = site!.origin;
-  const absolute = (path: string, locale: (typeof ENABLED_LOCALES)[number]) => origin + localizePath(path, locale).replace(/^\/$/, '');
+  const absolute = (path: string, locale: Locale) => absoluteUrl(origin, path, locale);
   const entries: { path: string; lastmod?: string }[] = [
     { path: '/' },
     { path: '/contact' },

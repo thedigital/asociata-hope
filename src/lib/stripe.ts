@@ -1,5 +1,6 @@
 import type { Locale } from '../i18n/config.ts';
 import { env } from './env.ts';
+import { oneOf } from './input.ts';
 
 /** Donations by card go through Stripe Checkout: card data never touches this server. */
 export const CURRENCIES = ['ron', 'eur', 'usd'] as const;
@@ -23,8 +24,8 @@ export const isStripeConfigured = () => Boolean(env('STRIPE_SECRET_KEY'));
 export const isStripeWebhookConfigured = () => Boolean(env('STRIPE_WEBHOOK_SECRET'));
 
 export function parseDonationForm(form: FormData): Donation | { error: DonationError } {
-  const currency = CURRENCIES.find((c) => c === form.get('currency'));
-  const frequency = FREQUENCIES.find((f) => f === form.get('frequency'));
+  const currency = oneOf(CURRENCIES, form.get('currency'));
+  const frequency = oneOf(FREQUENCIES, form.get('frequency'));
   if (!currency || !frequency) return { error: 'invalid' };
   // The custom amount wins over the preset buttons when both are sent.
   const raw = String(form.get('customAmount') || form.get('amount') || '').replace(',', '.').trim();

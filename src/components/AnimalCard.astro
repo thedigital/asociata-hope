@@ -3,7 +3,7 @@ import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { formatAge, useUi } from '../i18n/ui.ts';
 import type { AnimalCard } from '../lib/animals.ts';
-import { COLLECTION_PATHS } from '../lib/taxonomy.ts';
+import { animalPath } from '../lib/taxonomy.ts';
 import Icon from './Icon.astro';
 import Picture from './Picture.astro';
 
@@ -22,7 +22,7 @@ interface Props {
 const { animal, locale, eager = false, priority = false, heading: Heading = 'h3', link = true } = Astro.props;
 const Body = link ? 'a' : 'div';
 const ui = useUi(locale);
-const url = localizePath(`/${COLLECTION_PATHS[animal.species][animal.adoptionType]}/${animal.slug}`, locale);
+const url = localizePath(animalPath(animal), locale);
 const details = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMonths), animal.sex ? ui.sex[animal.sex] : null].filter(Boolean);
 ---
 

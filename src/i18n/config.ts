@@ -20,6 +20,7 @@ export const ADMIN_LOCALES = ['ro', 'fr'] as const;
 export type AdminLocale = (typeof ADMIN_LOCALES)[number];
 
 export const isLocale = (value: string): value is Locale => (LOCALES as readonly string[]).includes(value);
+export const isAdminLocale = (value: string): value is AdminLocale => (ADMIN_LOCALES as readonly string[]).includes(value);
 
 /** `/fr/adoptii-caini/lizzie` → `{ locale: 'fr', path: '/adoptii-caini/lizzie' }` */
 export function splitLocale(pathname: string): { locale: Locale; path: string } {
@@ -33,6 +34,9 @@ export function localizePath(path: string, locale: Locale): string {
   if (locale === DEFAULT_LOCALE) return path;
   return `/${locale}${path === '/' ? '' : path}`;
 }
+
+/** Absolute URL of a path in a language; the home page has no trailing slash, as on the Wix site. */
+export const absoluteUrl = (origin: string, path: string, locale: Locale) => origin + localizePath(path, locale).replace(/^\/$/, '');
 
 /**
  * Best enabled language for an `Accept-Language` header, by descending q-value.

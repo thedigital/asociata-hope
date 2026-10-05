@@ -21,6 +21,7 @@ import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from
 import { CAMPAIGNS_PATH, campaignForAnimal, getCampaign, listCampaigns } from '../lib/campaigns.ts';
 import { CONTACT_MAX_BYTES, REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
 import { sizeBodyImages } from '../lib/image-size.ts';
+import { oneOf } from '../lib/input.ts';
 import { breadcrumbLd, organizationLd, webPageLd, websiteLd, type Crumb } from '../lib/json-ld.ts';
 import { imageUrl } from '../lib/media.ts';
 import { splitClosingPhoto, structureBody } from '../lib/page-body.ts';
@@ -104,7 +105,7 @@ if (animal && collection) {
 const query = Astro.url.searchParams;
 
 // Contact form: links from animal pages pre-fill the reason and the animal's name.
-let contact = emptyContact(REASONS.find((r) => r === query.get('reason')) ?? '', query.get('animal')?.slice(0, 80) ?? '');
+let contact = emptyContact(oneOf(REASONS, query.get('reason')) ?? '', query.get('animal')?.slice(0, 80) ?? '');
 if (contact.reason === 'redirection') contact.message = useFormsUi(locale).contact.redirectionMessage;
 let contactErrors: ContactField[] = [];
 let contactState: 'form' | 'sent' | 'limited' = query.has('sent') ? 'sent' : 'form';

@@ -4,6 +4,7 @@ import { DEFAULT_LOCALE, LOCALES, type Locale } from '../i18n/config.ts';
 import { moveUrl, slugify } from './admin-animals.ts';
 import { CAMPAIGNS_PATH, campaignState, campaignTotals, raisedByCard } from './campaigns.ts';
 import { FALLBACK_RATES, type Rates } from './exchange-rates.ts';
+import { formText, isIsoDate, oneOf } from './input.ts';
 import { CURRENCIES, type Currency } from './stripe.ts';
 import { CAMPAIGN_SCOPES, CAMPAIGN_STATUSES } from './taxonomy.ts';
 import { removeImage, storeImage } from './uploads.ts';
@@ -19,11 +20,9 @@ export const CAMPAIGN_TITLE_MAX = 90;
 export const CAMPAIGN_SUMMARY_MAX = 200;
 const MAX_AMOUNT = 10_000_000;
 
-const oneOf = <T extends string>(values: readonly T[], value: string): T | null => ((values as readonly string[]).includes(value) ? (value as T) : null);
-
 /** Reads and validates the campaign form. A temporary campaign needs both a goal and a last day. */
 export function parseCampaignForm(form: FormData) {
-  const text = (key: string) => String(form.get(key) ?? '').trim();
+  const text = formText(form);
   const errors: CampaignFormError[] = [];
   const texts: CampaignTextInput[] = LOCALES.map((locale) => ({
     locale,
@@ -50,7 +49,7 @@ export function parseCampaignForm(form: FormData) {
   const goalAmount = temporary ? amount('goalAmount') : null;
   const endsOn = temporary ? text('endsOn') : '';
   if (temporary && !(goalAmount && goalAmount <= MAX_AMOUNT)) errors.push('goal');
-  if (temporary && (!/^\d{4}-\d{2}-\d{2}$/.test(endsOn) || Number.isNaN(Date.parse(endsOn)))) errors.push('endsOn');
+  if (temporary && !isIsoDate(endsOn)) errors.push('endsOn');
   // Gifts received outside the site, one amount per currency.
   const offline = CURRENCIES.map((c) => [c, text(`offline_${c}`) ? amount(`offline_${c}`) : 0] as const);
   if (offline.some(([, value]) => value === null || value > MAX_AMOUNT)) errors.push('invalid');

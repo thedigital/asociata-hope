@@ -1,11 +1,13 @@
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
 import { DEFAULT_LOCALE, type Locale } from '../i18n/config.ts';
+import { coverPhotos } from './animal-photos.ts';
 import { convert, type Rates } from './exchange-rates.ts';
+import { dateInRomania } from './input.ts';
 import { CURRENCIES, type Currency } from './stripe.ts';
-import { COLLECTION_PATHS, type CampaignScope } from './taxonomy.ts';
+import { animalPath, type CampaignScope } from './taxonomy.ts';
 
-const { animals, animalPhotos, campaigns, campaignDonations, campaignTranslations } = schema;
+const { animals, campaigns, campaignDonations, campaignTranslations } = schema;
 
 /** URL segment of the campaigns, the same in every language: /campanii and /campanii/{slug}. */
 export const CAMPAIGNS_PATH = 'campanii';
@@ -54,9 +56,6 @@ export type Campaign = {
   updatedAt: Date;
 };
 
-/** Date in Romania (ISO `YYYY-MM-DD`): the last day of a campaign ends at midnight there, wherever the server is. */
-export const dateInRomania = (now = new Date()) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Bucharest', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now);
-
 export function campaignState(campaign: { goalAmount: number | null; endsOn: string | null }, raised: number, now = new Date()): CampaignState {
   if (campaign.goalAmount !== null && raised >= campaign.goalAmount) return 'reached';
   if (campaign.endsOn !== null && campaign.endsOn < dateInRomania(now)) return 'ended';
@@ -94,18 +93,19 @@ export function campaignTotals(campaign: { offlineAmounts: Partial<Record<Curren
 function build(rows: (typeof campaigns.$inferSelect)[], locale: Locale, now = new Date()): Campaign[] {
   const ids = rows.map((row) => row.id);
   if (!ids.length) return [];
-  const texts = db.select().from(campaignTranslations).where(inArray(campaignTranslations.campaignId, ids)).all();
+  // Only the texts that can be shown: the language of the page and the Romanian original.
+  const texts = db.select().from(campaignTranslations).where(and(inArray(campaignTranslations.campaignId, ids), inArray(campaignTranslations.locale, [locale, DEFAULT_LOCALE]))).all();
   const byCard = raisedByCard(ids);
   const animalIds = rows.map((row) => row.animalId).filter((id): id is number => id !== null);
   const linked = animalIds.length ? db.select().from(animals).where(and(inArray(animals.id, animalIds), eq(animals.status, 'published'))).all() : [];
-  const photos = linked.length ? db.select().from(animalPhotos).where(and(inArray(animalPhotos.animalId, linked.map((a) => a.id)), eq(animalPhotos.sortOrder, 0))).all() : [];
+  const photos = coverPhotos(linked.map((a) => a.id));
   const today = Date.parse(dateInRomania(now));
 
   return rows.map((row) => {
     const own = texts.find((t) => t.campaignId === row.id && t.locale === locale);
     const text = own?.title ? own : texts.find((t) => t.campaignId === row.id && t.locale === DEFAULT_LOCALE);
     const animal = linked.find((a) => a.id === row.animalId);
-    const photo = animal && photos.find((p) => p.animalId === animal.id);
+    const photo = animal && photos.get(animal.id);
     const { total } = campaignTotals(row, byCard.get(row.id));
     const raised = total(row.currency).amount;
     const shownIn = LOCALE_CURRENCIES[locale];
@@ -127,7 +127,7 @@ function build(rows: (typeof campaigns.$inferSelect)[], locale: Locale, now = ne
       percent: row.goalAmount ? Math.min(100, Math.floor((raised / row.goalAmount) * 100)) : null,
       state: campaignState(row, raised, now),
       image: row.image ? { kind: 'campaigns', file: row.image } : photo ? { kind: 'animals', file: photo.file } : null,
-      animal: animal ? { name: animal.name, path: `/${COLLECTION_PATHS[animal.species][animal.adoptionType]}/${animal.slug}` } : null,
+      animal: animal ? { name: animal.name, path: animalPath(animal) } : null,
       title: text?.title ?? row.slug,
       summary: text?.summary ?? '',
       description: text?.description ?? '',
@@ -176,9 +176,16 @@ export function listCampaignPaths(): { path: string; updatedAt: Date }[] {
     .map((row) => ({ path: `/${CAMPAIGNS_PATH}/${row.slug}`, updatedAt: row.updatedAt }));
 }
 
+// A formatter is costly to build and there are few of them: one per language and currency, kept.
+const moneyFormats = new Map<string, Intl.NumberFormat>();
+
 /** "1.500 RON", "€1,500": a whole amount in the way of the language. */
-export const formatMoney = (amount: number, currency: Currency, locale: Locale) =>
-  new Intl.NumberFormat(locale, { style: 'currency', currency: currency.toUpperCase(), maximumFractionDigits: 0 }).format(Math.floor(amount));
+export const formatMoney = (amount: number, currency: Currency, locale: Locale) => {
+  const key = `${locale}/${currency}`;
+  let format = moneyFormats.get(key);
+  if (!format) moneyFormats.set(key, (format = new Intl.NumberFormat(locale, { style: 'currency', currency: currency.toUpperCase(), maximumFractionDigits: 0 })));
+  return format.format(Math.floor(amount));
+};
 
 /** The same for an amount that may come from a conversion, in the admin: "≈ 1 500 €". */
 export const formatShown = (shown: ShownAmount, locale: Locale) => `${shown.approximate ? '≈\u00a0' : ''}${formatMoney(shown.amount, shown.currency, locale)}`;

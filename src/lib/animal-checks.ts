@@ -86,11 +86,7 @@ export function checkAnimals(list: Animal[]): Map<number, Issue[]> {
   const ids = list.map((a) => a.id);
   const result = new Map<number, Issue[]>();
   if (!ids.length) return result;
-  const group = <T extends { animalId: number }>(rows: T[]) => {
-    const map = new Map<number, T[]>();
-    for (const row of rows) map.set(row.animalId, [...(map.get(row.animalId) ?? []), row]);
-    return map;
-  };
+  const group = <T extends { animalId: number }>(rows: T[]) => Map.groupBy(rows, (row) => row.animalId);
   const traits = group(db.select().from(animalTraits).where(inArray(animalTraits.animalId, ids)).all());
   const translations = group(db.select().from(animalTranslations).where(inArray(animalTranslations.animalId, ids)).all());
   const photos = group(db.select({ animalId: animalPhotos.animalId }).from(animalPhotos).where(inArray(animalPhotos.animalId, ids)).all());

@@ -9,7 +9,7 @@ import '../styles/global.css';
 import logo from '../assets/logo.webp';
 import Flag from '../components/Flag.astro';
 import Icon from '../components/Icon.astro';
-import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, localizePath, type Locale } from '../i18n/config.ts';
+import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, absoluteUrl, localizePath, type Locale } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import { listCampaignPaths } from '../lib/campaigns.ts';
 import { NAV, SITE, type PageKey } from '../lib/site.ts';
@@ -32,8 +32,7 @@ interface Props {
 const { locale, path, title, description, image = '/media/pages/1200/313291_9419d3ada2c44ed7a96a12b568a4523b_mv2.jpg', noindex = false, alternates = true, jsonLd = [] } = Astro.props;
 const ui = useUi(locale);
 const origin = Astro.site!.origin;
-// The home page canonical has no trailing slash, as on the Wix site.
-const absolute = (target: Locale) => origin + localizePath(path, target).replace(/^\/$/, '');
+const absolute = (target: Locale) => absoluteUrl(origin, path, target);
 const href = (page: string) => localizePath(page, locale);
 const isCurrent = (page: string) => path === page || path.startsWith(`${page}/`);
 // Footer link columns: every page of the menu, grouped by what the visitor wants to do.
@@ -229,16 +228,15 @@ const cta = [
     </footer>
 
     <script is:inline nonce={Astro.locals.cspNonce}>
-      // Dropdown groups open on click as well as on hover/focus.
-      const groups = document.querySelectorAll('.site-nav__group');
-      groups.forEach((group) => {
-        group.querySelector('button').addEventListener('click', () => {
-          groups.forEach((other) => other !== group && other.classList.remove('is-open'));
-          group.classList.toggle('is-open');
-        });
-      });
+      // Dropdown groups open on click as well as on hover/focus: a click on the button of a group
+      // opens or closes it, and any click closes the groups it is not in.
       document.addEventListener('click', (event) => {
-        groups.forEach((group) => !group.contains(event.target) && group.classList.remove('is-open'));
+        const inside = event.target.closest('.site-nav__group');
+        const toggled = event.target.closest('.site-nav__group > button') ? inside : null;
+        for (const group of document.querySelectorAll('.site-nav__group')) {
+          if (group === toggled) group.classList.toggle('is-open');
+          else if (group !== inside) group.classList.remove('is-open');
+        }
       });
     </script>
   </body>
