@@ -54,7 +54,8 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [ ] Exécuter l'installation sur le VPS quand l'accès sera disponible ; pas d'intégration continue.
 - [ ] Le serveur Node ne compresse pas les réponses et n'envoie ni `Cache-Control` sur le HTML, ni HSTS, ni CSP : à régler dans le reverse proxy (ou le middleware).
 - [x] Redirection `adoptii-animale-hope.org` → `www.adoptii-animale-hope.org` et HTTP → HTTPS : dans la configuration nginx générée, avec la compression et HSTS. Restent `Cache-Control` sur le HTML et CSP.
-- [ ] Sauvegarde automatique de `data/hope.db` et de `data/uploads/` (hors git). Le déploiement copie la base avant chaque migration, mais sur le même disque.
+- [x] Sauvegarde automatique de la base, des uploads et des pièces jointes : `deploy/backup.sh`, chaque nuit par cron, 14 sauvegardes gardées.
+- [ ] Choisir la destination des sauvegardes hors du VPS (`BACKUP_REMOTE`, une destination rsync) : sans elle, tout reste sur le même disque.
 - [ ] Plan de bascule DNS : baisser le TTL avant, garder Wix actif quelques jours, puis surveiller les 404 et la Search Console.
 - [ ] `favicon.ico` répond 404 (seul `favicon.svg` existe) ; les navigateurs et robots le demandent quand même.
 

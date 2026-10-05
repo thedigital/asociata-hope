@@ -9,6 +9,7 @@ Le site tourne dans un processus Node géré par PM2, derrière nginx, lui-même
 | `setup-nginx.sh <domaine>` | VPS, en root | à l'installation, puis à chaque changement de domaine ou de certificat d'origine |
 | `deploy.sh` | VPS, via `hope-deploy` | à chaque version |
 | `push-data.sh hope@vps` | poste de travail | première installation : base et fichiers envoyés (ils sont hors git) |
+| `backup.sh` | VPS, par cron chaque nuit | sauvegarde de la base, des uploads et des pièces jointes du formulaire de contact |
 | `ecosystem.config.cjs` | lu par PM2 | deux instances en mode cluster |
 
 ## Sur le serveur
@@ -21,6 +22,7 @@ Le site tourne dans un processus Node géré par PM2, derrière nginx, lui-même
   shared/.env          configuration (jamais dans git)
   shared/data/         hope.db, uploads/, cache/, contact/
   shared/backups/      copie de la base avant chaque déploiement (10 gardées)
+  shared/backups/daily/<date>-<heure>/   sauvegarde de chaque nuit (14 gardées), backup.log à côté
 ```
 
 ## Première installation
@@ -34,7 +36,7 @@ Le site tourne dans un processus Node géré par PM2, derrière nginx, lui-même
    ```
 
 2. Remplir `/srv/hope/shared/.env` : `SITE_URL` (tant que le domaine n'est pas le domaine
-   définitif), `STRIPE_SECRET_KEY`, `SMTP_URL`.
+   définitif), `STRIPE_SECRET_KEY`, `SMTP_URL`, `BACKUP_REMOTE`.
 3. Depuis le poste de travail, envoyer la base et les fichiers : `deploy/push-data.sh hope@vps`.
 4. Sur le serveur : `hope-deploy`.
 5. Dans Cloudflare, créer l'enregistrement DNS **proxifié** (nuage orange) du domaine vers le VPS,
@@ -88,5 +90,28 @@ pm2 logs hope         # journaux (rotation par pm2-logrotate)
 pm2 restart hope      # après une modification de shared/.env sans rapport avec SITE_URL
 ```
 
-Pas encore en place : sauvegarde hors du serveur de `shared/data/` (la copie faite avant chaque
-déploiement reste sur le même disque).
+## Sauvegardes
+
+Chaque nuit à 3 h 30 (`/etc/cron.d/hope-backup`), `backup.sh` crée
+`shared/backups/daily/<date>-<heure>/` avec `hope.db.gz` (copie cohérente de la base, vérifiée par
+`integrity_check`), `uploads/` et `contact/`. Les fichiers inchangés sont des liens vers la
+sauvegarde précédente : 14 sauvegardes occupent à peine plus de place qu'une seule. Le cache
+d'images n'est pas sauvegardé, il se reconstruit.
+
+**Hors du serveur** : renseigner `BACKUP_REMOTE` dans `shared/.env` avec une destination rsync
+(`backup@hote:/backups/hope`) et autoriser sur cet hôte la clé `/home/hope/.ssh/id_ed25519.pub`.
+Tant qu'il est vide, les sauvegardes restent sur le disque du VPS et le journal le rappelle à
+chaque passage. Vérifier de temps en temps `shared/backups/backup.log` : un échec y est noté
+`backup FAILED`, rien d'autre ne prévient.
+
+Lancer une sauvegarde à la main : `sudo -u hope /srv/hope/current/deploy/backup.sh`.
+
+Restaurer (en tant que `hope`), à partir du dossier `B` d'une sauvegarde :
+
+```bash
+pm2 stop hope
+cd /srv/hope/shared/data
+rm -f hope.db-wal hope.db-shm && gunzip -c B/hope.db.gz > hope.db
+rsync -a --delete B/uploads/ uploads/ && rsync -a --delete B/contact/ contact/
+pm2 start hope
+```

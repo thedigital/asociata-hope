@@ -26,7 +26,7 @@ step "System packages"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
 # build-essential and python3: fallback when better-sqlite3 has no prebuilt binary for the platform.
-apt-get install -y -q nginx git curl ca-certificates rsync sudo build-essential python3
+apt-get install -y -q nginx git curl ca-certificates rsync sudo cron build-essential python3
 
 step "Node $NODE_MAJOR, pnpm, PM2"
 if ! command -v node >/dev/null || [ "$(node -p 'process.versions.node.split(".")[0]')" -lt "$NODE_MAJOR" ]; then
@@ -74,6 +74,12 @@ STRIPE_SECRET_KEY=
 SMTP_URL=
 MAIL_FROM=
 CONTACT_TO=
+
+# Nightly backup (deploy/backup.sh). Copy of the backups outside this server: an rsync destination
+# such as backup@host:/backups/hope, reached with the SSH key of $APP_USER. Empty: local backups only.
+BACKUP_REMOTE=
+# Number of nightly backups kept.
+BACKUP_KEEP=14
 ENV
   echo "Created. Fill in SITE_URL, STRIPE_SECRET_KEY and SMTP_URL before the first deployment."
 else
@@ -120,6 +126,15 @@ exec bash <(git --git-dir="\$APP_DIR/repo.git" show "$BRANCH:deploy/deploy.sh") 
 LAUNCHER
 chmod 755 /usr/local/bin/hope-deploy
 
+step "Nightly backup"
+cat > /etc/cron.d/hope-backup <<CRON
+# Installed by deploy/install.sh: database, uploads and contact attachments, every night.
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+30 3 * * * $APP_USER APP_DIR=$APP_DIR $APP_DIR/current/deploy/backup.sh >> $APP_DIR/shared/backups/backup.log 2>&1
+CRON
+chmod 644 /etc/cron.d/hope-backup
+echo "Every night at 03:30 (server time), log in $APP_DIR/shared/backups/backup.log."
+
 step "PM2 at boot and log rotation"
 env PATH="$PATH" pm2 startup systemd -u "$APP_USER" --hp "$APP_HOME" >/dev/null
 as_app pm2 install pm2-logrotate >/dev/null 2>&1 || echo "pm2-logrotate could not be installed (logs will not be rotated)."
@@ -128,7 +143,7 @@ cat <<DONE
 
 Server ready. Next steps:
 
-  1. Fill in $APP_DIR/shared/.env (as root or $APP_USER).
+  1. Fill in $APP_DIR/shared/.env (as root or $APP_USER), including BACKUP_REMOTE.
   2. From the workstation, send the database and the uploads:
        deploy/push-data.sh $APP_USER@<server>
   3. Deploy the application:
