@@ -15,7 +15,7 @@ Comparé automatiquement : statut HTTP, `title`, description, `h1`, canonical, h
 | URL dans le sitemap | 351 | 456 (342 + 114 pages allemandes) |
 | Animaux listés (chiens / chats / parrainage chiens / parrainage chats) | 39 / 24 / 13 / 21 | 39 / 24 / 13 / 21 |
 | Canonical et hreflang ro/en/fr | — | identiques partout, sauf `/shop` et Anais (voir plus bas) |
-| Texte des pages | — | même volume partout, sauf `/in-memoriam` |
+| Texte des pages | — | même volume partout |
 | Liens internes et externes | — | tous repris ; les `/_files/ugd/*` redirigent en 301 vers `/files/*` |
 | Allemand (`/de`) | n'existe pas (404) | 114 pages |
 
@@ -24,9 +24,7 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 ## 1. Bloquant avant la mise en ligne
 
 ### Données
-- [ ] **Refaire l'export Wix et l'import juste avant la bascule.** Le site réel a bougé depuis l'export (sitemap des chats modifié le 24/09/2026, pages le 25/09/2026). Séquence : `pnpm crawl --media --refresh`, nouveaux CSV dans `migration/wix-export/`, puis `import:animals`, `import:pages`, `import:memoriam`, `import:translations`, `seo:fill`.
 - [ ] **Anais / Serena.** Sur Wix, `/adoptii-pisici/anais` répond 301 vers `/adoptii-pisici/serena` (dans les trois langues), alors que les deux figurent encore dans la liste. C'était déjà le cas au moment du crawl : la baseline enregistre la page de Serena à l'URL d'Anais. En local les deux fiches sont publiées et répondent 200, avec des textes et des photos différents. Demander à l'association s'il s'agit de deux chats (la fiche d'Anais est alors inaccessible sur Wix par erreur, et le local a raison) ou d'un doublon (supprimer Anais et créer la redirection).
-- [ ] **`/in-memoriam`.** Le site réel affiche 9 animaux puis un bouton « Afiseza mai mult » ; le local en affiche 9 en tout. Vérifier dans Wix combien la galerie en contient réellement.
 - [ ] 9 animaux sur 106 n'ont pas de date de naissance, 73 ont une date estimée à partir d'un âge Wix. À faire corriger par l'association dans l'admin.
 - [ ] Descriptions vides : 2 en anglais, 2 en allemand, 1 en français.
 
@@ -37,8 +35,15 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [x] `/confirmare-plata` et `/donation-thank-you-page` : `noindex` et hors sitemap (pages vues seulement après un paiement).
 - [x] Test automatique de parité : `pnpm seo:check` compare les 351 URL de la baseline à un serveur lancé.
 - [ ] **Anais** : seul écart restant de `pnpm seo:check` (3 URL). Dépend de la décision de l'association, voir « Données ».
-- [ ] **Comparaison complète des liens et du SEO entre la prod et le nouveau site.** Reprendre toutes les URL de https://www.adoptii-animale-hope.org/ (sitemaps en ligne et liens internes de chaque page, pas seulement les 351 URL de la baseline) et les comparer au nouveau site : statut HTTP, `title`, description, `h1`, canonical, hreflang, liens internes et externes. Tout doit être cohérent, voire mieux fait que sur Wix. **Toute URL de la prod absente du nouveau site doit recevoir une redirection 301** vers la page équivalente (`LEGACY_REDIRECTS` dans `src/lib/site.ts` ou table `redirects`). À refaire après le dernier import, juste avant la bascule.
-- [ ] Search Console : revalider la propriété (aucune balise de vérification dans le HTML de Wix, elle passe sans doute par Wix ou le DNS), soumettre le nouveau `/sitemap.xml`. Les anciens `en_en-sitemap.xml`, `fr_fr-sitemap.xml` et `pages-sitemap.xml` répondront 404.
+- [x] **Comparaison complète des liens et du SEO entre la prod et le nouveau site** (5 octobre 2026). Les 18 sitemaps en ligne et tous les liens internes de chaque page de la prod ont été suivis : 360 URL, dont les 351 de la baseline et 9 documents `/_files/ugd/*`. Elles ont été comparées au build de production local, lui-même parcouru en entier (464 pages dans les quatre langues, plus les listes filtrées).
+  - **Aucune URL de la prod n'est absente** : 345 répondent 200 des deux côtés, les 9 documents redirigent en 301, les 3 `/shop` répondent 410 (voulu). Reste Anais (voir « Données »).
+  - Canonical et langue identiques sur les 345 pages ; hreflang identique, avec `de-de` en plus. Les écarts de `title`, description, `h1`, robots et Open Graph sont tous ceux de la partie 3.
+  - Nouveau site : aucun lien interne cassé ni vers une redirection, un seul `h1` partout, canonical sur l'URL elle-même, hreflang réciproques dans les quatre langues, sitemap égal aux pages indexables, listes filtrées en `noindex` avec canonical sur la liste.
+  - Liens externes : tous valides. Un contrôle automatique reçoit 400 de la page Facebook (filtrage des robots) et 403 d'adoptiicaini.ro et d'adoptiipisici.ro (challenge Cloudflare) : ce sont des faux positifs, confirmés à la main.
+  - Redirections ajoutées : `/ro` et `/ro/…` vers l'URL sans préfixe (Wix le fait aussi), les anciens sitemaps Wix (`*-sitemap.xml`) vers `/sitemap.xml`, et l'ancien formulaire 230 en un seul saut au lieu de deux.
+  - Liens de la prod absents du nouveau site, voulus : le formulaire en ligne de redirectioneaza.ro (affiché du 1er janvier au 25 mai seulement) et le scan du formulaire 230 de 2023 (remplacé par `/formular-230.pdf`).
+- [ ] `/en/despre-noi` : sur Wix, le texte anglais contient un lien vers un profil Facebook personnel (`facebook.com/emil.pruna`), absent du roumain et du français. Il n'est pas repris. À confirmer avec l'association.
+- [ ] Search Console : revalider la propriété (aucune balise de vérification dans le HTML de Wix, elle passe sans doute par Wix ou le DNS), soumettre le nouveau `/sitemap.xml`. Les anciens sitemaps Wix (`en_en-sitemap.xml`, `fr_fr-sitemap.xml`, `pages-sitemap.xml`…) y redirigent en 301 ; les retirer de la Search Console.
 
 ### Fonctionnel
 - [ ] **Dons Stripe, bac à sable** : créer un compte Stripe de test (sandbox) et y essayer les six cas du formulaire avec ses clés (`STRIPE_SECRET_KEY`) : paiement unique et paiement récurrent (mensuel), chacun en EUR, en RON et en USD. Vérifier à chaque fois le montant et la devise affichés par Stripe, le retour sur le site après paiement et après abandon, et pour le récurrent l'abonnement créé dans Stripe.

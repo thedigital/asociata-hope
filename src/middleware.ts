@@ -39,7 +39,13 @@ export const onRequest = defineMiddleware(async ({ url, request, cookies, locals
 
   // Documents kept their file name but moved out of the Wix-specific path.
   const legacyFile = pathname.match(/^(?:\/[a-z]{2})?\/_files\/ugd\/([\w.-]+)$/);
-  if (legacyFile) return redirect(`/files/${legacyFile[1]}`);
+  if (legacyFile) return redirect(LEGACY_REDIRECTS[`/files/${legacyFile[1]}`] ?? `/files/${legacyFile[1]}`);
+
+  // Wix also answered under /ro, redirected to the root; Romanian has no prefix here either.
+  if (pathname === '/ro' || pathname.startsWith('/ro/')) return redirect((pathname.slice(3) || '/') + search);
+
+  // The Wix sitemaps (one index and one set per language) are replaced by a single file.
+  if (/^\/[\w-]+-sitemap\.xml$/.test(pathname)) return redirect('/sitemap.xml');
 
   const { locale, path } = splitLocale(pathname);
   if (path in LEGACY_REDIRECTS) return redirect(localizePath(LEGACY_REDIRECTS[path], locale));
