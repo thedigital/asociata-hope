@@ -41,6 +41,7 @@ const pending = user ? db.select({ n: count() }).from(schema.contactMessages).wh
           </a>
           <nav>
             <a href="/admin" aria-current={current === '/admin' || current.startsWith('/admin/animals') ? 'page' : undefined}>{t.nav.animals}</a>
+            <a href="/admin/pages" aria-current={current.startsWith('/admin/pages') ? 'page' : undefined}>{t.nav.pages}</a>
             <a href="/admin/messages" aria-current={current === '/admin/messages' ? 'page' : undefined}>
               {t.nav.messages}
               {pending > 0 && <span class="count">{pending}</span>}

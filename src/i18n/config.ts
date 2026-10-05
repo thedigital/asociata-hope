@@ -36,8 +36,8 @@ export function localizePath(path: string, locale: Locale): string {
 
 /**
  * Best enabled language for an `Accept-Language` header, by descending q-value.
- * Returns null when the header is absent (search engine crawlers send none) and
- * FALLBACK_LOCALE when it names only languages the site does not serve.
+ * Returns null when the header is absent (search engine crawlers send none) or names no language
+ * (`*`, sent by many programs), and FALLBACK_LOCALE when it names only languages the site does not serve.
  */
 export function preferredLocale(acceptLanguage: string | null): Locale | null {
   if (!acceptLanguage?.trim()) return null;
@@ -48,7 +48,8 @@ export function preferredLocale(acceptLanguage: string | null): Locale | null {
       const q = Number(params.find((p) => p.trim().startsWith('q='))?.split('=')[1] ?? 1);
       return { code: tag.slice(0, 2).toLowerCase(), q: Number.isNaN(q) ? 0 : q };
     })
-    .filter((entry) => entry.q > 0)
+    .filter((entry) => entry.q > 0 && /^[a-z]{2}$/.test(entry.code))
     .sort((a, b) => b.q - a.q);
+  if (!wanted.length) return null;
   return wanted.map((entry) => entry.code).find((code): code is Locale => ENABLED_LOCALES.includes(code as Locale)) ?? FALLBACK_LOCALE;
 }

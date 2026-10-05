@@ -29,7 +29,13 @@ export type TranslationInput = { locale: Locale; description: string; seoTitle: 
 export type FormError = 'name' | 'slug' | 'slugTaken' | 'birthDate' | 'videoUrl' | 'invalid';
 
 const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
-const MAX_VIDEO_BYTES = 150 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
+/**
+ * Photos and video are sent with the animal form in one request, and Cloudflare refuses a request
+ * above 100 MB (Free and Pro plans): the form refuses a larger selection before sending it. The
+ * limits of nginx (deploy/setup-nginx.sh) and of the Node adapter (astro.config.ts) follow this one.
+ */
+export const MAX_UPLOAD_BYTES = 95 * 1024 * 1024;
 
 const oneOf = <T extends string>(values: readonly T[], value: string): T | null => ((values as readonly string[]).includes(value) ? (value as T) : null);
 

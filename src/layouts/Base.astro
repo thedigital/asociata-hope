@@ -95,7 +95,7 @@ const cta = [
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <style is:inline nonce={Astro.locals.cspNonce} set:html={activeThemeCss()} />
-    {jsonLd.map((data) => <script is:inline type="application/ld+json" set:html={JSON.stringify(data)} />)}
+    {jsonLd.map((data) => <script is:inline type="application/ld+json" set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />)}
   </head>
   <body>
     <a class="skip-link" href="#content">{ui.skip}</a>

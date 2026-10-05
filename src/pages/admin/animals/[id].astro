@@ -3,7 +3,7 @@ import { useAdminUi } from '../../../i18n/admin.ts';
 import { ENABLED_LOCALES, LOCALES, LOCALE_NAMES } from '../../../i18n/config.ts';
 import { gendered, useUi } from '../../../i18n/ui.ts';
 import Admin from '../../../layouts/Admin.astro';
-import { addPhotos, deleteAnimal, deletePhoto, getAnimalForEdit, movePhoto, parseAnimalForm, saveAnimal, setVideo, type FormError } from '../../../lib/admin-animals.ts';
+import { MAX_UPLOAD_BYTES, addPhotos, deleteAnimal, deletePhoto, getAnimalForEdit, movePhoto, parseAnimalForm, saveAnimal, setVideo, type FormError } from '../../../lib/admin-animals.ts';
 import { checkAnimal, countByLevel } from '../../../lib/animal-checks.ts';
 import { findCollection } from '../../../lib/animals.ts';
 import { imageUrl } from '../../../lib/media.ts';
@@ -127,7 +127,7 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
   }
   {existing && issues.length === 0 && <p class="notice notice--ok">✓ {t.issues.none}</p>}
 
-  <form id="animal-form" class="form" method="post" enctype="multipart/form-data">
+  <form id="animal-form" class="form" method="post" enctype="multipart/form-data" data-max-bytes={MAX_UPLOAD_BYTES} data-too-large={f.uploadTooLarge}>
     <input type="hidden" name="_action" value="save" />
 
     <fieldset class="card">
@@ -308,6 +308,16 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
       button.addEventListener('click', (event) => {
         if (!confirm(button.dataset.confirm)) event.preventDefault();
       });
+    });
+    // A request above the limit would be refused by the proxy with a bare error page, losing what was typed.
+    const animalForm = document.getElementById('animal-form');
+    animalForm.addEventListener('submit', (event) => {
+      let total = 0;
+      for (const input of animalForm.querySelectorAll('input[type=file]')) for (const file of input.files) total += file.size;
+      if (total > Number(animalForm.dataset.maxBytes)) {
+        event.preventDefault();
+        alert(animalForm.dataset.tooLarge);
+      }
     });
   </script>
 </Admin>

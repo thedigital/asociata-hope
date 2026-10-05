@@ -7,7 +7,10 @@ import { SESSION_COOKIE, getSessionUser } from './lib/auth.ts';
 import { LEGACY_REDIRECTS } from './lib/site.ts';
 import './lib/shutdown.ts';
 
-const redirect = (location: string, status = 301) => new Response(null, { status, headers: { location } });
+/** Redirects stay on the site: a target starting with `//` or `/\` would be read as another host. */
+const redirect = (location: string, status = 301) => new Response(null, { status, headers: { location: location.replace(/^[/\\]+/, '/') } });
+
+const isFormPost = (request: Request) => request.method === 'POST' && /^(application\/x-www-form-urlencoded|multipart\/form-data)\b/i.test(request.headers.get('content-type') ?? '');
 
 const LANGUAGE_COOKIE = 'lang';
 const ONE_YEAR = 60 * 60 * 24 * 365;
@@ -38,6 +41,7 @@ const secure = (response: Response, nonce?: string, admin = false) => {
   response.headers.set('x-content-type-options', 'nosniff');
   response.headers.set('referrer-policy', 'strict-origin-when-cross-origin');
   response.headers.set('x-frame-options', 'SAMEORIGIN');
+  response.headers.set('permissions-policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()');
   if (response.headers.get('content-type')?.startsWith('text/html')) {
     // Pages are built for each request (animals, theme, language): browsers and proxies must ask again.
     if (!response.headers.has('cache-control')) response.headers.set('cache-control', 'no-cache');
@@ -53,6 +57,10 @@ export const onRequest = defineMiddleware(async ({ url, request, cookies, locals
 
   // Wix URLs have no trailing slash; keep a single canonical form.
   if (pathname.length > 1 && pathname.endsWith('/')) return redirect(pathname.replace(/\/+$/, '') + search);
+
+  // Every POST of the site is an HTML form. Astro only checks the origin of form content types, so
+  // anything else is refused here rather than failing later when the form is read.
+  if (request.method !== 'GET' && request.method !== 'HEAD' && !isFormPost(request)) return new Response('Unsupported Media Type', { status: 415 });
 
   // Admin: every page except the login form requires a valid session.
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {

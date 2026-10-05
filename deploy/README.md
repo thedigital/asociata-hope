@@ -76,8 +76,10 @@ après l'avoir changé, redéployer.
   la copie de test ne peut pas concurrencer le site Wix dans les moteurs.
 - Ne pas activer « Cache Everything » : les pages HTML dépendent du cookie de langue (redirection
   de première visite) et de la session admin.
-- Cloudflare refuse les envois de plus de 100 Mo (offres Free et Pro) : une vidéo d'animal plus
-  lourde ne passera pas, alors que l'admin accepte 150 Mo.
+- Cloudflare refuse les envois de plus de 100 Mo (offres Free et Pro). Les limites du site en
+  tiennent compte : une vidéo d'animal fait 80 Mo au plus et le formulaire de l'admin refuse un
+  envoi (photos et vidéo réunies) de plus de 95 Mo ; nginx et Node acceptent 100 Mo sous `/admin`.
+  Formulaire de contact : pièce jointe de 5 Mo au plus, nginx accepte 8 Mo.
 - La redirection du domaine nu vers `www` et de HTTP vers HTTPS est faite par nginx ; le domaine
   nu doit donc aussi être proxifié vers le VPS.
 

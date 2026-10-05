@@ -1,5 +1,6 @@
 import type { AdminLocale } from './config.ts';
 import type { FormError } from '../lib/admin-animals.ts';
+import type { PageFormError } from '../lib/admin-pages.ts';
 import type { IssueCode } from '../lib/animal-checks.ts';
 import type { AdoptionType, Species, Status } from '../lib/taxonomy.ts';
 import type { PatternId, ThemeId } from '../lib/themes.ts';
@@ -8,7 +9,7 @@ import type { PatternId, ThemeId } from '../lib/themes.ts';
 export type AdminUi = {
   title: string;
   login: { title: string; email: string; password: string; code: string; codeHelp: string; submit: string; failed: string; locked: string };
-  nav: { animals: string; messages: string; redirects: string; theme: string; site: string; logout: string };
+  nav: { animals: string; pages: string; messages: string; redirects: string; theme: string; site: string; logout: string };
   messages: { intro: string; empty: string; pending: string; handled: string; all: string; markHandled: string; markPending: string; reply: string; confirmDelete: string; language: string; attachment: string };
   list: { add: string; search: string; all: string; empty: string; photo: string; name: string; age: string; status: string; order: string; up: string; down: string; edit: string; estimated: string };
   form: {
@@ -49,6 +50,7 @@ export type AdminUi = {
     video: string;
     videoUrl: string;
     videoFile: string;
+    uploadTooLarge: string;
     removeVideo: string;
     save: string;
     create: string;
@@ -76,6 +78,24 @@ export type AdminUi = {
   adoptionType: Record<AdoptionType, string>;
   status: Record<Status, string>;
   redirects: { intro: string; from: string; to: string; toHelp: string; code: string; add: string; gone: string; empty: string; invalid: string };
+  pages: {
+    intro: string;
+    page: string;
+    address: string;
+    updated: string;
+    never: string;
+    edit: string;
+    unlisted: string;
+    seo: string;
+    seoHelp: string;
+    automatic: string;
+    body: string;
+    bodyHelp: string;
+    built: string;
+    differs: (languages: string) => string;
+    differsShort: string;
+    errors: Record<PageFormError, string>;
+  };
   theme: {
     intro: string;
     use: string;
@@ -103,7 +123,7 @@ const ro: AdminUi = {
     failed: 'E-mail, parola sau cod incorecte.',
     locked: 'Prea multe incercari. Incercati din nou peste 15 minute.',
   },
-  nav: { animals: 'Animale', messages: 'Mesaje', redirects: 'Redirectionari', theme: 'Tema', site: 'Vezi site-ul', logout: 'Deconectare' },
+  nav: { animals: 'Animale', pages: 'Pagini', messages: 'Mesaje', redirects: 'Redirectionari', theme: 'Tema', site: 'Vezi site-ul', logout: 'Deconectare' },
   messages: {
     intro: 'Mesajele trimise prin formularul de contact al site-ului.',
     empty: 'Niciun mesaj.',
@@ -169,7 +189,8 @@ const ro: AdminUi = {
     remove: 'Sterge',
     video: 'Video',
     videoUrl: 'Link video (Facebook, YouTube…)',
-    videoFile: 'Fisier video (MP4, maximum 150 MB)',
+    videoFile: 'Fisier video (MP4, maximum 80 MB)',
+    uploadTooLarge: 'Fisierele alese depasesc 95 MB in total. Trimiteti fotografiile si fisierul video in mai multe etape.',
     removeVideo: 'Sterge fisierul video actual',
     save: 'Salveaza',
     create: 'Creeaza',
@@ -228,6 +249,27 @@ const ro: AdminUi = {
     empty: 'Nicio redirectionare.',
     invalid: 'Adresele trebuie sa inceapa cu / si sa fie diferite.',
   },
+  pages: {
+    intro: 'Textul si campurile SEO ale paginilor de continut, in cele patru limbi. Lista animalelor, pagina de start si pagina de contact nu se modifica aici.',
+    page: 'Pagina',
+    address: 'Adresa',
+    updated: 'Ultima modificare',
+    never: 'niciodata',
+    edit: 'Modifica',
+    unlisted: 'neindexata',
+    seo: 'Titlu si descriere pentru motoarele de cautare',
+    seoHelp: 'Lasati gol pentru a folosi valoarea automata, afisata in gri. Titlul apare in fila browserului si in rezultatele Google; descrierea, sub titlu, in rezultate.',
+    automatic: 'Automat',
+    body: 'Textul paginii (HTML)',
+    bodyHelp: 'Textul este in format HTML: <p> pentru un paragraf, <h2> pentru un titlu, <ul><li> pentru o lista, <a href="…"> pentru un link. Pastrati aceleasi titluri si imagini in cele patru limbi.',
+    built: 'Continutul acestei pagini este construit de site (date ale asociatiei, animale, formulare): aici se modifica doar titlul si descrierea SEO.',
+    differs: (languages) => `Structura textului (titluri, imagini) difera de cea in romana pentru: ${languages}. O pagina trebuie sa arate la fel in toate limbile.`,
+    differsShort: 'structura diferita intre limbi',
+    errors: {
+      body: 'Textul paginii lipseste in cel putin o limba.',
+      tooLong: 'Un camp este prea lung (titlu SEO: 120 de caractere, descriere SEO: 300).',
+    },
+  },
   theme: {
     intro: 'Tema stabileste culoarea principala a site-ului (titluri, linkuri, butoane, fundaluri colorate) si motivul benzii de sub meniu si al subsolului, pe toate paginile.',
     use: 'Foloseste aceasta tema',
@@ -255,7 +297,7 @@ const fr: AdminUi = {
     failed: 'E-mail, mot de passe ou code incorrect.',
     locked: 'Trop de tentatives. Réessayez dans 15 minutes.',
   },
-  nav: { animals: 'Animaux', messages: 'Messages', redirects: 'Redirections', theme: 'Thème', site: 'Voir le site', logout: 'Déconnexion' },
+  nav: { animals: 'Animaux', pages: 'Pages', messages: 'Messages', redirects: 'Redirections', theme: 'Thème', site: 'Voir le site', logout: 'Déconnexion' },
   messages: {
     intro: 'Les messages envoyés depuis le formulaire de contact du site.',
     empty: 'Aucun message.',
@@ -321,7 +363,8 @@ const fr: AdminUi = {
     remove: 'Supprimer',
     video: 'Vidéo',
     videoUrl: 'Lien vidéo (Facebook, YouTube…)',
-    videoFile: 'Fichier vidéo (MP4, 150 Mo maximum)',
+    videoFile: 'Fichier vidéo (MP4, 80 Mo maximum)',
+    uploadTooLarge: 'Les fichiers choisis dépassent 95 Mo au total. Envoyez les photos et la vidéo en plusieurs fois.',
     removeVideo: 'Supprimer le fichier vidéo actuel',
     save: 'Enregistrer',
     create: 'Créer',
@@ -379,6 +422,27 @@ const fr: AdminUi = {
     gone: 'supprimée (410)',
     empty: 'Aucune redirection.',
     invalid: 'Les adresses doivent commencer par / et être différentes.',
+  },
+  pages: {
+    intro: 'Le texte et les champs SEO des pages de contenu, dans les quatre langues. Les listes d’animaux, la page d’accueil et la page de contact ne se modifient pas ici.',
+    page: 'Page',
+    address: 'Adresse',
+    updated: 'Dernière modification',
+    never: 'jamais',
+    edit: 'Modifier',
+    unlisted: 'non indexée',
+    seo: 'Titre et description pour les moteurs de recherche',
+    seoHelp: 'Laissez vide pour utiliser la valeur automatique, affichée en gris. Le titre apparaît dans l’onglet du navigateur et dans les résultats de Google ; la description, sous le titre, dans les résultats.',
+    automatic: 'Automatique',
+    body: 'Texte de la page (HTML)',
+    bodyHelp: 'Le texte est au format HTML : <p> pour un paragraphe, <h2> pour un titre, <ul><li> pour une liste, <a href="…"> pour un lien. Gardez les mêmes titres et les mêmes images dans les quatre langues.',
+    built: 'Le contenu de cette page est construit par le site (coordonnées de l’association, animaux, formulaires) : seuls le titre et la description SEO se modifient ici.',
+    differs: (languages) => `La structure du texte (titres, images) diffère de celle du roumain pour : ${languages}. Une page doit avoir le même aspect dans toutes les langues.`,
+    differsShort: 'structure différente selon la langue',
+    errors: {
+      body: 'Le texte de la page manque dans au moins une langue.',
+      tooLong: 'Un champ est trop long (titre SEO : 120 caractères, description SEO : 300).',
+    },
   },
   theme: {
     intro: 'Le thème fixe la couleur principale du site (titres, liens, boutons, fonds colorés) et le motif du bandeau sous le menu et du pied de page, sur toutes les pages.',

@@ -120,7 +120,8 @@ $LISTEN_TLS
   add_header Strict-Transport-Security "max-age=31536000" always;
 $ROBOTS
 
-  # Contact form: one attachment of 5 MB at most.
+  # Contact form: one attachment of 5 MB at most. Between that and this limit the site answers
+  # with its own page and message; above it nginx answers a bare 413.
   client_max_body_size 8m;
 
   gzip on;
@@ -143,10 +144,10 @@ $ROBOTS
     proxy_pass http://127.0.0.1:$APP_PORT;
   }
 
-  # Admin: photos (15 MB each) and a video (150 MB) in one form. Cloudflare itself refuses
-  # requests above 100 MB on the Free and Pro plans.
+  # Admin: photos (15 MB each) and a video (80 MB) in one form, which refuses a selection above
+  # 95 MB (MAX_UPLOAD_BYTES). Cloudflare itself refuses requests above 100 MB on the Free and Pro plans.
   location /admin {
-    client_max_body_size 250m;
+    client_max_body_size 100m;
     proxy_request_buffering off;
     proxy_read_timeout 300s;
     proxy_pass http://127.0.0.1:$APP_PORT;

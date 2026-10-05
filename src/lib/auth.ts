@@ -61,6 +61,7 @@ export async function authenticate(email: string, password: string, code: string
 /** Failed logins per key (IP address, e-mail), kept in memory: enough for a single-process server. */
 const MAX_FAILURES = 8;
 const WINDOW_MS = 15 * 60_000;
+const MAX_TRACKED = 10_000;
 const failures = new Map<string, { count: number; resetAt: number }>();
 
 export function isLocked(key: string): boolean {
@@ -70,6 +71,9 @@ export function isLocked(key: string): boolean {
 }
 
 export function recordFailure(key: string): void {
+  // Keys are chosen by the caller (any e-mail can be typed): forget the expired ones so the list cannot grow without end.
+  if (failures.size >= MAX_TRACKED) for (const [k, e] of failures) if (e.resetAt < Date.now()) failures.delete(k);
+  if (failures.size >= MAX_TRACKED) failures.delete(failures.keys().next().value!);
   const entry = failures.get(key);
   if (!entry || entry.resetAt < Date.now()) failures.set(key, { count: 1, resetAt: Date.now() + WINDOW_MS });
   else entry.count++;

@@ -11,7 +11,7 @@ const { redirects } = schema;
 let error = '';
 
 /** Site paths only: a redirect must never point to another domain. */
-const isPath = (value: string) => /^\/(?!\/)\S*$/.test(value) && value.length <= 300;
+const isPath = (value: string) => /^\/(?![/\\])[^\s\\]*$/.test(value) && value.length <= 300;
 const clean = (value: FormDataEntryValue | null) => String(value ?? '').trim().replace(/(.)\/+$/, '$1');
 
 if (Astro.request.method === 'POST') {

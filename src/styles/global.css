@@ -7,8 +7,9 @@
   --primary-bright: color-mix(in oklab, var(--primary), #fff 30%);
   /* Very light tint of the main colour, computed from it: soft grounds of lists, tiles, hovered and selected entries. */
   --primary-pale: color-mix(in oklab, var(--primary), #fff 90%);
-  --orange: #e4572e;
-  --orange-dark: #c5431d;
+  /* Colour of the buttons and of the donation section: the Wix orange, except in a theme whose main colour is too close to it. */
+  --call: var(--band-call);
+  --call-dark: var(--band-call-dark);
   --green: #129912;
   --green-dark: #0c730c;
   --green-deep: #0b5a27;
@@ -103,11 +104,11 @@ a {
 }
 
 a:hover {
-  color: var(--orange-dark);
+  color: var(--call-dark);
 }
 
 :focus-visible {
-  outline: 3px solid var(--orange);
+  outline: 3px solid var(--call);
   outline-offset: 2px;
 }
 
@@ -144,7 +145,7 @@ a:hover {
   padding: 0.7rem 1.7rem;
   border: 0;
   border-radius: 999px;
-  background: var(--orange);
+  background: var(--call);
   box-shadow: 0 2px 0 rgb(11 31 22 / 0.12);
   color: #fff;
   font: inherit;
@@ -160,7 +161,7 @@ a:hover {
 }
 
 .button:hover {
-  background: var(--orange-dark);
+  background: var(--call-dark);
   box-shadow: 0 6px 16px rgb(11 31 22 / 0.18);
   color: #fff;
   transform: translateY(-2px);
@@ -726,7 +727,7 @@ a:hover {
 }
 
 .home-section--teal,
-.home-section--orange {
+.home-section--give {
   padding-block: calc(clamp(3rem, 8vw, 5.5rem) + var(--arc) / 2);
   border-radius: 50% / var(--arc);
 }
@@ -735,10 +736,10 @@ a:hover {
   background: var(--primary);
 }
 
-.home-section--orange {
+.home-section--give {
   margin-top: clamp(1.5rem, 4vw, 3rem);
   border-radius: 50% 50% 0 0 / var(--arc) var(--arc) 0 0;
-  background: var(--orange);
+  background: var(--call);
 }
 
 .home-split h2 {
@@ -987,7 +988,7 @@ a:hover {
 }
 
 .home-give__methods a:hover::after {
-  background-color: var(--orange);
+  background-color: var(--call);
   translate: 4px -50%;
 }
 
@@ -1347,7 +1348,7 @@ a:hover {
   padding: 0.4rem 1.1rem;
   border-radius: 999px;
   background: var(--sand-pale);
-  color: var(--orange-dark);
+  color: var(--call-dark);
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -1356,7 +1357,7 @@ a:hover {
 }
 
 .animal-card a:hover .animal-card__more {
-  background: var(--orange);
+  background: var(--call);
   color: #fff;
 }
 
@@ -1564,6 +1565,13 @@ a:hover {
   font-size: var(--text-lead);
   font-weight: 500;
   line-height: 1.5;
+}
+
+/* Nothing follows a single paragraph (the 404 page): no line under it. */
+.prose > p:only-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .prose h2,
@@ -2160,7 +2168,7 @@ fieldset[aria-invalid='true'] {
 
 .contact-reason:has(:focus-visible),
 .dropzone:has(:focus-visible) {
-  outline: 3px solid var(--orange);
+  outline: 3px solid var(--call);
   outline-offset: 2px;
 }
 
@@ -2361,7 +2369,7 @@ fieldset[aria-invalid='true'] {
 }
 
 .chips input:focus-visible + span {
-  outline: 3px solid var(--orange);
+  outline: 3px solid var(--call);
   outline-offset: 2px;
 }
 
@@ -2650,7 +2658,7 @@ fieldset[aria-invalid='true'] {
 
 .segmented input:focus-visible + span,
 .amounts input:focus-visible + span {
-  outline: 3px solid var(--orange);
+  outline: 3px solid var(--call);
   outline-offset: 2px;
 }
 
@@ -3058,7 +3066,7 @@ fieldset[aria-invalid='true'] {
 }
 
 .cta-tiles__tile--help {
-  --tile-accent: var(--orange-dark);
+  --tile-accent: var(--call-dark);
   background: var(--sand-pale);
 }
 
@@ -3089,7 +3097,7 @@ fieldset[aria-invalid='true'] {
 }
 
 .cta-tiles__tile--give .cta-tiles__icon {
-  background: var(--orange);
+  background: var(--call);
   box-shadow: none;
   fill: #fff;
   stroke: #fff;
@@ -3149,7 +3157,7 @@ fieldset[aria-invalid='true'] {
 }
 
 .cta-tiles__tile--give .cta-tiles__more::after {
-  background-color: var(--orange);
+  background-color: var(--call);
 }
 
 .cta-tiles__tile:hover {
@@ -3172,7 +3180,7 @@ fieldset[aria-invalid='true'] {
 }
 
 .cta-tiles__tile:hover .cta-tiles__more::after {
-  background-color: var(--orange);
+  background-color: var(--call);
   translate: 4px 0;
 }
 
@@ -3318,7 +3326,7 @@ fieldset[aria-invalid='true'] {
 }
 
 .social-links a:hover {
-  background: var(--orange);
+  background: var(--call);
   color: #fff;
   transform: translateY(-2px);
 }

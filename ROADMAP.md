@@ -72,7 +72,10 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 ## 2. À faire, non bloquant
 
 ### Admin
-- [ ] Admin des pages de contenu et de leurs champs SEO (déjà décidé, pas construit). C'est ce qui permettra de corriger les titres et descriptions du point 1 sans toucher au code.
+- [x] Admin des pages de contenu et de leurs champs SEO (5 octobre 2026) : `/admin/pages`. Pour les 13 pages de contenu, titre et description SEO dans les quatre langues (un champ vide garde la valeur automatique, affichée en gris), et le texte de la page, sauf pour les trois pages construites par le site (don, redirection, in memoriam). Le texte se modifie en HTML, sans éditeur visuel ; à l'enregistrement, scripts et styles en sont retirés, et l'admin signale une page dont les titres ou les images diffèrent d'une langue à l'autre. Essayé dans Chrome sur le build. Non couvert : les titres et descriptions de l'accueil, des listes d'animaux et du contact, qui restent dans le code (`src/i18n/ui.ts`).
+- [ ] Après la mise en ligne, ne plus lancer `pnpm import:pages` ni `pnpm import:translations` sur la base de production : ils remplacent ce qui a été modifié dans l'admin des pages.
+- [ ] Décider s'il faut un éditeur visuel pour le texte des pages : aujourd'hui il faut connaître un peu de HTML.
+- [ ] Sur mobile, les tableaux de l'admin (pages, redirections) débordent en largeur : la dernière colonne demande un défilement horizontal.
 - [ ] Gestion des comptes depuis l'admin (aujourd'hui uniquement en ligne de commande).
 - [ ] Recette complète de l'admin avec l'association : création, modification, photos, changement d'URL, anomalies.
 
@@ -131,9 +134,12 @@ Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et fra
 - [ ] Statistiques de fréquentation : rien en local. Choisir un outil (de préférence sans cookie) pour suivre le trafic après la bascule.
 
 ### Qualité
-- [ ] Deux contrôles automatiques existent : `pnpm seo:check` (parité SEO avec Wix) et `pnpm pages:check` (même structure des pages de contenu dans les quatre langues), et `pnpm test` couvre les dons. Restent à tester, au minimum : redirections, formulaire de contact, connexion admin.
-- [ ] Comparaison visuelle page par page sur ordinateur et mobile, et audit de performance.
-- [ ] Analyse de sécurité complète : connexion admin et sessions, envoi de fichiers, formulaires publics, route `/donate`, en-têtes, dépendances.
+- [x] Tests automatiques (5 octobre 2026). `pnpm test` : 75 tests unitaires (dons, formulaire de contact, connexion admin avec TOTP, sessions et limitation des essais, admin des pages). `pnpm test:server` : 37 tests sur le serveur construit, lancé sur une base de test : redirections, langue de première visite, en-têtes de sécurité, formulaires, contact avec pièce jointe, connexion admin, modification d'une page. S'ajoutent `pnpm seo:check` et `pnpm pages:check`. Non couvert : la fiche animal de l'admin (création, photos, vidéo, changement d'URL), l'envoi d'e-mail et Stripe réel.
+- [x] Défaut trouvé par ces tests et corrigé : un en-tête `Accept-Language: *` (envoyé par beaucoup de programmes, pas par les navigateurs) redirigeait vers l'anglais. Il n'y a plus de redirection quand l'en-tête ne nomme aucune langue.
+- [ ] Comparaison visuelle côte à côte avec Wix, et audit de performance.
+- [x] Analyse de sécurité (5 octobre 2026), par lecture du code et essais sur le build : connexion admin et sessions, envoi de fichiers, formulaires publics, route `/donate`, redirections, en-têtes, dépendances. Rien d'exploitable trouvé. Durcissements faits : une redirection ne peut plus sortir du site (`//domaine`), un POST qui n'est pas un formulaire reçoit 415 au lieu d'une erreur 500, taille des requêtes bornée côté Node, listes de limitation en mémoire bornées, en-tête `Permissions-Policy`, JSON-LD échappé, règles de redirection de l'admin refusant `/\`, `http-cache-semantics` mis à jour (alerte « high » de `pnpm audit`). Reste une alerte « moderate » sur un `esbuild` tiré par `drizzle-kit`, outil de développement absent du serveur.
+- [x] Sécurité, limites connues et acceptées (confirmé le 5 octobre 2026) : huit essais ratés bloquent la connexion d'une adresse e-mail pendant quinze minutes, donc quelqu'un peut empêcher un compte de se connecter en se trompant exprès ; les limites sont comptées par worker (deux en production).
+- [x] Tailles d'envoi alignées de bout en bout (5 octobre 2026). Formulaire de contact : pièce jointe de 5 Mo, refusée proprement par le site jusqu'à 8 Mo (limite nginx), sous les 100 Mo de Cloudflare. Admin : Cloudflare refuse plus de 100 Mo par requête alors que l'admin annonçait une vidéo de 150 Mo ; la vidéo passe à 80 Mo, le formulaire refuse avant l'envoi une sélection (photos et vidéo) de plus de 95 Mo, nginx et Node acceptent 100 Mo. `setup-nginx.sh` est à relancer sur un VPS déjà installé. La vidéo à 80 Mo est acceptée pour l'instant (5 octobre 2026) ; au-delà, il faudrait un envoi séparé de la vidéo ou une offre Cloudflare supérieure.
 
 ### Design
 - [x] Refonte fidèle à la charte Wix (4 octobre 2026) : titres plus marqués, texte plus lisible, composants harmonisés, bandeau d'accueil en vert profond, photo à côté du texte sur six pages, photos réparties dans le texte sur `/proiect-2022`, même présentation dans les quatre langues.
@@ -141,10 +147,11 @@ Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et fra
 - [x] **Système de thèmes modifiable depuis l'admin** (5 octobre 2026). Le rendu actuel est le thème « classic » (identifiant `classic`), qui reste le thème par défaut ; cinq thèmes de saison sont fournis : `christmas` (rouge, flocons), `valentine` (rose, cœurs), `easter` (lilas, œufs), `summer` (bleu mer, plage), `halloween` (orange citrouille, citrouilles et chauves-souris). Un thème fixe la couleur principale du site (titres, liens, boutons, fonds colorés) et le motif du bandeau de titre et du pied de page ; `/admin/theme` permet de choisir le thème actif et de modifier la couleur et le motif de chacun. Les traits des titres, les puces, le soulignement des liens et les fonds pâles sont des teintes calculées en CSS à partir de la couleur principale ; seuls les états « c'est fait » des formulaires restent verts. La base demande `pnpm db:migrate` (nouvelle table `settings`).
 - [x] Thème classique validé (5 octobre 2026) : les traits et les puces en bleu-vert clair et les fonds pâles en gris-bleu très clair, calculés depuis le vert sarcelle, remplacent le vert du logo.
 - [x] Thèmes : contrôle visuel sur mobile fait (5 octobre 2026).
-- [ ] Thèmes, contrôle visuel restant : Saint-Valentin, Pâques et Été n'ont été vus qu'en partie (accueil ou une page), et l'aperçu en direct de `/admin/theme` n'a pas été essayé dans un navigateur. En Halloween, le bouton orange du bandeau d'accueil et la section « Faire un don » de l'accueil se détachent peu de la couleur du thème.
+- [x] Thèmes, contrôle visuel (5 octobre 2026) : Saint-Valentin, Pâques, Été et Noël vus sur l'accueil, une liste, une page de texte et la page de don ; l'aperçu en direct de `/admin/theme` essayé dans Chrome (couleur, motif, refus d'une couleur trop claire). Halloween : les boutons et la section « Faire un don » passent en violet nuit, l'orange ne se détachait pas du fond citrouille ; la couleur des boutons est désormais une valeur du thème (`call`).
+- [x] Validé le 5 octobre 2026 : le violet des boutons en Halloween ; en Noël, le bouton orange sur le bandeau rouge, moins détaché que dans les autres thèmes, est jugé suffisant.
 - [x] Thèmes : pas d'activation automatique sur une période, décidé le 5 octobre 2026. Le thème de saison se choisit à la main dans `/admin/theme`.
 - [x] Photos d'illustration des six pages de texte (`PAGE_ILLUSTRATIONS` dans `src/lib/site.ts`) : validées le 5 octobre 2026.
-- [ ] Contrôle visuel restant : contact, in memoriam, listes de chats et de parrainages, et l'ensemble du site sur mobile (seules quelques pages ont été vues en largeur mobile).
+- [x] Contrôle visuel (5 octobre 2026) : contact (avec le questionnaire chat), in memoriam, listes de chats et de parrainages sur ordinateur ; seize pages en largeur mobile (390 px), une de chaque type, dans les quatre langues. Un seul défaut, corrigé : un trait sans objet sous le bouton de la page 404.
 
 ## 3. Écarts voulus (rien à faire)
 

@@ -13,7 +13,9 @@ const proxiedHosts = [site, ...(siteUrl && URL.canParse(siteUrl) ? [siteUrl] : [
 export default defineConfig({
   site,
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  // Largest request: the animal form of the admin with its photos and video (MAX_UPLOAD_BYTES in
+  // src/lib/admin-animals.ts, 95 MB). Same ceiling as nginx and Cloudflare.
+  adapter: node({ mode: 'standalone', bodySizeLimit: 100 * 1024 * 1024 }),
   // Wix URLs have no trailing slash: keep the same shape so canonicals do not change.
   trailingSlash: 'never',
   // Stylesheets stay in files: the Content-Security-Policy (src/middleware.ts) only allows inline styles carrying its nonce.

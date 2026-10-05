@@ -25,8 +25,12 @@ interface Theme {
   accent: string;
   /** RGB channels of the soft light. */
   glow: string;
+  /** Buttons and the donation section, which stand on or beside the main colour, and its darker shade (hover); the Wix orange when absent. */
+  call?: [color: string, dark: string];
   pattern: PatternId;
 }
+
+const WIX_ORANGE: NonNullable<Theme['call']> = ['#e4572e', '#c5431d'];
 
 export const THEMES: Record<ThemeId, Theme> = {
   // The teal and deep green tokens of global.css.
@@ -36,8 +40,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   // Lilac rather than a pastel: the ground carries white text.
   easter: { color: '#6a479f', gradient: ['#452c74', '#6a479f', '#7f58ad'], accent: '#ffe08a', glow: '255 238 185', pattern: 'eggs' },
   summer: { color: '#0a6a94', gradient: ['#064868', '#0a6a94', '#0b7c8c'], accent: '#ffd97a', glow: '255 242 195', pattern: 'beach' },
-  // Pumpkin orange, as dark as white text needs it.
-  halloween: { color: '#bf4d08', gradient: ['#7a2c05', '#bf4d08', '#c4520c'], accent: '#ffe2a6', glow: '255 214 150', pattern: 'pumpkins' },
+  // Pumpkin orange, as dark as white text needs it. The orange buttons would vanish on it: they turn night purple.
+  halloween: { color: '#bf4d08', gradient: ['#7a2c05', '#bf4d08', '#c4520c'], accent: '#ffe2a6', glow: '255 214 150', call: ['#4f2a78', '#3b1d5c'], pattern: 'pumpkins' },
 };
 
 interface Pattern {
@@ -168,6 +172,8 @@ export function themeVariables(id: ThemeId, { color, pattern }: ThemeChoice): Re
     '--band-to': to,
     '--band-accent': theme.accent,
     '--band-glow': theme.glow,
+    '--band-call': (theme.call ?? WIX_ORANGE)[0],
+    '--band-call-dark': (theme.call ?? WIX_ORANGE)[1],
     '--band-pattern': pattern === 'none' ? 'none' : patternUrl(PATTERNS[pattern]),
     '--band-pattern-opacity': pattern === 'none' ? '0' : String(PATTERNS[pattern].opacity),
   };

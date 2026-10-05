@@ -129,6 +129,8 @@ const recent = new Map<string, number[]>();
 export function isRateLimited(address: string, now = Date.now()): boolean {
   const times = (recent.get(address) ?? []).filter((t) => now - t < 3600_000);
   if (times.length >= MAX_PER_HOUR) return true;
+  // Addresses that have not written for an hour are forgotten, so the list stays small.
+  if (recent.size >= 10_000) for (const [key, sent] of recent) if (now - sent[sent.length - 1] >= 3600_000) recent.delete(key);
   recent.set(address, [...times, now]);
   return false;
 }

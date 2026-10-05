@@ -1,0 +1,64 @@
+---
+import { useAdminUi } from '../../../i18n/admin.ts';
+import { LOCALE_NAMES } from '../../../i18n/config.ts';
+import { useUi } from '../../../i18n/ui.ts';
+import Admin from '../../../layouts/Admin.astro';
+import { listPagesForAdmin } from '../../../lib/admin-pages.ts';
+import { UNLISTED_PAGES } from '../../../lib/site.ts';
+
+const user = Astro.locals.user!;
+const t = useAdminUi(user.locale);
+const p = t.pages;
+// Page names are those of the public menu, in the language of the admin user (Romanian or French).
+const ui = useUi(user.locale);
+const rows = listPagesForAdmin();
+const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium', timeStyle: 'short' });
+---
+
+<Admin title={t.nav.pages}>
+  <div class="toolbar">
+    <h1>{t.nav.pages}</h1>
+  </div>
+  <p>{p.intro}</p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>{p.page}</th>
+        <th>{p.address}</th>
+        <th>{p.updated}</th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <td>
+              <a href={`/admin/pages/${row.slug}`}>
+                <strong>{ui.pages[row.slug]}</strong>
+              </a>
+              {UNLISTED_PAGES.includes(row.slug) && <span class="badge">{p.unlisted}</span>}
+              {row.differences.length > 0 && (
+                <span class="flag flag--warning" title={p.differs(row.differences.map((l) => LOCALE_NAMES[l]).join(', '))}>
+                  {p.differsShort}
+                </span>
+              )}
+            </td>
+            <td>
+              <a href={`/${row.slug}`} target="_blank" rel="noopener">
+                <code>/{row.slug}</code>
+              </a>
+            </td>
+            <td>{row.updatedAt ? <time datetime={row.updatedAt.toISOString()}>{date.format(row.updatedAt)}</time> : p.never}</td>
+            <td>
+              <a class="btn btn--light" href={`/admin/pages/${row.slug}`}>
+                {p.edit}
+              </a>
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</Admin>

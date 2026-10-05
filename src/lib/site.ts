@@ -66,6 +66,12 @@ export const PAGE_ILLUSTRATIONS: Partial<Record<ContentPage, string>> = {
   redirectioneaza: '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg',
 };
 
+/**
+ * Pages built by the site, whose stored body is not displayed: the donation methods, the detailed
+ * redirection text and the list of deceased animals. Only their SEO fields are read from the database.
+ */
+export const BUILT_PAGES: readonly ContentPage[] = ['doneaza', 'redirectioneaza', 'in-memoriam'];
+
 /** Pages told as a story: an opening sheet, then numbered chapters, each beside its photo (markup in `migration/translations/{locale}/pages/`). */
 export const STORY_PAGES: readonly ContentPage[] = ['proiect-2022'];
 
