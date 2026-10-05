@@ -94,7 +94,7 @@ const cta = [
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <style is:inline set:html={activeThemeCss()} />
+    <style is:inline nonce={Astro.locals.cspNonce} set:html={activeThemeCss()} />
     {jsonLd.map((data) => <script is:inline type="application/ld+json" set:html={JSON.stringify(data)} />)}
   </head>
   <body>
@@ -224,7 +224,7 @@ const cta = [
       <p class="site-footer__legal">© {new Date().getFullYear()} {SITE.name}. {ui.footer.rights}</p>
     </footer>
 
-    <script is:inline>
+    <script is:inline nonce={Astro.locals.cspNonce}>
       // Dropdown groups open on click as well as on hover/focus.
       const groups = document.querySelectorAll('.site-nav__group');
       groups.forEach((group) => {

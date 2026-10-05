@@ -84,7 +84,7 @@ const patterns = patternStyles();
     </div>
   </form>
 
-  <script is:inline>
+  <script is:inline nonce={Astro.locals.cspNonce}>
     // The preview follows the colour and the pattern as they are chosen; the server computes the same shades on save.
     const shade = (hex, other, amount) =>
       '#' + [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).map((c) => Math.round(c + (other - c) * amount).toString(16).padStart(2, '0')).join('');

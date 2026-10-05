@@ -145,7 +145,7 @@ const grouped = (iban: string) => iban.replace(/(.{4})(?=.)/g, '$1 ');
   }
 </div>
 
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
   // Copy buttons only exist where the clipboard does; the label confirms the copy for a moment.
   (() => {
     if (!navigator.clipboard) return;

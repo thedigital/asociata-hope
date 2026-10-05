@@ -74,7 +74,7 @@ const defaultFrequency: Frequency = animal ? 'monthly' : 'once';
   <p class="form-note">🔒 {t.secure}</p>
 </form>
 
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
   // Show the suggested amounts of the selected currency only.
   (() => {
     const form = document.querySelector('.donate-form');

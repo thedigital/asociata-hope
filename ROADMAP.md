@@ -26,7 +26,7 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 ### Données
 - [ ] **Anais / Serena.** Sur Wix, `/adoptii-pisici/anais` répond 301 vers `/adoptii-pisici/serena` (dans les trois langues), alors que les deux figurent encore dans la liste. C'était déjà le cas au moment du crawl : la baseline enregistre la page de Serena à l'URL d'Anais. En local les deux fiches sont publiées et répondent 200, avec des textes et des photos différents. Demander à l'association s'il s'agit de deux chats (la fiche d'Anais est alors inaccessible sur Wix par erreur, et le local a raison) ou d'un doublon (supprimer Anais et créer la redirection).
 - [ ] 9 animaux sur 106 n'ont pas de date de naissance, 73 ont une date estimée à partir d'un âge Wix. À faire corriger par l'association dans l'admin.
-- [ ] Descriptions vides : 2 en anglais, 2 en allemand, 1 en français.
+- [ ] Descriptions vides : les chats parrainés Sun et Mars n'ont aucun texte sur Wix (« n/c » en roumain), donc rien non plus en anglais, en français et en allemand. À faire écrire par l'association.
 
 ### SEO
 - [x] `/despre-noi` : `title` et description d'origine remis. `/in-memoriam` et `/adoptii-virtuale-caini` : description d'origine remise. `pnpm import:pages` reprend désormais ces champs depuis la baseline.
@@ -46,23 +46,23 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [ ] Search Console : revalider la propriété (aucune balise de vérification dans le HTML de Wix, elle passe sans doute par Wix ou le DNS), soumettre le nouveau `/sitemap.xml`. Les anciens sitemaps Wix (`en_en-sitemap.xml`, `fr_fr-sitemap.xml`, `pages-sitemap.xml`…) y redirigent en 301 ; les retirer de la Search Console.
 
 ### Fonctionnel
-- [ ] **Dons Stripe, bac à sable** : créer un compte Stripe de test (sandbox) et y essayer les six cas du formulaire avec ses clés (`STRIPE_SECRET_KEY`) : paiement unique et paiement récurrent (mensuel), chacun en EUR, en RON et en USD. Vérifier à chaque fois le montant et la devise affichés par Stripe, le retour sur le site après paiement et après abandon, et pour le récurrent l'abonnement créé dans Stripe.
+- [ ] **Dons Stripe, bac à sable** : créer un compte Stripe de test (sandbox) et y essayer les six cas du formulaire avec ses clés (`STRIPE_SECRET_KEY`) : paiement unique et paiement récurrent (mensuel), chacun en EUR, en RON et en USD. Vérifier à chaque fois le montant et la devise affichés par Stripe, le retour sur le site après paiement et après abandon, et pour le récurrent l'abonnement créé dans Stripe. Vérifier aussi que Stripe envoie bien un reçu par e-mail : la page de remerciement l'annonce (« Vous recevrez bientôt un e-mail de confirmation »), et cet envoi se règle dans le compte Stripe.
 - [ ] **Dons Stripe, tests unitaires automatiques** : couvrir `src/lib/stripe.ts` et la route `/donate` sans appeler Stripe : validation du formulaire (devise, fréquence, bornes de montant de `AMOUNTS` en RON, en EUR et en USD), paramètres de la session Checkout envoyés pour chacun des six cas (mode `payment` ou `subscription`, devise, montant), réponse quand `STRIPE_SECRET_KEY` manque.
 - [ ] **Dons Stripe, production** : une fois le bac à sable validé, test réel avec les clés de l'association, en paiement unique et mensuel.
 - [ ] **Dons Stripe en USD, à régler avec l'association** : le formulaire propose désormais le dollar en plus du leu et de l'euro. Vérifier dans le compte Stripe de l'association vers quel compte bancaire les dons en USD sont versés : sans compte de versement en USD (l'association a un IBAN en USD), Stripe les convertit dans la devise du compte, avec des frais de change. Faire valider aussi les montants proposés (10, 25, 50 USD, de 2 à 10 000 USD, repris de l'euro).
 - [ ] **E-mail du formulaire de contact** : configurer `SMTP_URL`, `MAIL_FROM`, `CONTACT_TO` et tester un envoi réel.
-- [ ] Le site réel a un module de don directement sur la page d'accueil (une fois / mensuel, montant). En local l'accueil n'a qu'un lien vers `/doneaza`. À remettre ou à assumer.
+- [x] Le site réel a un module de don directement sur la page d'accueil (une fois / mensuel, montant). En local l'accueil n'a qu'un lien vers `/doneaza` : validé tel quel (5 octobre 2026).
 - [x] **Formulaire 230 (redirection de 3,5 %)** : le scan pré-rempli pour 2023 est remplacé par `/formular-230.pdf`, généré à partir du formulaire vierge d'ANAF avec la bonne année et les coordonnées de l'association, mis en cache par année. Le bouton vers le formulaire en ligne n'apparaît que du 1er janvier au 25 mai ; le reste de l'année, seul le formulaire papier est proposé, avec la date de réouverture.
 - [x] **Textes sur la redirection harmonisés** : un seul bloc court, identique sur l'accueil et sur `/doneaza`, et une version détaillée sur `/redirectioneaza`, dans les quatre langues, avec l'année calculée. Les textes Wix correspondants (année 2025 en dur, lien permanent vers le formulaire en ligne) ne sont plus affichés.
-- [ ] Faire relire par l'association les textes de la redirection, surtout en roumain : la version détaillée reprend le texte Wix (tutoiement, diacritiques), le bloc court vouvoie comme l'accueil d'origine, et ses diacritiques ont été ajoutés lors de la refonte.
-- [ ] Formulaire 230, à confirmer avec l'association : que le modèle d'ANAF utilisé (`230_OPANAF_15_2021.pdf`) est toujours celui en vigueur ; comment un formulaire papier doit lui être transmis (le site renvoie aujourd'hui vers la page de contact, faute d'adresse d'envoi).
+- [x] Textes de la redirection validés (5 octobre 2026), y compris en roumain.
+- [x] Formulaire 230 confirmé (5 octobre 2026) : le modèle d'ANAF utilisé (`230_OPANAF_15_2021.pdf`) est le bon. Le formulaire papier rempli est transmis en pièce jointe par le formulaire de contact (motif « redirection »), sinon remis en main propre.
 - [ ] Créer les comptes admin de l'association (`pnpm user:create`) ; il n'y a qu'un compte aujourd'hui.
 
 ### Hébergement et bascule
 - [x] Scripts d'installation et de déploiement dans `deploy/` (procédure dans `deploy/README.md`) : VPS avec Node 24, PM2, nginx derrière Cloudflare, versions dans des dossiers séparés avec retour arrière. Testés à blanc en local et en conteneur, pas encore sur le VPS.
 - [ ] Exécuter l'installation sur le VPS quand l'accès sera disponible ; pas d'intégration continue.
-- [ ] Le serveur Node ne compresse pas les réponses et n'envoie ni `Cache-Control` sur le HTML, ni HSTS, ni CSP : à régler dans le reverse proxy (ou le middleware).
-- [x] Redirection `adoptii-animale-hope.org` → `www.adoptii-animale-hope.org` et HTTP → HTTPS : dans la configuration nginx générée, avec la compression et HSTS. Restent `Cache-Control` sur le HTML et CSP.
+- [x] Redirection `adoptii-animale-hope.org` → `www.adoptii-animale-hope.org` et HTTP → HTTPS : dans la configuration nginx générée, avec la compression et HSTS.
+- [x] `Cache-Control` et CSP (5 octobre 2026), envoyés par le middleware. Les pages HTML répondent `no-cache` (elles sont construites à chaque requête), l'admin `no-store`. La `Content-Security-Policy` n'autorise que le site lui-même : les scripts en ligne et le style du thème portent un jeton propre à chaque requête, et le formulaire de don peut rediriger vers Stripe Checkout. Vérifié dans Chrome sur le build, pages publiques et admin : aucune violation. Elle n'est pas envoyée par le serveur de dev.
 - [x] Sauvegarde automatique de la base, des uploads et des pièces jointes : `deploy/backup.sh`, chaque nuit par cron, 14 sauvegardes gardées.
 - [ ] Choisir la destination des sauvegardes hors du VPS (`BACKUP_REMOTE`, une destination rsync) : sans elle, tout reste sur le même disque.
 - [ ] **Migrer le domaine `adoptii-animale-hope.org`, aujourd'hui hébergé chez Wix, vers Cloudflare.** Le déploiement prévu (nginx derrière Cloudflare, qui porte le certificat public) en dépend. Avant de changer quoi que ce soit, relever tous les enregistrements DNS actuels chez Wix, en particulier ceux de la messagerie (MX, SPF, DKIM) et de vérification (Search Console), pour les recréer à l'identique dans Cloudflare.
@@ -84,7 +84,9 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
   - un événement en cours (Noël 2026, par exemple).
 
 ### Contenu et traductions
-- [ ] Relecture complète des textes anglais et français issus des traductions automatiques de Wix (déjà décidé).
+- [x] Relecture complète des textes anglais et français issus des traductions automatiques de Wix (5 octobre 2026), faite par Claude contre l'original roumain, pas par un locuteur natif. Les 97 fiches d'animaux : 154 corrections ciblées dans `migration/translations/fixes.json` et trois textes français réécrits (`fr/animals.md`). Surtout des contresens (« même les chiens de race méritent un foyer » pour « sans race », « capturé par des chiens errants » pour « par la fourrière », « tabby » pour écaille de tortue, « 5 ans » pour 6 mois), « chiot » et « chaton » pour des adultes, des genres faux (Panda, Patraulea), « un homme » pour « une personne ». Pages venues de Wix : conditions générales et « Comment adopter » en français corrigées (`fr/pages/`).
+- [x] Trois erreurs de l'original roumain corrigées au passage, dans les trois langues : la fiche de Bach citait Magnolia dans ses conditions d'adoption, celle d'Aramis parlait d'Athos, celle de Roa l'appelait « Runa ».
+- [x] Page de remerciement après un don (`/donation-thank-you-page`, où Stripe renvoie le donateur) : en roumain, anglais et français elle affichait le modèle Wix non rempli (« Merci Nom du donateur… don de 0 RON… n° 1000 »). Remplacée par un vrai texte, comme en allemand.
 - [ ] Relecture de l'allemand par un germanophone : les 114 pages sont nouvelles et n'ont aucune référence sur le site réel.
 - [ ] Toutes les pages anglaises (et françaises, allemandes) partagent la même description générique. C'était déjà le cas sur Wix, mais une description par page serait mieux.
 - [ ] Les 6 images de la page d'accueil ont un `alt` vide ; 4 images sans `alt` sur `/proiect-2022` (déjà le cas sur Wix).
@@ -122,8 +124,8 @@ Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et fra
 
 ### SEO, finitions
 - [x] JSON-LD (`src/lib/json-ld.ts`), dans la langue de chaque page. Accueil : `AnimalShelter` complété (nom traduit en variante, mission, année de fondation, code fiscal) et `WebSite`, comme le `LocalBusiness` + `WebSite` de Wix. Toutes les pages indexables des quatre langues : la page elle-même (`WebPage`, `CollectionPage` pour les listes, `AboutPage`, `ContactPage`) et son fil d'Ariane (`BreadcrumbList`), absents de Wix. Rien sur les pages en `noindex`.
-- [ ] Icônes Facebook et Instagram du pied de page remplacées par des liens texte ; lien « Acasa » absent du menu (le logo y mène). À valider avec l'association.
-- [ ] Bandeau cookies : Wix en affiche un, le local non. Il n'en faut pas tant qu'aucun outil de mesure n'est ajouté ; à revoir si on installe des statistiques.
+- [x] Icônes Facebook et Instagram du pied de page remplacées par des liens texte ; lien « Acasa » absent du menu (le logo y mène) : validé (5 octobre 2026).
+- [x] Bandeau cookies : Wix en affiche un, le local non, et il n'en faut pas (vérifié le 5 octobre 2026). Le site ne charge aucune ressource tierce (polices, images, vidéos et scripts viennent du site, Facebook et Instagram ne sont que des liens) et ne pose que deux cookies, tous deux fonctionnels : `lang` (la langue choisie, un an) et la session de l'admin. À revoir seulement si on installe un outil de statistiques qui pose des cookies.
 - [ ] Statistiques de fréquentation : rien en local. Choisir un outil (de préférence sans cookie) pour suivre le trafic après la bascule.
 
 ### Qualité

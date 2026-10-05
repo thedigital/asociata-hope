@@ -16,6 +16,8 @@ export default defineConfig({
   adapter: node({ mode: 'standalone' }),
   // Wix URLs have no trailing slash: keep the same shape so canonicals do not change.
   trailingSlash: 'never',
+  // Stylesheets stay in files: the Content-Security-Policy (src/middleware.ts) only allows inline styles carrying its nonce.
+  build: { inlineStylesheets: 'never' },
   security: { checkOrigin: true, allowedDomains: proxiedHosts },
   vite: { ssr: { external: ['better-sqlite3', '@node-rs/argon2'] } },
 });

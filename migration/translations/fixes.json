@@ -77,5 +77,2225 @@
         "Filets de protection solides aux fenêtres, posés"
       ]
     ]
+  },
+  {
+    "key": "adoptii-pisici/auras",
+    "locale": "en",
+    "replace": [
+      [
+        "he is not a pedigree kitten",
+        "he is not a pedigree cat"
+      ],
+      [
+        "he is a common kitten",
+        "he is an ordinary cat"
+      ],
+      [
+        "friendly with other kittens",
+        "friendly with other cats"
+      ],
+      [
+        "installed before Auras arrived home",
+        "installed before Auras arrives home"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/auras",
+    "locale": "fr",
+    "replace": [
+      [
+        "ce n'est pas un chaton de race",
+        "ce n'est pas un chat de race"
+      ],
+      [
+        "c'est un chaton ordinaire",
+        "c'est un chat ordinaire"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/magnolia",
+    "locale": "en",
+    "replace": [
+      [
+        "a delicate and graceful kitten",
+        "a delicate and graceful cat"
+      ],
+      [
+        "a soft fur",
+        "soft fur"
+      ],
+      [
+        "gentle cuddles",
+        "gentle purring"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/magnolia",
+    "locale": "fr",
+    "replace": [
+      [
+        "une chatonne délicate",
+        "une chatte délicate"
+      ],
+      [
+        "de doux câlins",
+        "de doux ronronnements"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/oranjeade",
+    "locale": "en",
+    "replace": [
+      [
+        "She is a loving and close cat to people, who sincerely attaches herself and seeks human contact",
+        "She is a loving cat who is close to people, bonds sincerely and seeks human contact"
+      ],
+      [
+        "a true soulmate",
+        "a truly kind soul"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/oranjeade",
+    "locale": "fr",
+    "replace": [
+      [
+        "une véritable âme sœur",
+        "une chatte au grand cœur"
+      ],
+      [
+        "une paix palpable. 🐾 Conditions d'adoption :",
+        "une paix palpable.\n\n🐾 Conditions d'adoption :"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/merry",
+    "locale": "en",
+    "replace": [
+      [
+        "installed before Merry arrived home",
+        "installed before Merry arrives home"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/hachi",
+    "locale": "en",
+    "replace": [
+      [
+        "This handsome man is Hachi, a kitten with an impressive story",
+        "This handsome boy is Hachi, a cat with an impressive story"
+      ],
+      [
+        "Hachi is a balanced kitten",
+        "Hachi is a balanced cat"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/hachi",
+    "locale": "fr",
+    "replace": [
+      [
+        "un chaton à l'histoire touchante",
+        "un chat à l'histoire touchante"
+      ],
+      [
+        "il n'a pas pu être adopté… et personne ne s'est jamais renseigné sur lui",
+        "sa chance d'être adopté s'est envolée à ce moment-là… et personne n'a plus jamais demandé de ses nouvelles"
+      ],
+      [
+        "Hachi est un chaton équilibré",
+        "Hachi est un chat équilibré"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/madeleine",
+    "locale": "en",
+    "replace": [
+      [
+        "I come to you alone for attention and caress",
+        "I come to you on my own for attention and cuddles"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/madeleine",
+    "locale": "fr",
+    "replace": [
+      [
+        "la chatte à son propre caractère et au cœur généreux",
+        "la chatte qui a ses propres règles et un cœur prêt à aimer"
+      ],
+      [
+        "Je viens à vous seule pour avoir",
+        "Je viens de moi-même vers vous pour avoir"
+      ],
+      [
+        "promettez-moi de me donner la chance de vous montrer qui je suis vraiment ?",
+        "me promettez-vous de me laisser la chance de vous montrer qui je suis vraiment ?"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/javier",
+    "locale": "en",
+    "replace": [
+      [
+        "from fields and apartment buildings",
+        "from fields and from around apartment blocks"
+      ],
+      [
+        "a family that already has a kitten or two",
+        "a family that already has a cat or two"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/javier",
+    "locale": "fr",
+    "replace": [
+      [
+        "dans des champs et des immeubles",
+        "dans des champs et au pied des immeubles"
+      ],
+      [
+        "Il était le seul à ne pas avoir de famille",
+        "Il est le seul à être resté sans famille"
+      ],
+      [
+        "un ou deux chatons",
+        "un ou deux chats"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/jynx",
+    "locale": "en",
+    "replace": [
+      [
+        "\"Are you my man?\"",
+        "\"Are you my person?\""
+      ],
+      [
+        "If you give her your heart",
+        "If you give him your heart"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/jynx",
+    "locale": "fr",
+    "replace": [
+      [
+        "Es-tu mon homme",
+        "Es-tu mon humain"
+      ],
+      [
+        "que la douceur et la curiosité sont les clés du succès",
+        "que le monde se conquiert par la douceur et la curiosité"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/serena",
+    "locale": "en",
+    "replace": [
+      [
+        "Serena is a kitten with a delicate presence",
+        "Serena is a cat with a delicate presence"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/serena",
+    "locale": "fr",
+    "replace": [
+      [
+        "Serena est une chatonne",
+        "Serena est une chatte"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/-marzipan",
+    "locale": "en",
+    "replace": [
+      [
+        "the shy kitten who melts",
+        "the shy cat who melts"
+      ],
+      [
+        "I’m a special kitten",
+        "I’m a special cat"
+      ],
+      [
+        "I start to wave with joy",
+        "I start to wriggle with joy"
+      ],
+      [
+        "I wouldn’t stop petting and purring",
+        "I would never stop cuddling and purring"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/-marzipan",
+    "locale": "fr",
+    "replace": [
+      [
+        "le chaton timide",
+        "le chat timide"
+      ],
+      [
+        "je suis un chaton spécial",
+        "je suis un chat spécial"
+      ],
+      [
+        "je me mets à agiter la patte avec joie",
+        "je me mets à onduler de joie"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/amandine",
+    "locale": "en",
+    "replace": [
+      [
+        "tabby kittens",
+        "tortoiseshell cats"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/amandine",
+    "locale": "fr",
+    "replace": [
+      [
+        "les chatons tigrés sont parmi les moins adoptés",
+        "les chattes écaille de tortue sont parmi les moins adoptées"
+      ],
+      [
+        "beaucoup de gens les ignorent",
+        "beaucoup de gens passent à côté d'elles"
+      ],
+      [
+        "qu'ils ne sont pas assez beaux",
+        "qu'elles ne sont pas assez belles"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/maya",
+    "locale": "en",
+    "replace": [
+      [
+        "balanced and obedient cat",
+        "balanced and well-behaved cat"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/maya",
+    "locale": "fr",
+    "replace": [
+      [
+        "équilibrée et obéissante",
+        "équilibrée et sage"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/spotty",
+    "locale": "en",
+    "replace": [
+      [
+        "a human to match his size",
+        "a human who is a match for him"
+      ],
+      [
+        "press the doorknob",
+        "press down the door handle"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/mozart",
+    "locale": "en",
+    "replace": [
+      [
+        "a duty commentator and sometimes even \"rumbling\"",
+        "the resident commentator and sometimes even a bit of a \"tell-tale\""
+      ],
+      [
+        "other kittens",
+        "other cats"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/mozart",
+    "locale": "fr",
+    "replace": [
+      [
+        "un commentateur assidu, et il lui arrive même de ronronner, surtout",
+        "un commentateur attitré, et parfois même un petit « rapporteur », surtout"
+      ],
+      [
+        "les autres chatons",
+        "les autres chats"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/bach",
+    "locale": "ro",
+    "replace": [
+      [
+        "montate înainte ca Magnolia să ajungă acasă",
+        "montate înainte ca Bach să ajungă acasă"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/bach",
+    "locale": "en",
+    "replace": [
+      [
+        "installed before Magnolia arrives home",
+        "installed before Bach arrives home"
+      ],
+      [
+        "with its elegance and calm",
+        "with his elegance and calm"
+      ],
+      [
+        "He loves caresses and caresses",
+        "He loves being stroked and cuddled"
+      ],
+      [
+        "he does not demand insistent attention",
+        "he does not insistently demand attention"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/bach",
+    "locale": "fr",
+    "replace": [
+      [
+        "posés avant l'arrivée de Magnolia",
+        "posés avant l'arrivée de Bach"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/lemonade",
+    "locale": "fr",
+    "replace": [
+      [
+        "une source de joie quotidienne. 🐾 Conditions d'adoption :",
+        "une source de joie quotidienne.\n\n🐾 Conditions d'adoption :"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/moon",
+    "locale": "en",
+    "replace": [
+      [
+        "was found by someone in the countryside when she was 6 weeks old and asked us to help take her in",
+        "was found in the countryside when she was 6 weeks old by someone who asked us to take her in"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/moon",
+    "locale": "fr",
+    "replace": [
+      [
+        "âgée de 5 ans",
+        "âgée de 6 mois"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/orange",
+    "locale": "en",
+    "replace": [
+      [
+        "now 1.5 years old and 2 weeks old when he was rescued from the street",
+        "now 1.5 years old; he was 2 weeks old when he was rescued from the street"
+      ],
+      [
+        "he had a fantastic misfortune, losing both of his eyes",
+        "he was terribly unlucky and lost both of his eyes"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/orange",
+    "locale": "fr",
+    "replace": [
+      [
+        "lui a eu la malchance de perdre la vue",
+        "lui a eu la terrible malchance de perdre ses deux yeux"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/shary",
+    "locale": "en",
+    "replace": [
+      [
+        "Shary is a very scared cat",
+        "Shary is a very fearful cat"
+      ],
+      [
+        "when he was nobody's, in addition he was sick",
+        "when he had no one; on top of that he was very ill"
+      ],
+      [
+        "He remained a scared cat and distrustful of people",
+        "He has remained a fearful cat who distrusts people"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/toto",
+    "locale": "en",
+    "replace": [
+      [
+        "Snow Bulgarian to adopt and love!",
+        "A little snowball to adopt and love!"
+      ],
+      [
+        "other kittens",
+        "other cats"
+      ],
+      [
+        "one other kitten",
+        "one other cat"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/abby",
+    "locale": "en",
+    "replace": [
+      [
+        "a shy and scared little kitten",
+        "a shy and fearful little cat"
+      ],
+      [
+        "safety, love, comfort and peace",
+        "safety, food, comfort and peace"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/abby",
+    "locale": "fr",
+    "replace": [
+      [
+        "C'est une chatonne timide et craintive",
+        "C'est une petite chatte timide et craintive"
+      ],
+      [
+        "sécurité, amour, réconfort et tranquillité",
+        "sécurité, nourriture, confort et tranquillité"
+      ],
+      [
+        "Vous pouvez adopter Abby virtuellement",
+        "Vous pouvez parrainer Abby virtuellement"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/berlioz",
+    "locale": "en",
+    "replace": [
+      [
+        "a sweet and human-dependent cat",
+        "a sweet cat who is devoted to his human"
+      ],
+      [
+        "other kittens",
+        "other cats"
+      ],
+      [
+        "all kittens",
+        "all cats"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/berlioz",
+    "locale": "fr",
+    "replace": [
+      [
+        "d'autres chatons",
+        "d'autres chats"
+      ],
+      [
+        "tous les chatons",
+        "tous les chats"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/ally",
+    "locale": "fr",
+    "replace": [
+      [
+        "« grosse, grasse et belle »",
+        "« grande, ronde et belle »"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/oreo",
+    "locale": "en",
+    "replace": [
+      [
+        "one of the most loving kitties",
+        "one of the most loving cats"
+      ],
+      [
+        "other kittens, especially girls, so if you already have a kitten",
+        "other cats, especially females, so if you already have a female cat"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/oreo",
+    "locale": "fr",
+    "replace": [
+      [
+        "l'un des chatons les plus affectueux",
+        "l'un des chats les plus affectueux"
+      ],
+      [
+        "les autres chatons",
+        "les autres chats"
+      ],
+      [
+        "si vous avez déjà un chaton",
+        "si vous avez déjà une chatte"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/aldo",
+    "locale": "en",
+    "replace": [
+      [
+        "Aldo the kitten was found",
+        "Aldo was found"
+      ],
+      [
+        "other kittens",
+        "other cats"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/aldo",
+    "locale": "fr",
+    "replace": [
+      [
+        "Aldo, un chaton, a été trouvé",
+        "Aldo a été trouvé"
+      ],
+      [
+        "les autres chatons",
+        "les autres chats"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/daphne",
+    "locale": "en",
+    "replace": [
+      [
+        "playful kitten - our tricolor has not stolen anyone's heart",
+        "playful cat - our tricolour girl has not stolen anyone's heart yet"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/daphne",
+    "locale": "fr",
+    "replace": [
+      [
+        "Daphne est une chatonne douce",
+        "Daphne est une chatte douce"
+      ],
+      [
+        "n'a conquis le cœur de personne",
+        "n'a encore conquis le cœur de personne"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/figaro",
+    "locale": "en",
+    "replace": [
+      [
+        "thick-furred kitten",
+        "thick-furred cat"
+      ],
+      [
+        "balanced and intelligent kitten",
+        "balanced and intelligent cat"
+      ],
+      [
+        "small scars on one eye",
+        "minor after-effects in one eye"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/figaro",
+    "locale": "fr",
+    "replace": [
+      [
+        "Figaro est un chaton adorable",
+        "Figaro est un chat adorable"
+      ],
+      [
+        "C’est un chaton équilibré",
+        "C’est un chat équilibré"
+      ],
+      [
+        "de petites cicatrices à un œil",
+        "de légères séquelles à un œil"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/goldy",
+    "locale": "en",
+    "replace": [
+      [
+        "he gently holds our hand with his paw to give him affection that he literally melts us",
+        "he gently takes our hand with his paw to ask for affection, which simply melts us"
+      ],
+      [
+        "and / or have another kitten as a companion",
+        "and / or who has another cat as a companion"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/goldy",
+    "locale": "fr",
+    "replace": [
+      [
+        "et nous fait la cour",
+        "et nous parle"
+      ],
+      [
+        "Il nous caresse tendrement la main avec sa patte, ce qui nous fait fondre",
+        "Il nous attrape doucement la main avec sa patte pour réclamer de l'affection, ce qui nous fait fondre"
+      ],
+      [
+        "un autre chaton",
+        "un autre chat"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/tiger",
+    "locale": "en",
+    "replace": [
+      [
+        "a gentle and a little bit naughty cat",
+        "a gentle, slightly goofy cat"
+      ],
+      [
+        "I get small",
+        "I make myself tiny"
+      ],
+      [
+        "somewhere there is my man",
+        "my person is out there somewhere"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/tiger",
+    "locale": "fr",
+    "replace": [
+      [
+        "un brin espiègle",
+        "un brin pataud"
+      ],
+      [
+        "et je rapetisse",
+        "et je me fais tout petit"
+      ],
+      [
+        "existe mon homme",
+        "existe mon humain"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/garfields",
+    "locale": "en",
+    "replace": [
+      [
+        "purrs 100 times and kneads bread",
+        "purrs like 100 little engines and kneads away"
+      ],
+      [
+        "runs around trotting",
+        "hops around"
+      ],
+      [
+        "as if he were made of plasticine, he waves and pampers himself and starts the motors at full speed",
+        "it is as if he were made of plasticine: he wriggles, laps up the cuddles and starts his motors at full speed"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/garfields",
+    "locale": "fr",
+    "replace": [
+      [
+        "pétrit le pain",
+        "pétrit avec ses pattes"
+      ],
+      [
+        "il est si doux qu'il se tortille et se délecte de ses caresses",
+        "on le dirait en pâte à modeler : il se tortille, se laisse dorloter et ronronne à plein régime"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/jasmine",
+    "locale": "en",
+    "replace": [
+      [
+        "make \"cakes\" and start engines",
+        "knead with her paws and start up her purring motors"
+      ],
+      [
+        "a good man",
+        "a good person"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/jasmine",
+    "locale": "fr",
+    "replace": [
+      [
+        "faire des gâteaux et démarrer des moteurs",
+        "pétrir avec ses pattes et ronronner à plein régime"
+      ],
+      [
+        "une si petite chatte n'a pas trouvé un maître qui lui aurait offert",
+        "une telle chatte n'a pas su attirer l'attention d'une bonne personne qui lui offrirait"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/ziggy",
+    "locale": "fr",
+    "replace": [
+      [
+        "Amicaliné et câlin",
+        "Amical et câlin"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/zapp",
+    "locale": "en",
+    "replace": [
+      [
+        "Zapp is a scaredy-cat",
+        "Zapp is a very fearful cat"
+      ],
+      [
+        "when he was nobody's, in addition, he was also sick",
+        "when he had no one; on top of that he was very ill"
+      ],
+      [
+        "He remained a scaredy-cat and distrustful of people",
+        "He has remained a fearful cat who distrusts people"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-pisici/zapp",
+    "locale": "fr",
+    "replace": [
+      [
+        "Zapp est un chaton très peureux",
+        "Zapp est un chat très peureux"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/brownie",
+    "locale": "en",
+    "replace": [
+      [
+        "can we find him together?",
+        "shall we find them together?"
+      ],
+      [
+        "the lack of responsibility of a man who did not sterilize his puppy",
+        "the lack of responsibility of a person who did not have their female dog sterilized"
+      ],
+      [
+        "waiting, obediently, for",
+        "waiting patiently for"
+      ],
+      [
+        "a miracle of a puppy",
+        "a wonderful puppy"
+      ],
+      [
+        "a family that will comfort her",
+        "a family that will cuddle her"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/brownie",
+    "locale": "fr",
+    "replace": [
+      [
+        "d'un homme qui n'avait pas fait stériliser son chiot",
+        "d'une personne qui n'avait pas fait stériliser sa chienne"
+      ],
+      [
+        "c'est un chiot miracle",
+        "c'est une merveille de petite chienne"
+      ],
+      [
+        "qui la réconfortera",
+        "qui la câlinera"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/charlie",
+    "locale": "en",
+    "replace": [
+      [
+        "Who gives Charlie the chance",
+        "Who will give Charlie the chance"
+      ],
+      [
+        "the lack of responsibility of a man who did not sterilize his puppy",
+        "the lack of responsibility of a person who did not have their female dog sterilized"
+      ],
+      [
+        "a true miracle of a puppy",
+        "a truly wonderful puppy"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/charlie",
+    "locale": "fr",
+    "replace": [
+      [
+        "d'un homme qui n'a pas fait stériliser son chiot",
+        "d'une personne qui n'a pas fait stériliser sa chienne"
+      ],
+      [
+        "est un véritable miracle",
+        "est une vraie merveille de chiot"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/marley",
+    "locale": "en",
+    "replace": [
+      [
+        "non-breed puppies",
+        "mixed-breed dogs"
+      ],
+      [
+        "Maybe you are the man who",
+        "Maybe you are the person who"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/marley",
+    "locale": "fr",
+    "replace": [
+      [
+        "même les chiens de race méritent",
+        "même les chiens sans race méritent"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/luke",
+    "locale": "en",
+    "replace": [
+      [
+        "a medium-sized puppy",
+        "a medium-sized dog"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/luke",
+    "locale": "fr",
+    "replace": [
+      [
+        "un chiot de taille moyenne",
+        "un chien de taille moyenne"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/gretel",
+    "locale": "en",
+    "replace": [
+      [
+        "the kind of puppy that approaches",
+        "the kind of dog that approaches"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/gretel",
+    "locale": "fr",
+    "replace": [
+      [
+        "C'est le genre de chiot qui",
+        "C'est le genre de chienne qui"
+      ],
+      [
+        "Peut-être même par toi",
+        "Peut-être même par vous"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/bashful-si-grumpy",
+    "locale": "en",
+    "replace": [
+      [
+        "although two years passed",
+        "although two years have passed"
+      ],
+      [
+        "I don't ask for much.",
+        "They don't ask for much."
+      ],
+      [
+        "A man who will look at them",
+        "A person who will look at them"
+      ],
+      [
+        "a sharing can change",
+        "a share can change"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/bashful-si-grumpy",
+    "locale": "fr",
+    "replace": [
+      [
+        "Ils ne veulent pas vivre en cage, dans un jardin.",
+        "Ils ne veulent pas être des chiens en cage, au fond d'une cour."
+      ],
+      [
+        "Je ne demande pas grand-chose.",
+        "Ils ne demandent pas grand-chose."
+      ],
+      [
+        "Un homme qui les regardera",
+        "Une personne qui les regardera"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/lizzie",
+    "locale": "en",
+    "replace": [
+      [
+        "a cheerful puppy by nature",
+        "a cheerful dog by nature"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/lizzie",
+    "locale": "fr",
+    "replace": [
+      [
+        "et d'une personne à qui me confier",
+        "et d'un humain que je pourrai appeler « le mien »"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/aria",
+    "locale": "en",
+    "replace": [
+      [
+        "the fairy-tale puppy is looking for a partner",
+        "a fairy-tale dog is looking for her perfect human"
+      ],
+      [
+        "She is young and large",
+        "She is young and large-sized"
+      ],
+      [
+        "quickly gets on the groove when she gains confidence",
+        "quickly comes round once she gains confidence"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/julie",
+    "locale": "en",
+    "replace": [
+      [
+        "experience with puppies",
+        "experience with dogs"
+      ],
+      [
+        "to accommodate beautiful Julie in a different environment",
+        "to help beautiful Julie settle into a new environment"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/julie",
+    "locale": "fr",
+    "replace": [
+      [
+        "dans un champ infesté de tiques et de chardons",
+        "dans les champs, couverte de tiques et de chardons"
+      ],
+      [
+        "de l'expérience avec les chiots",
+        "de l'expérience avec les chiens"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/caramel",
+    "locale": "en",
+    "replace": [
+      [
+        "experience with puppies",
+        "experience with dogs"
+      ],
+      [
+        "to accommodate the beautiful Caramel in a different environment",
+        "to help beautiful Caramel settle into a new environment"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/caramel",
+    "locale": "fr",
+    "replace": [
+      [
+        "de l'expérience avec les chiots",
+        "de l'expérience avec les chiens"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/patraulea",
+    "locale": "en",
+    "replace": [
+      [
+        "Initially I was going to call me Patrocles",
+        "At first I was going to be called Patrocles"
+      ],
+      [
+        "for the rest of your life",
+        "for the rest of my life"
+      ],
+      [
+        "quicksilver and not so quicksilver",
+        "pure quicksilver"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/patraulea",
+    "locale": "fr",
+    "replace": [
+      [
+        "Au départ, je voulais m'appeler Patrocles",
+        "Au départ, je devais m'appeler Patrocles"
+      ],
+      [
+        "pour le restant de vos jours",
+        "pour toute la vie"
+      ],
+      [
+        "Je suis une petite boule de poils pleine de vie, joueuse et énergique... vive comme l'éclair, parfois un peu moins, mais aussi très affectueuse et avide de câlins",
+        "Je suis un petit personnage plein de vie, joueur et énergique... du vif-argent, rien de moins, mais je suis aussi très affectueux et avide de câlins"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/zamira",
+    "locale": "en",
+    "replace": [
+      [
+        "since she was a month old and a little when she was abandoned",
+        "since she was just over a month old, when she was abandoned"
+      ],
+      [
+        "a miracle of a puppy",
+        "a wonderful dog"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/zamira",
+    "locale": "fr",
+    "replace": [
+      [
+        "depuis qu'elle a un mois, peu après son abandon avec sa mère",
+        "depuis qu'elle a un peu plus d'un mois, quand elle a été abandonnée avec sa mère"
+      ],
+      [
+        "malgré son statut de petite merveille",
+        "alors que c'est une merveille de chienne"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/samson",
+    "locale": "en",
+    "replace": [
+      [
+        "the big blond, as big as he is (40 kg), he is gentle and affectionate",
+        "the big blond: as big as he is (40 kg), he is just as gentle and affectionate"
+      ],
+      [
+        "for whom the puppy is a member of the family and not a yard guard in a kennel",
+        "for whom a dog is a member of the family and not a yard guard in a kennel"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/samson",
+    "locale": "fr",
+    "replace": [
+      [
+        "Samson, un grand blond d'un an d'un an, est un chien doux et affectueux avec les humains.",
+        "Samson, un grand blond d'un an, est aussi doux et affectueux avec les humains qu'il est grand (40 kg)."
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/parpanghel",
+    "locale": "en",
+    "replace": [
+      [
+        "their home and soul",
+        "their home and heart"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/parpanghel",
+    "locale": "fr",
+    "replace": [
+      [
+        "dans leur foyer et son cœur",
+        "dans leur foyer et dans leur cœur"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/irma",
+    "locale": "en",
+    "replace": [
+      [
+        "Irma is a large puppy",
+        "Irma is a large dog"
+      ],
+      [
+        "sociable with other puppies",
+        "sociable with other dogs"
+      ],
+      [
+        "where the puppy is a member of the family",
+        "for whom a dog is a member of the family"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/irma",
+    "locale": "fr",
+    "replace": [
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/labus",
+    "locale": "en",
+    "replace": [
+      [
+        "Labus is a puppy and we have been",
+        "Labus is one year old and we have been"
+      ],
+      [
+        "sociable with other puppies",
+        "sociable with other dogs"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/labus",
+    "locale": "fr",
+    "replace": [
+      [
+        "Labus est un chien que nous élevons depuis l'âge d'un mois",
+        "Labus a un an et nous nous occupons de lui depuis qu'il a un mois"
+      ],
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/marble-si-maggie",
+    "locale": "en",
+    "replace": [
+      [
+        "experience with puppies",
+        "experience with dogs"
+      ],
+      [
+        "because they are not separated, we will not separate them",
+        "because they are inseparable, we will not separate them"
+      ],
+      [
+        "to live in the yard but not in a kennel but in the house with the person",
+        "to live in a house with a yard: not in a kennel, but indoors with their human"
+      ],
+      [
+        "through an adoption in the yard than in an apartment, where walks on a leash, the noise of cars, etc., new things for them would interfere",
+        "in a house with a yard than in an apartment, where walks on a leash, the noise of cars and other things that are new to them would come into play"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/marble-si-maggie",
+    "locale": "fr",
+    "replace": [
+      [
+        "expérimentée avec les chiots, leur offrira la chance de fonder une famille. Comme elles ne sont pas séparées",
+        "expérimentée avec les chiens, leur offrira la chance d'avoir une famille. Comme elles sont inséparables"
+      ],
+      [
+        "de vivre dans le jardin, à la maison avec leur maître, plutôt que dans un chenil",
+        "de vivre dans une maison avec jardin : pas dans une niche, mais à l'intérieur avec leur humain"
+      ],
+      [
+        "en vivant dans un jardin qu'en appartement",
+        "dans une maison avec jardin qu'en appartement"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/macy",
+    "locale": "en",
+    "replace": [
+      [
+        "every time we go to her house",
+        "every time we go in to see them"
+      ],
+      [
+        "with a wonderful man",
+        "with a wonderful person"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/macy",
+    "locale": "fr",
+    "replace": [
+      [
+        "chaque fois que nous allons chez elle",
+        "chaque fois que nous entrons les voir"
+      ],
+      [
+        "avec un homme merveilleux. Si vous êtes cet homme pour Macy",
+        "avec une personne merveilleuse. Si vous êtes cette personne pour Macy"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/athos",
+    "locale": "en",
+    "replace": [
+      [
+        "it is sad and unfair to spend his entire life here",
+        "it would be sad and unfair for him to spend his entire life here"
+      ],
+      [
+        "to live in the yard but not in a kennel but in the house with his human, He would adapt more easily to the change of environment through an adoption in the yard than in an apartment, where he would interfere, walks on a leash, the noise of cars, etc., new things for him.",
+        "to live in a house with a yard: not in a kennel, but indoors with his human. He would adapt more easily to the change of environment in a house with a yard than in an apartment, where walks on a leash, the noise of cars and other things that are new to him would come into play."
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/athos",
+    "locale": "fr",
+    "replace": [
+      [
+        "de vivre dans une maison avec son humain, dans un jardin plutôt que dans un chenil",
+        "de vivre dans une maison avec jardin : pas dans une niche, mais à l'intérieur avec son humain"
+      ],
+      [
+        "en vivant dans un jardin qu'en appartement",
+        "dans une maison avec jardin qu'en appartement"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/aramis",
+    "locale": "ro",
+    "replace": [
+      [
+        "Athos",
+        "Aramis"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/aramis",
+    "locale": "en",
+    "replace": [
+      [
+        "Athos",
+        "Aramis"
+      ],
+      [
+        "it is sad and unfair to spend his entire life here",
+        "it would be sad and unfair for him to spend his entire life here"
+      ],
+      [
+        "to live in the yard but not in a kennel but in the house with his human. He would adapt more easily to the change of environment through an adoption in a yard than in an apartment, where he would interfere, walks on a leash, the noise of cars, etc., new things for him.",
+        "to live in a house with a yard: not in a kennel, but indoors with his human. He would adapt more easily to the change of environment in a house with a yard than in an apartment, where walks on a leash, the noise of cars and other things that are new to him would come into play."
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/aramis",
+    "locale": "fr",
+    "replace": [
+      [
+        "Athos",
+        "Aramis"
+      ],
+      [
+        "de vivre dans une maison avec son humain, plutôt que dans un chenil",
+        "de vivre dans une maison avec jardin : pas dans une niche, mais à l'intérieur avec son humain"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/brianna",
+    "locale": "en",
+    "replace": [
+      [
+        "welcome her into her home and soul",
+        "welcome her into their home and heart"
+      ],
+      [
+        "She gets along with other puppies and it is even advisable to have a furry companion to play with",
+        "She gets along with other dogs and it is even advisable for her to have a furry companion to play with"
+      ],
+      [
+        "for whom the puppy is a full-fledged member of the family",
+        "for whom a dog is a full member of the family"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/brianna",
+    "locale": "fr",
+    "replace": [
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/sherry",
+    "locale": "en",
+    "replace": [
+      [
+        "She is a wonder puppy who loves people the way only a puppy can",
+        "She is a wonderful dog who loves people the way only a dog can"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/sherry",
+    "locale": "fr",
+    "replace": [
+      [
+        "comme seul un chiot sait le faire",
+        "comme seul un chien sait le faire"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/louise",
+    "locale": "en",
+    "replace": [
+      [
+        "affectionate puppy and was rescued",
+        "affectionate dog who was rescued"
+      ],
+      [
+        "lived a life in chains",
+        "lived on a chain"
+      ],
+      [
+        "their homes and hearts,",
+        "their homes and hearts."
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/vladimir",
+    "locale": "en",
+    "replace": [
+      [
+        "the puppy from the vineyard",
+        "the dog from the vineyard"
+      ],
+      [
+        "was a pack of bones",
+        "he was a bag of bones"
+      ],
+      [
+        "\"the puppy you meet in the backyard, on a chain\"",
+        "\"the dog you come across at the back of a yard, on a chain\""
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/vladimir",
+    "locale": "fr",
+    "replace": [
+      [
+        "le chiot du vignoble",
+        "le chien de la vigne"
+      ],
+      [
+        "le chiot qu'on trouve dans un jardin, attaché à une chaîne",
+        "le chien qu'on croise au fond d'une cour, au bout d'une chaîne"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/tess",
+    "locale": "en",
+    "replace": [
+      [
+        "Black puppies have",
+        "Black dogs have"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/tess",
+    "locale": "fr",
+    "replace": [
+      [
+        "Les chiots noirs",
+        "Les chiens noirs"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/helga",
+    "locale": "en",
+    "replace": [
+      [
+        "energetic puppy",
+        "energetic dog"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/nadira",
+    "locale": "en",
+    "replace": [
+      [
+        "the sadness of black puppies",
+        "the sad fate of black dogs"
+      ],
+      [
+        "other puppies",
+        "other dogs"
+      ],
+      [
+        "adores her human",
+        "adores people"
+      ],
+      [
+        "She turned 7 years old",
+        "She has turned 7"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/nadira",
+    "locale": "fr",
+    "replace": [
+      [
+        "des chiots noirs",
+        "des chiens noirs"
+      ],
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ],
+      [
+        "adore son humain",
+        "adore les humains"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/lacey",
+    "locale": "en",
+    "replace": [
+      [
+        "a wonderful puppy",
+        "a wonderful dog"
+      ],
+      [
+        "as only a puppy knows how to do",
+        "as only a dog knows how"
+      ],
+      [
+        "responsible man who",
+        "responsible person who"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/lacey",
+    "locale": "fr",
+    "replace": [
+      [
+        "comme seul un chiot sait le faire",
+        "comme seul un chien sait le faire"
+      ],
+      [
+        "qu’un homme bon, aimant et responsable",
+        "qu’une personne bonne, aimante et responsable"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/chelsy",
+    "locale": "en",
+    "replace": [
+      [
+        "the puppies are not sterilized",
+        "the female dogs are not sterilized"
+      ],
+      [
+        "In conclusion, I was saved",
+        "In short, I was saved"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/chelsy",
+    "locale": "fr",
+    "replace": [
+      [
+        "Ils ne sont pas stérilisés et, de ce fait, abandonnés dans les champs.",
+        "Les chiennes n'y sont pas stérilisées et, de ce fait, leurs petits sont jetés dans les champs."
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/ambra",
+    "locale": "en",
+    "replace": [
+      [
+        "a small to medium-sized puppy",
+        "a small to medium-sized dog"
+      ],
+      [
+        "to convince you to be part of your family",
+        "to convince you to make me part of your family"
+      ],
+      [
+        "which unfortunately for me, did not happen",
+        "which, unfortunately for me, has not happened"
+      ],
+      [
+        "I do not explain this to myself either because I am a puppy with all possible qualities",
+        "I cannot explain it either, because I am a dog with every possible quality"
+      ],
+      [
+        "other puppies",
+        "other dogs"
+      ],
+      [
+        "cheerful and playful puppy",
+        "cheerful and playful dog"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/ambra",
+    "locale": "fr",
+    "replace": [
+      [
+        "pour vous convaincre de rejoindre votre famille",
+        "pour vous convaincre de me faire une place dans votre famille"
+      ],
+      [
+        "Je ne me donne pas d'explications",
+        "Je ne me l'explique pas moi-même"
+      ],
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/ingrid",
+    "locale": "en",
+    "replace": [
+      [
+        "Exceptional puppy to adopt",
+        "Exceptional dog to adopt"
+      ],
+      [
+        "she takes you in her arms and wouldn't let you go",
+        "she hugs you and would never let you go"
+      ],
+      [
+        "How can you not love such a puppy and not wish him a wonderful family?",
+        "How can you not love such a dog and not wish her a wonderful family?"
+      ],
+      [
+        "playful with other puppies... she is the magical puppy Ingrid for whom we are looking for people for whom the puppy is a member of the family",
+        "playful with other dogs... she is the magical Ingrid, for whom we are looking for people who see a dog as a member of the family"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/ingrid",
+    "locale": "fr",
+    "replace": [
+      [
+        "Adorable chien à adopter !",
+        "Chienne exceptionnelle à adopter et à aimer à Bucarest !"
+      ],
+      [
+        "pour un chiot pareil et ne pas lui souhaiter",
+        "pour une chienne pareille et ne pas lui souhaiter"
+      ],
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ],
+      [
+        "Elle est de taille moyenne à grande",
+        "Elle a environ un an, elle est de taille moyenne à grande"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/niva",
+    "locale": "en",
+    "replace": [
+      [
+        "for whom the puppy is a member",
+        "for whom a dog is a member"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/panduru",
+    "locale": "en",
+    "replace": [
+      [
+        "friendly puppy, slightly shy who gets along well with other puppies",
+        "friendly dog, slightly shy, who gets along well with other dogs"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/panduru",
+    "locale": "fr",
+    "replace": [
+      [
+        "Panduru est un chiot sociable",
+        "Panduru est un chien sociable"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/panda",
+    "locale": "en",
+    "replace": [
+      [
+        "when I was a moghal",
+        "when I was a tiny ball of fur"
+      ],
+      [
+        "a loving puppy",
+        "a loving dog"
+      ],
+      [
+        "good man",
+        "dear human"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/mura",
+    "locale": "en",
+    "replace": [
+      [
+        "so many puppies",
+        "so many dogs"
+      ],
+      [
+        "puppies of all categories, ages and models... many puppies",
+        "dogs of all kinds, ages and looks... so many dogs"
+      ],
+      [
+        "one of those lucky puppies that escaped",
+        "one of those lucky dogs that escaped"
+      ],
+      [
+        "I am a loving puppy with people",
+        "I am a dog who loves people"
+      ],
+      [
+        "tolerant with other puppies",
+        "tolerant with other dogs"
+      ],
+      [
+        "a wonderful puppy and I am waiting for the man who wants",
+        "a wonderful dog and I am waiting for the person who wants"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/mura",
+    "locale": "fr",
+    "replace": [
+      [
+        "Il y a tant de chiots dans ce monde qui rêvent d'une famille… des chiots de toutes races, de tous âges et de toutes races… tellement de chiots…",
+        "Il y a tant de chiens dans ce monde qui ont besoin d'une famille… des chiens de toutes sortes, de tous âges et de toutes allures… tellement de chiens…"
+      ],
+      [
+        "car il y a aussi des abattoirs",
+        "car il existe aussi des bourreaux de chiens"
+      ],
+      [
+        "Je suis l'un de ces chiots chanceux qui ont échappé à l'euthanasie",
+        "Je suis l'une de ces chiennes chanceuses qui ont échappé « à la hache des bourreaux »"
+      ],
+      [
+        "comment vous convaincre de me rejoindre",
+        "comment vous convaincre de tourner votre regard et votre cœur vers moi"
+      ],
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ],
+      [
+        "j'attends l'homme qui voudra",
+        "j'attends la personne qui voudra"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/sheba",
+    "locale": "en",
+    "replace": [
+      [
+        "docile puppy, she gets along great with other puppies",
+        "docile dog, she gets along great with other dogs"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-caini/sheba",
+    "locale": "fr",
+    "replace": [
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/trafurica",
+    "locale": "en",
+    "replace": [
+      [
+        "a 1.5 year old puppy, very scared",
+        "a 1.5 year old dog, very fearful"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/trafurica",
+    "locale": "fr",
+    "replace": [
+      [
+        "est un chiot d'un an et demi",
+        "est un chien d'un an et demi"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/igor",
+    "locale": "en",
+    "replace": [
+      [
+        "he is a very scared puppy",
+        "he is a very fearful dog"
+      ],
+      [
+        "he is a friendly and sociable puppy with other puppies",
+        "he is friendly and sociable with other dogs"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/igor",
+    "locale": "fr",
+    "replace": [
+      [
+        "C'est un chiot craintif",
+        "C'est un chien craintif"
+      ],
+      [
+        "si nous l'approchayons",
+        "si nous allons vers lui"
+      ],
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/nicka",
+    "locale": "fr",
+    "replace": [
+      [
+        "Vous pouvez adopter Nicka virtuellement",
+        "Vous pouvez parrainer Nicka virtuellement"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/elsa",
+    "locale": "en",
+    "replace": [
+      [
+        "she is a very scared puppy",
+        "she is a very fearful dog"
+      ],
+      [
+        "she is a friendly and sociable puppy with other puppies",
+        "she is friendly and sociable with other dogs"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/elsa",
+    "locale": "fr",
+    "replace": [
+      [
+        "si nous l'approchayons",
+        "si nous allons vers elle"
+      ],
+      [
+        "les autres chiots",
+        "les autres chiens"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/anton",
+    "locale": "en",
+    "replace": [
+      [
+        "Anton is a puppy who has 3 legs and is also very scared",
+        "Anton is a dog who has 3 legs and is also very fearful"
+      ],
+      [
+        "where he had been acting near a block of flats",
+        "where he had taken shelter near a block of flats"
+      ],
+      [
+        "tried to catch him with a stick",
+        "tried to catch him with a net"
+      ],
+      [
+        "We leave the accounts here with the request that you specify for Anton.",
+        "The accounts are below; please mention that your donation is for Anton."
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/anton",
+    "locale": "fr",
+    "replace": [
+      [
+        "Anton est un chiot à trois pattes",
+        "Anton est un chien à trois pattes"
+      ],
+      [
+        "Des personnes bien intentionnées du quartier",
+        "Les « braves gens » du quartier"
+      ],
+      [
+        "avec un bâton",
+        "avec une épuisette"
+      ],
+      [
+        "Vous trouverez nos coordonnées bancaires ici, avec vos demandes spécifiques pour Anton.",
+        "Les comptes sont indiqués ci-dessous ; merci de préciser que votre don est pour Anton."
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/roa",
+    "locale": "ro",
+    "replace": [
+      [
+        "Runa",
+        "Roa"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/roa",
+    "locale": "en",
+    "replace": [
+      [
+        "Roa is an old puppy",
+        "Roa is an elderly dog"
+      ],
+      [
+        "captured by strays",
+        "captured by dog catchers"
+      ],
+      [
+        "support Runa",
+        "support Roa"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/roa",
+    "locale": "fr",
+    "replace": [
+      [
+        "Recueillie par des chiens errants, elle est sous notre protection depuis",
+        "Capturée par la fourrière puis sauvée par nous, elle est sous notre protection depuis"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/duke",
+    "locale": "en",
+    "replace": [
+      [
+        "an atypical puppy",
+        "an atypical dog"
+      ],
+      [
+        "put the flea pill on his neck, it is a big pity, we have to run him all over the pen",
+        "put the flea drops on the back of his neck, it is quite a drama: we have to chase him all around the pen"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/duke",
+    "locale": "fr",
+    "replace": [
+      [
+        "Duke est un chiot atypique",
+        "Duke est un chien atypique"
+      ],
+      [
+        "lui mettre le comprimé anti-puces, c'est vraiment dommage, car nous devons le faire courir partout dans l'enclos",
+        "lui mettre la pipette anti-puces sur la nuque, c'est toute une affaire : il faut lui courir après dans tout l'enclos"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/urechiusa",
+    "locale": "en",
+    "replace": [
+      [
+        "he had a disease popularly called jigodie",
+        "he had distemper"
+      ],
+      [
+        "he was left with sequelae from the disease",
+        "he was left with after-effects of the disease"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/urechiusa",
+    "locale": "fr",
+    "replace": [
+      [
+        "il était atteint d'une maladie appelée jigodie",
+        "il était atteint de la maladie de Carré"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/blade",
+    "locale": "en",
+    "replace": [
+      [
+        "Some puppies do not jump",
+        "Some dogs do not jump"
+      ],
+      [
+        "turns him into a maladaptive puppy and, consequently, unadoptable in a home",
+        "makes him unable to adapt and, consequently, unadoptable into a home"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/blade",
+    "locale": "fr",
+    "replace": [
+      [
+        "Sa peur des humains le rend difficile à adopter et, par conséquent, inadapté à la vie en famille",
+        "Sa peur des humains l'empêche de s'adapter et, par conséquent, d'être adopté dans un foyer"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/familie-speriosi",
+    "locale": "en",
+    "replace": [
+      [
+        "it is certain that they are scared puppies",
+        "what is certain is that they are fearful dogs"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/familie-speriosi",
+    "locale": "fr",
+    "replace": [
+      [
+        "Ce sont manifestement des chiots apeurés",
+        "Ce qui est sûr, c'est que ce sont des chiens craintifs"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/berna",
+    "locale": "en",
+    "replace": [
+      [
+        "a 1.5 year old puppy, very scared",
+        "a 1.5 year old dog, very fearful"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/shiva",
+    "locale": "en",
+    "replace": [
+      [
+        "Some puppies do not jump",
+        "Some dogs do not jump"
+      ],
+      [
+        "turns her into a maladaptive puppy and, consequently, unadoptable in a home",
+        "makes her unable to adapt and, consequently, unadoptable into a home"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/shiva",
+    "locale": "fr",
+    "replace": [
+      [
+        "Sa peur des humains la rend difficile à adopter et, par conséquent, inadaptée à la vie en famille",
+        "Sa peur des humains l'empêche de s'adapter et, par conséquent, d'être adoptée dans un foyer"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/hector",
+    "locale": "en",
+    "replace": [
+      [
+        "captured by strays",
+        "captured by dog catchers"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-virtuale-caini/hector",
+    "locale": "fr",
+    "replace": [
+      [
+        "Recueilli par des chiens errants, il est depuis lors sous notre protection",
+        "Capturé par la fourrière puis sauvé par nous, il est depuis lors sous notre protection"
+      ]
+    ]
+  },
+  {
+    "key": "adoptii-pisici/jerry",
+    "locale": "en",
+    "replace": [
+      [
+        "the kind of kitten who rushes",
+        "the kind of cat who rushes"
+      ]
+    ]
   }
 ]

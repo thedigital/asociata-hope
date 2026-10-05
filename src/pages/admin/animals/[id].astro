@@ -303,7 +303,7 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
   {/* Photo and delete buttons live inside the main form visually, but submit this one. */}
   <form id="photo-form" method="post"></form>
 
-  <script is:inline>
+  <script is:inline nonce={Astro.locals.cspNonce}>
     document.querySelectorAll('[data-confirm]').forEach((button) => {
       button.addEventListener('click', (event) => {
         if (!confirm(button.dataset.confirm)) event.preventDefault();

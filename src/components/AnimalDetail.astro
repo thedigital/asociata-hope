@@ -110,7 +110,7 @@ const [main, ...others] = animal.photos;
   </div>
 </article>
 
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
   // Thumbnails swap the main picture in place; without JavaScript they open the full-size image.
   (() => {
     const main = document.getElementById('animal-photo');

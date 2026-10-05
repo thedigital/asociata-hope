@@ -110,7 +110,7 @@ const fields = [
   }
 </section>
 
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
   // Filters apply as soon as they change; without JavaScript the form has a submit button.
   (() => {
     const form = document.querySelector('.filters');

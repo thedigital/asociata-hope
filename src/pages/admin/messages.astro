@@ -89,7 +89,7 @@ const toValues = (row: (typeof rows)[number]): ContactValues => {
     ))
   }
 
-  <script is:inline>
+  <script is:inline nonce={Astro.locals.cspNonce}>
     document.querySelectorAll('[data-confirm]').forEach((button) => {
       button.addEventListener('click', (event) => {
         if (!confirm(button.dataset.confirm)) event.preventDefault();

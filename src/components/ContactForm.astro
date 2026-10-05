@@ -196,7 +196,7 @@ const questionCount = 1 + CAT_CHOICE_KEYS.length + 3;
   )
 }
 
-<script is:inline>
+<script is:inline nonce={Astro.locals.cspNonce}>
   // The stylesheet shows the blocks that match the chosen reason; this script makes the inputs
   // follow: those of another reason are disabled, so that they are neither required nor
   // submitted. Without JavaScript nothing is required by the browser and the server ignores

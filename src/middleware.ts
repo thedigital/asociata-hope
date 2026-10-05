@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { defineMiddleware } from 'astro:middleware';
 import { eq } from 'drizzle-orm';
 import { db, schema } from './db/client.ts';
@@ -13,15 +14,42 @@ const ONE_YEAR = 60 * 60 * 24 * 365;
 /** Public HTML pages only: not media, documents, the admin, or files such as sitemap.xml. */
 const isPublicPage = (pathname: string) => !/^\/(media|files|admin|_)/.test(pathname) && !/\.[a-z0-9]+$/i.test(pathname);
 
-const secure = (response: Response) => {
+/**
+ * Content-Security-Policy of an HTML page: everything comes from the site itself. Inline scripts and
+ * the theme style carry the nonce of the request. The donation form is redirected to Stripe Checkout,
+ * which `form-action` must allow. Theme previews of the admin use `style` attributes.
+ */
+const contentSecurityPolicy = (nonce: string, admin: boolean) =>
+  [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}'`,
+    `style-src 'self' 'nonce-${nonce}'`,
+    ...(admin ? ["style-src-attr 'unsafe-inline'"] : []),
+    "img-src 'self' data: blob:",
+    // Vite writes the smallest font files into the stylesheet as data: URLs.
+    "font-src 'self' data:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self' https://checkout.stripe.com",
+    "frame-ancestors 'self'",
+  ].join('; ');
+
+const secure = (response: Response, nonce?: string, admin = false) => {
   response.headers.set('x-content-type-options', 'nosniff');
   response.headers.set('referrer-policy', 'strict-origin-when-cross-origin');
   response.headers.set('x-frame-options', 'SAMEORIGIN');
+  if (response.headers.get('content-type')?.startsWith('text/html')) {
+    // Pages are built for each request (animals, theme, language): browsers and proxies must ask again.
+    if (!response.headers.has('cache-control')) response.headers.set('cache-control', 'no-cache');
+    // The dev server injects its own inline scripts and styles, which the policy would block.
+    if (nonce && import.meta.env.PROD) response.headers.set('content-security-policy', contentSecurityPolicy(nonce, admin));
+  }
   return response;
 };
 
 export const onRequest = defineMiddleware(async ({ url, request, cookies, locals }, next) => {
   const { pathname, search } = url;
+  locals.cspNonce = randomBytes(16).toString('base64');
 
   // Wix URLs have no trailing slash; keep a single canonical form.
   if (pathname.length > 1 && pathname.endsWith('/')) return redirect(pathname.replace(/\/+$/, '') + search);
@@ -31,7 +59,7 @@ export const onRequest = defineMiddleware(async ({ url, request, cookies, locals
     const token = cookies.get(SESSION_COOKIE)?.value;
     locals.user = (token && getSessionUser(token)) || undefined;
     if (!locals.user && pathname !== '/admin/login') return redirect('/admin/login', 302);
-    const response = secure(await next());
+    const response = secure(await next(), locals.cspNonce, true);
     response.headers.set('cache-control', 'no-store');
     response.headers.set('x-robots-tag', 'noindex, nofollow');
     return response;
@@ -72,5 +100,5 @@ export const onRequest = defineMiddleware(async ({ url, request, cookies, locals
     }
   }
 
-  return secure(await next());
+  return secure(await next(), locals.cspNonce);
 });
