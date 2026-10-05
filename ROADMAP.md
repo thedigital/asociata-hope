@@ -67,7 +67,7 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [ ] Choisir la destination des sauvegardes hors du VPS (`BACKUP_REMOTE`, une destination rsync) : sans elle, tout reste sur le même disque.
 - [ ] **Migrer le domaine `adoptii-animale-hope.org`, aujourd'hui hébergé chez Wix, vers Cloudflare.** Le déploiement prévu (nginx derrière Cloudflare, qui porte le certificat public) en dépend. Avant de changer quoi que ce soit, relever tous les enregistrements DNS actuels chez Wix, en particulier ceux de la messagerie (MX, SPF, DKIM) et de vérification (Search Console), pour les recréer à l'identique dans Cloudflare.
 - [ ] Plan de bascule DNS : baisser le TTL avant, garder Wix actif quelques jours, puis surveiller les 404 et la Search Console.
-- [ ] `favicon.ico` répond 404 (seul `favicon.svg` existe) ; les navigateurs et robots le demandent quand même.
+- [x] `favicon.ico` ajouté (`public/favicon.ico`, la patte de `favicon.svg` en 16, 32 et 48 px) : les navigateurs et robots le demandent même sans balise.
 
 ## 2. À faire, non bloquant
 
