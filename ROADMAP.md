@@ -14,7 +14,7 @@ Comparé automatiquement : statut HTTP, `title`, description, `h1`, canonical, h
 | URL de la baseline répondant 200 | 351 | 348 (les 3 `/shop` répondent 410, voulu) |
 | URL dans le sitemap | 351 | 456 (342 + 114 pages allemandes) |
 | Animaux listés (chiens / chats / parrainage chiens / parrainage chats) | 39 / 24 / 13 / 21 | 39 / 24 / 13 / 21 |
-| Canonical et hreflang ro/en/fr | — | identiques partout, sauf `/shop` et Anais (voir plus bas) |
+| Canonical et hreflang ro/en/fr | — | identiques partout, sauf `/shop` et Anais, redirigée par erreur sur Wix (voir plus bas) |
 | Texte des pages | — | même volume partout |
 | Liens internes et externes | — | tous repris ; les `/_files/ugd/*` redirigent en 301 vers `/files/*` |
 | Allemand (`/de`) | n'existe pas (404) | 114 pages |
@@ -24,7 +24,7 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 ## 1. Bloquant avant la mise en ligne
 
 ### Données
-- [ ] **Anais / Serena.** Sur Wix, `/adoptii-pisici/anais` répond 301 vers `/adoptii-pisici/serena` (dans les trois langues), alors que les deux figurent encore dans la liste. C'était déjà le cas au moment du crawl : la baseline enregistre la page de Serena à l'URL d'Anais. En local les deux fiches sont publiées et répondent 200, avec des textes et des photos différents. Demander à l'association s'il s'agit de deux chats (la fiche d'Anais est alors inaccessible sur Wix par erreur, et le local a raison) ou d'un doublon (supprimer Anais et créer la redirection).
+- [x] **Anais / Serena** : ce sont bien deux chats différents (confirmé le 5 octobre 2026). Les deux fiches restent publiées, comme en local. Sur Wix, `/adoptii-pisici/anais` redirige par erreur vers Serena, et la baseline a enregistré la page de Serena à l'URL d'Anais : `pnpm seo:check` en tient compte (`WIX_MISDIRECTED`).
 - [ ] 9 animaux sur 106 n'ont pas de date de naissance, 73 ont une date estimée à partir d'un âge Wix. À faire corriger par l'association dans l'admin.
 - [ ] Descriptions vides : les chats parrainés Sun et Mars n'ont aucun texte sur Wix (« n/c » en roumain), donc rien non plus en anglais, en français et en allemand. À faire écrire par l'association.
 
@@ -34,9 +34,9 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [x] Un seul `h1` sur `/termeni-si-conditii` et `/confirmare-plata`, identique à celui de Wix.
 - [x] `/confirmare-plata` et `/donation-thank-you-page` : `noindex` et hors sitemap (pages vues seulement après un paiement).
 - [x] Test automatique de parité : `pnpm seo:check` compare les 351 URL de la baseline à un serveur lancé.
-- [ ] **Anais** : seul écart restant de `pnpm seo:check` (3 URL). Dépend de la décision de l'association, voir « Données ».
+- [x] **Anais** : c'était le seul écart restant de `pnpm seo:check` (3 URL). Deux chats différents : le contrôle attend désormais la fiche d'Anais à sa propre URL et ne signale plus aucun écart.
 - [x] **Comparaison complète des liens et du SEO entre la prod et le nouveau site** (5 octobre 2026). Les 18 sitemaps en ligne et tous les liens internes de chaque page de la prod ont été suivis : 360 URL, dont les 351 de la baseline et 9 documents `/_files/ugd/*`. Elles ont été comparées au build de production local, lui-même parcouru en entier (464 pages dans les quatre langues, plus les listes filtrées).
-  - **Aucune URL de la prod n'est absente** : 345 répondent 200 des deux côtés, les 9 documents redirigent en 301, les 3 `/shop` répondent 410 (voulu). Reste Anais (voir « Données »).
+  - **Aucune URL de la prod n'est absente** : 345 répondent 200 des deux côtés, les 9 documents redirigent en 301, les 3 `/shop` répondent 410 (voulu). Anais est une fiche à part entière (voir « Données »).
   - Canonical et langue identiques sur les 345 pages ; hreflang identique, avec `de-de` en plus. Les écarts de `title`, description, `h1`, robots et Open Graph sont tous ceux de la partie 3.
   - Nouveau site : aucun lien interne cassé ni vers une redirection, un seul `h1` partout, canonical sur l'URL elle-même, hreflang réciproques dans les quatre langues, sitemap égal aux pages indexables, listes filtrées en `noindex` avec canonical sur la liste.
   - Liens externes : tous valides. Un contrôle automatique reçoit 400 de la page Facebook (filtrage des robots) et 403 d'adoptiicaini.ro et d'adoptiipisici.ro (challenge Cloudflare) : ce sont des faux positifs, confirmés à la main.

@@ -30,6 +30,14 @@ const ACCEPTED_TITLES: Record<string, string> = {
   '/adoptii-virtuale-pisici': 'Adoptii virtuale pisici | Hope',
 };
 
+/**
+ * Animal pages that Wix redirected to another animal by mistake: the crawl recorded the other page at
+ * their URL. They are separate animals, so the canonical and hreflang must be their own.
+ */
+const WIX_MISDIRECTED: Record<string, { to: string; name: string }> = {
+  '/adoptii-pisici/anais': { to: '/adoptii-pisici/serena', name: 'Anais' },
+};
+
 const SITE_ORIGIN = 'https://www.adoptii-animale-hope.org';
 const collectionPaths = COLLECTIONS.map((c) => c.path);
 const normalize = (text: string | null | undefined) => (text ?? '').replace(/\s+/g, ' ').trim();
@@ -49,12 +57,17 @@ function fetchPage(path: string): Promise<{ status: number; body: string }> {
 }
 
 let failures = 0;
-for (const [path, expected] of Object.entries(baseline)) {
+for (const [path, recorded] of Object.entries(baseline)) {
   const errors: string[] = [];
   const segments = path.split('/').filter(Boolean);
   const romanian = !['en', 'fr'].includes(segments[0]);
   const local = romanian ? segments : segments.slice(1);
   const localPath = `/${local.join('/')}`;
+  const own = WIX_MISDIRECTED[localPath];
+  const ownUrl = (url: string) => (own ? url.replace(own.to, localPath) : url);
+  const expected: Entry = own
+    ? { ...recorded, canonical: recorded.canonical && ownUrl(recorded.canonical), hreflang: Object.fromEntries(Object.entries(recorded.hreflang).map(([lang, href]) => [lang, ownUrl(href)])) }
+    : recorded;
   const { status, body } = await fetchPage(path);
 
   if (REMOVED_PATHS.includes(localPath)) {
@@ -84,7 +97,7 @@ for (const [path, expected] of Object.entries(baseline)) {
     if (local.length === 2 && collectionPaths.includes(local[0])) {
       // The Romanian Wix title of an animal page is its bare name, which is never translated
       // (the English and French Wix titles are machine-translated names).
-      const name = normalize(baseline[localPath]?.title);
+      const name = own?.name ?? normalize(baseline[localPath]?.title);
       if (!title.startsWith(name)) errors.push(`title "${title}" does not start with the name "${name}"`);
     } else if (romanian && !unlisted) {
       const wanted = ACCEPTED_TITLES[path] ?? normalize(expected.title);
