@@ -1,6 +1,6 @@
 import type { Locale } from './config.ts';
 import type { ContentPage, PageKey } from '../lib/site.ts';
-import type { Color, Sex, Size, Trait } from '../lib/taxonomy.ts';
+import type { CampaignScope, Color, Sex, Size, Trait } from '../lib/taxonomy.ts';
 
 /** A label that agrees with the animal's sex: [masculine, feminine]. */
 type Gendered = string | [string, string];
@@ -115,6 +115,37 @@ export type Ui = {
   months: (n: number) => string;
   footer: { adopt: string; help: string; contact: string; socials: string; rights: string };
   contactPage: { intro: string; email: string; about: (name: string) => string };
+  /** Fundraising campaigns: the list, the page of a campaign, and the blocks shown on the home, donation and animal pages. */
+  campaigns: {
+    /** Sentence under the title of the list. */
+    lead: string;
+    empty: string;
+    past: string;
+    scopes: Record<CampaignScope, string>;
+    permanent: string;
+    /** Follows the amount collected: "raised of 3,000 RON". */
+    raisedOf: (goal: string) => string;
+    /** Days left, the last one included. */
+    daysLeft: (n: number) => string;
+    until: (date: string) => string;
+    reached: string;
+    ended: string;
+    see: string;
+    give: string;
+    giveHint: string;
+    closedText: string;
+    otherWays: string;
+    otherWaysText: (title: string) => string;
+    otherWaysLink: string;
+    forAnimal: (name: string) => string;
+    seeAnimal: string;
+    all: string;
+    /** Title and sentence of the block of the home and donation pages. */
+    inProgress: string;
+    inProgressLead: string;
+    /** Label of the block shown on the page of the animal a campaign is for. */
+    animalBox: string;
+  };
   notFound: { title: string; text: string; back: string };
 };
 
@@ -145,6 +176,7 @@ const ro: Ui = {
     'in-memoriam': 'In memoriam',
     voluntariat: 'Voluntariat',
     contact: 'Contact',
+    campanii: 'Campanii',
     doneaza: 'Doneaza',
     'termeni-si-conditii': 'Termeni si conditii',
     'donation-thank-you-page': 'Multumim pentru donatie',
@@ -176,7 +208,7 @@ const ro: Ui = {
   seo: {
     homeTitle: 'Adoptii caini pisici | Bucuresti | Asociatia protectia animalelor HOPE',
     description: 'Asociatia protectia animalelor HOPE : Adoptii caini, pui si adulti',
-    descriptions: { 'adoptii-virtuale-caini': 'Adopta un caine virtual cu asociația Hope' },
+    descriptions: { campanii: 'Campaniile de strângere de fonduri ale asociației HOPE pentru câinii și pisicile salvate.', 'adoptii-virtuale-caini': 'Adopta un caine virtual cu asociația Hope' },
   },
   homePage: {
     h1: 'Asociatia pentru protectia animalelor HOPE',
@@ -303,6 +335,31 @@ const ro: Ui = {
     email: 'Scrieti-ne pe e-mail',
     about: (name) => `Doriti sa aflati mai multe despre ${name}? Mentionati numele in mesajul dvs.`,
   },
+  campaigns: {
+    lead: 'Strângeri de fonduri pentru nevoile animalelor noastre: fiecare donație contează.',
+    empty: 'Nu există nicio campanie în desfășurare în acest moment. Puteți susține oricând asociația printr-o donație.',
+    past: 'Campanii încheiate',
+    scopes: { global: 'Pentru asociație', need: 'Nevoie concretă', animal: 'Pentru un animal', event: 'Eveniment' },
+    permanent: 'Campanie permanentă',
+    raisedOf: (goal) => `strânși din ${goal}`,
+    daysLeft: (n) => (n === 1 ? 'Ultima zi' : `Încă ${roCount(n, 'zi', 'zile')}`),
+    until: (date) => `Până pe ${date}`,
+    reached: 'Obiectiv atins. Vă mulțumim!',
+    ended: 'Campanie încheiată',
+    see: 'Vezi campania',
+    give: 'Donează pentru această campanie',
+    giveHint: 'Online, cu cardul',
+    closedText: 'Această campanie nu mai primește donații. Puteți susține în continuare animalele asociației.',
+    otherWays: 'Alte modalități de a dona',
+    otherWaysText: (title) => `Puteți dona și prin virament bancar sau PayPal: menționați „${title}” în detaliile plății.`,
+    otherWaysLink: 'Vezi toate modalitățile',
+    forAnimal: (name) => `Această campanie este pentru ${name}.`,
+    seeAnimal: 'Vezi fișa animalului',
+    all: 'Toate campaniile',
+    inProgress: 'Campanii în desfășurare',
+    inProgressLead: 'Nevoi concrete, pentru care fiecare donație contează.',
+    animalBox: 'Campanie în desfășurare',
+  },
   notFound: { title: 'Pagina nu a fost gasita', text: 'Pagina cautata nu exista sau a fost mutata.', back: 'Inapoi la pagina principala' },
 };
 
@@ -329,6 +386,7 @@ const en: Ui = {
     'in-memoriam': 'In loving memory',
     voluntariat: 'Volunteering',
     contact: 'Contact',
+    campanii: 'Campaigns',
     doneaza: 'Donate',
     'termeni-si-conditii': 'Terms and conditions',
     'donation-thank-you-page': 'Thank you for your donation',
@@ -361,6 +419,7 @@ const en: Ui = {
     homeTitle: 'Dog and cat adoption | Bucharest | HOPE Animal Protection Association',
     description: 'HOPE Animal Protection Association: dogs and cats for adoption in Bucharest, puppies and adults.',
     descriptions: {
+      campanii: 'Fundraising campaigns of the HOPE association for the dogs and cats it has rescued.',
       'despre-noi': 'HOPE is an animal protection association founded in Bucharest in 2016: we rescue, care for and rehome stray dogs and cats.',
       'adoptii-caini': 'Dogs for adoption in Bucharest: puppies and adult dogs rescued by the HOPE association, each waiting for a family.',
       'adoptii-pisici': 'Cats for adoption in Bucharest: kittens and adult cats rescued by the HOPE association, each waiting for a family.',
@@ -504,6 +563,31 @@ const en: Ui = {
     email: 'Email us',
     about: (name) => `Would you like to know more about ${name}? Please mention the name in your message.`,
   },
+  campaigns: {
+    lead: 'Fundraisers for the needs of our animals: every gift counts.',
+    empty: 'There is no campaign in progress at the moment. You can support the association at any time with a donation.',
+    past: 'Past campaigns',
+    scopes: { global: 'For the association', need: 'A specific need', animal: 'For one animal', event: 'Event' },
+    permanent: 'Ongoing campaign',
+    raisedOf: (goal) => `raised of ${goal}`,
+    daysLeft: (n) => (n === 1 ? 'Last day' : `${n} days left`),
+    until: (date) => `Until ${date}`,
+    reached: 'Goal reached. Thank you!',
+    ended: 'Campaign ended',
+    see: 'See the campaign',
+    give: 'Donate to this campaign',
+    giveHint: 'Online, by card',
+    closedText: 'This campaign no longer takes donations. You can still support the animals of the association.',
+    otherWays: 'Other ways to give',
+    otherWaysText: (title) => `You can also give by bank transfer or PayPal: mention “${title}” in the payment details.`,
+    otherWaysLink: 'See all the ways to give',
+    forAnimal: (name) => `This campaign is for ${name}.`,
+    seeAnimal: 'See the animal’s page',
+    all: 'All campaigns',
+    inProgress: 'Campaigns in progress',
+    inProgressLead: 'Specific needs, where every gift counts.',
+    animalBox: 'Campaign in progress',
+  },
   notFound: { title: 'Page not found', text: 'The page you are looking for does not exist or has moved.', back: 'Back to the home page' },
 };
 
@@ -530,6 +614,7 @@ const fr: Ui = {
     'in-memoriam': 'In memoriam',
     voluntariat: 'Bénévolat',
     contact: 'Contact',
+    campanii: 'Collectes',
     doneaza: 'Faire un don',
     'termeni-si-conditii': 'Conditions générales',
     'donation-thank-you-page': 'Merci pour votre don',
@@ -562,6 +647,7 @@ const fr: Ui = {
     homeTitle: 'Adoption de chiens et de chats | Bucarest | Association de protection des animaux HOPE',
     description: 'Association de protection des animaux HOPE : chiens et chats à adopter à Bucarest, jeunes et adultes.',
     descriptions: {
+      campanii: 'Les collectes de fonds de l’association HOPE pour les chiens et les chats qu’elle a recueillis.',
       'despre-noi': 'HOPE est une association de protection des animaux fondée à Bucarest en 2016 : nous recueillons, soignons et faisons adopter chiens et chats errants.',
       'adoptii-caini': 'Chiens à adopter à Bucarest : chiots et chiens adultes recueillis par l’association HOPE, qui attendent chacun une famille.',
       'adoptii-pisici': 'Chats à adopter à Bucarest : chatons et chats adultes recueillis par l’association HOPE, qui attendent chacun une famille.',
@@ -705,6 +791,31 @@ const fr: Ui = {
     email: 'Nous écrire par e-mail',
     about: (name) => `Vous souhaitez en savoir plus sur ${name} ? Indiquez son nom dans votre message.`,
   },
+  campaigns: {
+    lead: 'Des collectes pour les besoins de nos animaux : chaque don compte.',
+    empty: 'Aucune collecte n’est en cours pour le moment. Vous pouvez soutenir l’association à tout moment par un don.',
+    past: 'Collectes terminées',
+    scopes: { global: 'Pour l’association', need: 'Un besoin précis', animal: 'Pour un animal', event: 'Événement' },
+    permanent: 'Collecte permanente',
+    raisedOf: (goal) => `collectés sur ${goal}`,
+    daysLeft: (n) => (n === 1 ? 'Dernier jour' : `Encore ${n} jours`),
+    until: (date) => `Jusqu’au ${date}`,
+    reached: 'Objectif atteint. Merci !',
+    ended: 'Collecte terminée',
+    see: 'Voir la collecte',
+    give: 'Donner pour cette collecte',
+    giveHint: 'En ligne, par carte',
+    closedText: 'Cette collecte ne reçoit plus de dons. Vous pouvez toujours soutenir les animaux de l’association.',
+    otherWays: 'Autres moyens de donner',
+    otherWaysText: (title) => `Vous pouvez aussi donner par virement ou par PayPal : indiquez « ${title} » dans le libellé du paiement.`,
+    otherWaysLink: 'Voir tous les moyens de donner',
+    forAnimal: (name) => `Cette collecte est pour ${name}.`,
+    seeAnimal: 'Voir sa fiche',
+    all: 'Toutes les collectes',
+    inProgress: 'Collectes en cours',
+    inProgressLead: 'Des besoins précis, pour lesquels chaque don compte.',
+    animalBox: 'Collecte en cours',
+  },
   notFound: { title: 'Page introuvable', text: 'La page que vous cherchez n’existe pas ou a été déplacée.', back: 'Retour à l’accueil' },
 };
 
@@ -731,6 +842,7 @@ const de: Ui = {
     'in-memoriam': 'In memoriam',
     voluntariat: 'Ehrenamt',
     contact: 'Kontakt',
+    campanii: 'Spendenaktionen',
     doneaza: 'Spenden',
     'termeni-si-conditii': 'Nutzungsbedingungen',
     'donation-thank-you-page': 'Danke für Ihre Spende',
@@ -763,6 +875,7 @@ const de: Ui = {
     homeTitle: 'Hunde und Katzen adoptieren | Bukarest | Tierschutzverein HOPE',
     description: 'Tierschutzverein HOPE: Hunde und Katzen zur Adoption in Bukarest, Jungtiere und erwachsene Tiere.',
     descriptions: {
+      campanii: 'Die Spendenaktionen des Tierschutzvereins HOPE für die geretteten Hunde und Katzen.',
       'despre-noi': 'HOPE ist ein 2016 in Bukarest gegründeter Tierschutzverein: Wir retten, versorgen und vermitteln herrenlose Hunde und Katzen.',
       'adoptii-caini': 'Hunde zur Adoption in Bukarest: Welpen und erwachsene Hunde, gerettet vom Tierschutzverein HOPE, warten auf eine Familie.',
       'adoptii-pisici': 'Katzen zur Adoption in Bukarest: Kätzchen und erwachsene Katzen, gerettet vom Tierschutzverein HOPE, warten auf eine Familie.',
@@ -905,6 +1018,31 @@ const de: Ui = {
     intro: 'Für Adoptionen, Patenschaften, ehrenamtliche Mitarbeit oder andere Fragen schreiben Sie uns. Wir antworten so schnell wie möglich.',
     email: 'E-Mail schreiben',
     about: (name) => `Sie möchten mehr über ${name} erfahren? Bitte nennen Sie den Namen in Ihrer Nachricht.`,
+  },
+  campaigns: {
+    lead: 'Spendenaktionen für die Bedürfnisse unserer Tiere: Jede Spende zählt.',
+    empty: 'Zurzeit läuft keine Spendenaktion. Sie können den Verein jederzeit mit einer Spende unterstützen.',
+    past: 'Beendete Spendenaktionen',
+    scopes: { global: 'Für den Verein', need: 'Konkreter Bedarf', animal: 'Für ein Tier', event: 'Anlass' },
+    permanent: 'Dauerhafte Spendenaktion',
+    raisedOf: (goal) => `von ${goal} gesammelt`,
+    daysLeft: (n) => (n === 1 ? 'Letzter Tag' : `Noch ${n} Tage`),
+    until: (date) => `Bis zum ${date}`,
+    reached: 'Ziel erreicht. Vielen Dank!',
+    ended: 'Spendenaktion beendet',
+    see: 'Zur Spendenaktion',
+    give: 'Für diese Aktion spenden',
+    giveHint: 'Online, mit Karte',
+    closedText: 'Diese Spendenaktion nimmt keine Spenden mehr an. Sie können die Tiere des Vereins weiterhin unterstützen.',
+    otherWays: 'Weitere Spendenmöglichkeiten',
+    otherWaysText: (title) => `Sie können auch per Überweisung oder PayPal spenden: Geben Sie „${title}“ im Verwendungszweck an.`,
+    otherWaysLink: 'Alle Spendenmöglichkeiten ansehen',
+    forAnimal: (name) => `Diese Spendenaktion ist für ${name}.`,
+    seeAnimal: 'Zum Steckbrief',
+    all: 'Alle Spendenaktionen',
+    inProgress: 'Laufende Spendenaktionen',
+    inProgressLead: 'Konkrete Bedürfnisse, bei denen jede Spende zählt.',
+    animalBox: 'Laufende Spendenaktion',
   },
   notFound: { title: 'Seite nicht gefunden', text: 'Die gesuchte Seite existiert nicht oder wurde verschoben.', back: 'Zurück zur Startseite' },
 };

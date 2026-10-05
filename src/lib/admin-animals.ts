@@ -2,11 +2,11 @@ import { randomBytes } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { and, asc, eq, ne } from 'drizzle-orm';
-import sharp from 'sharp';
 import { db, schema } from '../db/client.ts';
 import { ENABLED_LOCALES, LOCALES, localizePath, type Locale } from '../i18n/config.ts';
-import { CACHE_DIR, IMAGE_WIDTHS, UPLOADS_DIR } from './media.ts';
+import { UPLOADS_DIR } from './media.ts';
 import { buildAnimalSeo } from './seo.ts';
+import { removeImage, storeImage } from './uploads.ts';
 import {
   ADOPTION_TYPES,
   COLLECTION_PATHS,
@@ -28,7 +28,6 @@ export type TranslationInput = { locale: Locale; description: string; seoTitle: 
 /** Validation problems, as keys of the admin dictionary (`errors`). */
 export type FormError = 'name' | 'slug' | 'slugTaken' | 'birthDate' | 'videoUrl' | 'invalid';
 
-const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 80 * 1024 * 1024;
 /**
  * Photos and video are sent with the animal form in one request, and Cloudflare refuses a request
@@ -93,6 +92,20 @@ export function parseAnimalForm(form: FormData) {
   return { data, traits: [...new Set(traits)], translations, errors };
 }
 
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/** When a public URL changes, the old one is redirected (301) to the new one in every language. */
+export function moveUrl(tx: Transaction, from: string, to: string): void {
+  if (from === to) return;
+  for (const locale of ENABLED_LOCALES) {
+    const [fromPath, toPath] = [localizePath(from, locale), localizePath(to, locale)];
+    // The new URL must not itself be redirected, and existing rules must follow the move.
+    tx.delete(redirects).where(eq(redirects.fromPath, toPath)).run();
+    tx.update(redirects).set({ toPath }).where(eq(redirects.toPath, fromPath)).run();
+    tx.insert(redirects).values({ fromPath, toPath, status: 301 }).onConflictDoUpdate({ target: redirects.fromPath, set: { toPath, status: 301 } }).run();
+  }
+}
+
 const animalPath = (a: { species: Species; adoptionType: AdoptionType; slug: string }) => `/${COLLECTION_PATHS[a.species][a.adoptionType]}/${a.slug}`;
 
 /**
@@ -118,16 +131,7 @@ export function saveAnimal(id: number | null, input: ReturnType<typeof parseAnim
       const beforeTraits = tx.select().from(animalTraits).where(eq(animalTraits.animalId, animalId)).orderBy(asc(animalTraits.position)).all().map((t) => t.trait);
       previousSeo = (locale) => buildAnimalSeo({ ...before, traits: beforeTraits }, locale);
       tx.update(animals).set({ ...data, updatedAt: new Date() }).where(eq(animals.id, animalId)).run();
-      const [from, to] = [animalPath(before), animalPath(data)];
-      if (from !== to) {
-        for (const locale of ENABLED_LOCALES) {
-          const [fromPath, toPath] = [localizePath(from, locale), localizePath(to, locale)];
-          // The new URL must not itself be redirected, and existing rules must follow the move.
-          tx.delete(redirects).where(eq(redirects.fromPath, toPath)).run();
-          tx.update(redirects).set({ toPath }).where(eq(redirects.toPath, fromPath)).run();
-          tx.insert(redirects).values({ fromPath, toPath, status: 301 }).onConflictDoUpdate({ target: redirects.fromPath, set: { toPath, status: 301 } }).run();
-        }
-      }
+      moveUrl(tx, animalPath(before), animalPath(data));
     } else {
       // New animals are listed first.
       const first = tx
@@ -173,36 +177,16 @@ export function saveAnimal(id: number | null, input: ReturnType<typeof parseAnim
   });
 }
 
-async function removeImageFiles(file: string) {
-  await rm(join(UPLOADS_DIR, 'animals', file), { force: true });
-  for (const width of IMAGE_WIDTHS) await rm(join(CACHE_DIR, 'animals', String(width), `${file}.webp`), { force: true });
-}
-
-/**
- * Stores uploaded pictures. Each file is decoded with sharp, so anything that is not a real image
- * is rejected whatever its name or declared type. Returns the number of rejected files.
- */
+/** Stores uploaded pictures (`storeImage`). Returns the number of rejected files. */
 export async function addPhotos(animalId: number, files: File[]): Promise<number> {
   const last = db.select({ sortOrder: animalPhotos.sortOrder }).from(animalPhotos).where(eq(animalPhotos.animalId, animalId)).orderBy(asc(animalPhotos.sortOrder)).all().pop();
   let sortOrder = last ? last.sortOrder + 1 : 0;
   let rejected = 0;
-  await mkdir(join(UPLOADS_DIR, 'animals'), { recursive: true });
   for (const upload of files) {
     if (!upload.size) continue;
-    if (upload.size > MAX_PHOTO_BYTES) {
-      rejected++;
-      continue;
-    }
-    try {
-      const buffer = Buffer.from(await upload.arrayBuffer());
-      // Re-encode: applies the EXIF rotation and drops metadata (GPS position included).
-      const { data, info } = await sharp(buffer).rotate().resize({ width: 2400, height: 2400, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 88 }).toBuffer({ resolveWithObject: true });
-      const file = `${randomBytes(12).toString('hex')}.jpg`;
-      await writeFile(join(UPLOADS_DIR, 'animals', file), data);
-      db.insert(animalPhotos).values({ animalId, file, width: info.width, height: info.height, sortOrder: sortOrder++ }).run();
-    } catch {
-      rejected++;
-    }
+    const stored = await storeImage('animals', upload);
+    if (stored) db.insert(animalPhotos).values({ animalId, ...stored, sortOrder: sortOrder++ }).run();
+    else rejected++;
   }
   return rejected;
 }
@@ -220,7 +204,7 @@ export async function deletePhoto(animalId: number, photoId: number) {
   const photo = db.select().from(animalPhotos).where(and(eq(animalPhotos.id, photoId), eq(animalPhotos.animalId, animalId))).get();
   if (!photo) return;
   db.delete(animalPhotos).where(eq(animalPhotos.id, photoId)).run();
-  await removeImageFiles(photo.file);
+  await removeImage('animals', photo.file);
   renumberPhotos(animalId, photoIds(animalId));
 }
 
@@ -278,7 +262,7 @@ export async function deleteAnimal(id: number) {
   if (!animal) return;
   const photos = db.select().from(animalPhotos).where(eq(animalPhotos.animalId, id)).all();
   db.delete(animals).where(eq(animals.id, id)).run();
-  for (const photo of photos) await removeImageFiles(photo.file);
+  for (const photo of photos) await removeImage('animals', photo.file);
   if (animal.videoFile) await rm(join(UPLOADS_DIR, 'videos', animal.videoFile), { force: true });
 }
 

@@ -98,7 +98,7 @@ const tabUrl = (path: string) => `/admin?c=${path}`;
           {visible.map((animal, index) => (
             <tr>
               <td>{mainPhotos.has(animal.id) && <img src={imageUrl('animals', mainPhotos.get(animal.id)!, 160)} alt="" width="56" height="56" loading="lazy" />}</td>
-              <td>
+              <td class="table__main">
                 <a href={`/admin/animals/${animal.id}`}>
                   <strong>{animal.name}</strong>
                 </a>

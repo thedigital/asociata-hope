@@ -1,0 +1,78 @@
+---
+import QRCode from 'qrcode';
+import { useAdminUi } from '../../i18n/admin.ts';
+import Admin from '../../layouts/Admin.astro';
+import { completeSetup, findSetup, type SetupError } from '../../lib/admin-users.ts';
+import { SESSION_COOKIE } from '../../lib/auth.ts';
+import { MIN_PASSWORD_LENGTH } from '../../lib/password.ts';
+import { otpauthUrl } from '../../lib/totp.ts';
+
+/**
+ * Page of a setup link (new account, or credentials reset from the admin): the person chooses a
+ * password and enrols an authenticator app. Reached without a session; the token of the link is
+ * the only proof asked, and it works once.
+ */
+const token = Astro.url.searchParams.get('token') ?? '';
+const account = findSetup(token);
+const t = useAdminUi(account?.locale ?? Astro.locals.user?.locale ?? 'ro');
+const s = t.setup;
+let error: SetupError | null = null;
+
+if (account && Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const result = await completeSetup(token, String(form.get('password') ?? ''), String(form.get('confirmation') ?? ''), String(form.get('code') ?? ''));
+  if (result === 'ok') {
+    // Every session of the account was ended, the one of this browser included.
+    if (Astro.locals.user?.id === account.id) Astro.cookies.delete(SESSION_COOKIE, { path: '/admin' });
+    return Astro.redirect('/admin/login?ready', 303);
+  }
+  if (result !== 'invalid') error = result;
+  Astro.response.status = 422;
+}
+if (!account) Astro.response.status = 404;
+const qrCode = account ? await QRCode.toString(otpauthUrl(account.totpSecret, account.email, 'Hope'), { type: 'svg', margin: 1 }) : '';
+---
+
+<Admin title={s.title} locale={account?.locale}>
+  {
+    account ? (
+      <form class="login card" method="post">
+        <img src="/logo.webp" alt="Hope" width="149" height="55" />
+        <h1>{s.title}</h1>
+        <p>{s.intro(account.name, account.email)}</p>
+        {error && <p class="notice notice--error" role="alert">{s.errors[error]}</p>}
+        <input type="hidden" name="username" value={account.email} autocomplete="username" />
+        <label>
+          {s.password}
+          <input type="password" name="password" autocomplete="new-password" minlength={MIN_PASSWORD_LENGTH} maxlength="200" required />
+          <small>{s.passwordHelp(MIN_PASSWORD_LENGTH)}</small>
+        </label>
+        <label>
+          {s.confirmation}
+          <input type="password" name="confirmation" autocomplete="new-password" minlength={MIN_PASSWORD_LENGTH} maxlength="200" required />
+        </label>
+        <div class="setup-app">
+          <strong>{s.app}</strong>
+          <small>{s.appHelp}</small>
+          <div class="setup-app__code" role="img" aria-label={s.app} set:html={qrCode} />
+          <small>
+            {s.key} <code>{account.totpSecret}</code>
+          </small>
+        </div>
+        <label>
+          {t.login.code}
+          <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" required />
+          <small>{t.login.codeHelp}</small>
+        </label>
+        <button class="btn" type="submit">{s.submit}</button>
+      </form>
+    ) : (
+      <div class="login card">
+        <img src="/logo.webp" alt="Hope" width="149" height="55" />
+        <h1>{s.title}</h1>
+        <p class="notice notice--error" role="alert">{s.invalid}</p>
+        <a class="btn btn--light" href="/admin/login">{t.login.title}</a>
+      </div>
+    )
+  }
+</Admin>

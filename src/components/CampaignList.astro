@@ -1,0 +1,47 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { localizePath } from '../i18n/config.ts';
+import { useUi } from '../i18n/ui.ts';
+import type { Campaign } from '../lib/campaigns.ts';
+import CampaignCard from './CampaignCard.astro';
+
+interface Props {
+  campaigns: Campaign[];
+  locale: Locale;
+}
+
+const { campaigns, locale } = Astro.props;
+const ui = useUi(locale);
+const t = ui.campaigns;
+const open = campaigns.filter((campaign) => campaign.state === 'open');
+const closed = campaigns.filter((campaign) => campaign.state !== 'open');
+---
+
+<section class="page-hero">
+  <h1>{ui.pages.campanii}</h1>
+  <p class="page-hero__lead">{t.lead}</p>
+</section>
+<div class="container campaigns">
+  {
+    open.length > 0 ? (
+      <ul class="campaign-grid">
+        {open.map((campaign) => <CampaignCard campaign={campaign} locale={locale} heading="h2" />)}
+      </ul>
+    ) : (
+      <div class="campaigns__empty">
+        <p>{t.empty}</p>
+        <a class="button" href={localizePath('/doneaza', locale)}>{ui.donate}</a>
+      </div>
+    )
+  }
+  {
+    closed.length > 0 && (
+      <>
+        <h2 class="campaigns__past">{t.past}</h2>
+        <ul class="campaign-grid">
+          {closed.map((campaign) => <CampaignCard campaign={campaign} locale={locale} />)}
+        </ul>
+      </>
+    )
+  }
+</div>

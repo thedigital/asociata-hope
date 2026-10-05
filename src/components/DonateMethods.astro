@@ -1,7 +1,9 @@
 ---
 import type { Locale } from '../i18n/config.ts';
 import { useFormsUi } from '../i18n/forms.ts';
+import { localizePath } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
+import { listCampaigns } from '../lib/campaigns.ts';
 import { LINE_ICONS } from '../lib/icons.ts';
 import { DONATION_METHODS, SITE, type DonationMethod } from '../lib/site.ts';
 import DonateForm from './DonateForm.astro';
@@ -21,7 +23,10 @@ interface Props {
  */
 const { locale, ...form } = Astro.props;
 const t = useFormsUi(locale).donate;
-const redirectTitle = useUi(locale).homePage.redirectTitle;
+const ui = useUi(locale);
+const redirectTitle = ui.homePage.redirectTitle;
+// Campaigns that accept gifts are offered before the general ways of giving.
+const campaigns = listCampaigns(locale).filter((campaign) => campaign.state === 'open');
 const title = (method: DonationMethod) => (method === 'redirect' ? redirectTitle : t.titles[method]);
 
 /** Outline icons drawn on a 24 px grid. */
@@ -57,6 +62,24 @@ const grouped = (iban: string) => iban.replace(/(.{4})(?=.)/g, '$1 ');
       </ul>
     </nav>
   </div>
+
+  {
+    campaigns.length > 0 && (
+      <section class="give-method give-campaigns" aria-labelledby="campaigns-title">
+        <h2 id="campaigns-title">{ui.campaigns.inProgress}</h2>
+        <ul>
+          {campaigns.map((campaign) => (
+            <li>
+              <a href={localizePath(campaign.path, locale)}>
+                <strong lang={campaign.textLocale}>{campaign.title}</strong>
+                {campaign.summary && <span lang={campaign.textLocale}>{campaign.summary}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
 
   {
     DONATION_METHODS.map((method) => (

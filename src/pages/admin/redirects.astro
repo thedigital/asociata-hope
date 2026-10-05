@@ -71,9 +71,9 @@ const rows = db.select().from(redirects).orderBy(asc(redirects.fromPath)).all();
         <tbody>
           {rows.map((row) => (
             <tr>
-              <td><code>{row.fromPath}</code></td>
-              <td>{row.toPath ? <code>{row.toPath}</code> : <em>{r.gone}</em>}</td>
-              <td>{row.status}</td>
+              <td class="table__main"><code>{row.fromPath}</code></td>
+              <td data-label="→">{row.toPath ? <code>{row.toPath}</code> : <em>{r.gone}</em>}</td>
+              <td data-label={r.code}>{row.status}</td>
               <td>
                 <form method="post">
                   <button class="link" type="submit" name="delete" value={row.id}>{t.form.remove}</button>

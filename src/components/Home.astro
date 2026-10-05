@@ -4,10 +4,12 @@ import { localizePath } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import { useFormsUi } from '../i18n/forms.ts';
 import { findCollection, listAnimals, type AnimalCard as Animal } from '../lib/animals.ts';
+import { CAMPAIGNS_PATH, listCampaigns } from '../lib/campaigns.ts';
 import { imageSize } from '../lib/image-size.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
 import { DONATION_METHODS, SITE } from '../lib/site.ts';
 import AnimalCard from './AnimalCard.astro';
+import CampaignCard from './CampaignCard.astro';
 import RedirectSummary from './RedirectSummary.astro';
 
 interface Props {
@@ -53,6 +55,10 @@ const todays = (list: Animal[]) => {
 };
 const [someDogs, someCats] = [todays(dogs), todays(cats)];
 const waiting = Array.from({ length: WAITING }, (_, i) => [someDogs[i], someCats[i]]).flat().filter((animal) => animal !== undefined);
+
+// Campaigns that accept gifts: the three that end soonest, the others are on the list.
+const HOME_CAMPAIGNS = 3;
+const campaigns = listCampaigns(locale).filter((campaign) => campaign.state === 'open');
 
 // The redirection has its own block right below the donation one.
 const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
@@ -131,6 +137,23 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
     </ul>
   </div>
 </section>
+
+{
+  campaigns.length > 0 && (
+    <section class="home-section home-campaigns">
+      <h2>{ui.campaigns.inProgress}</h2>
+      <p class="home-section__lead">{ui.campaigns.inProgressLead}</p>
+      <ul class="campaign-grid">
+        {campaigns.slice(0, HOME_CAMPAIGNS).map((campaign) => <CampaignCard campaign={campaign} locale={locale} />)}
+      </ul>
+      {campaigns.length > HOME_CAMPAIGNS && (
+        <p class="home-campaigns__all">
+          <a class="button button--teal" href={href(`/${CAMPAIGNS_PATH}`)}>{ui.campaigns.all}</a>
+        </p>
+      )}
+    </section>
+  )
+}
 
 <section class="home-section home-section--give">
   <div class="home-give">

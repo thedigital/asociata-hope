@@ -26,6 +26,7 @@ const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium', timeSty
       <tr>
         <th>{p.page}</th>
         <th>{p.address}</th>
+        <th>{p.written}</th>
         <th>{p.updated}</th>
         <th />
       </tr>
@@ -34,23 +35,19 @@ const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium', timeSty
       {
         rows.map((row) => (
           <tr>
-            <td>
+            <td class="table__main">
               <a href={`/admin/pages/${row.slug}`}>
                 <strong>{ui.pages[row.slug]}</strong>
               </a>
               {UNLISTED_PAGES.includes(row.slug) && <span class="badge">{p.unlisted}</span>}
-              {row.differences.length > 0 && (
-                <span class="flag flag--warning" title={p.differs(row.differences.map((l) => LOCALE_NAMES[l]).join(', '))}>
-                  {p.differsShort}
-                </span>
-              )}
             </td>
             <td>
               <a href={`/${row.slug}`} target="_blank" rel="noopener">
                 <code>/{row.slug}</code>
               </a>
             </td>
-            <td>{row.updatedAt ? <time datetime={row.updatedAt.toISOString()}>{date.format(row.updatedAt)}</time> : p.never}</td>
+            <td data-label={p.written}>{row.written.length ? row.written.map((l) => LOCALE_NAMES[l]).join(', ') : p.automatic}</td>
+            <td data-label={p.updated}>{row.updatedAt ? <time datetime={row.updatedAt.toISOString()}>{date.format(row.updatedAt)}</time> : p.never}</td>
             <td>
               <a class="btn btn--light" href={`/admin/pages/${row.slug}`}>
                 {p.edit}

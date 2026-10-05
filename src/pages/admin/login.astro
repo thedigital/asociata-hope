@@ -41,6 +41,7 @@ if (Astro.request.method === 'POST') {
     <img src="/logo.webp" alt="Hope" width="149" height="55" />
     <h1>{t.login.title}</h1>
     {error && <p class="notice notice--error" role="alert">{error}</p>}
+    {!error && Astro.url.searchParams.has('ready') && <p class="notice notice--ok" role="status">{t.setup.done}</p>}
     <label>
       {t.login.email}
       <input type="email" name="email" value={email} autocomplete="username" required autofocus />

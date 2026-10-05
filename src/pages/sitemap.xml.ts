@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, localizePath } from '../i18n/config.ts';
 import { COLLECTIONS, listAnimalPaths } from '../lib/animals.ts';
+import { CAMPAIGNS_PATH, listCampaignPaths } from '../lib/campaigns.ts';
 import { CONTENT_PAGES, UNLISTED_PAGES } from '../lib/site.ts';
 
 export const GET: APIRoute = ({ site }) => {
@@ -13,6 +14,9 @@ export const GET: APIRoute = ({ site }) => {
     ...CONTENT_PAGES.filter((slug) => !UNLISTED_PAGES.includes(slug)).map((slug) => ({ path: `/${slug}` })),
     ...listAnimalPaths().map((a) => ({ path: a.path, lastmod: a.updatedAt.toISOString().slice(0, 10) })),
   ];
+  // The list of campaigns exists for search engines only while a campaign is published.
+  const campaigns = listCampaignPaths();
+  if (campaigns.length) entries.push({ path: `/${CAMPAIGNS_PATH}` }, ...campaigns.map((c) => ({ path: c.path, lastmod: c.updatedAt.toISOString().slice(0, 10) })));
 
   // One <url> per language, each listing all its alternates.
   const urls = entries.flatMap(({ path, lastmod }) =>

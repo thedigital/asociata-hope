@@ -1,3 +1,5 @@
+// The donation route reads the campaigns: the scratch database keeps the tests away from the real one.
+import './helpers/scratch.ts';
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 import type { APIContext } from 'astro';

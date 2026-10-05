@@ -1,0 +1,75 @@
+---
+import { useAdminUi } from '../../../i18n/admin.ts';
+import { LOCALE_NAMES } from '../../../i18n/config.ts';
+import Admin from '../../../layouts/Admin.astro';
+import { listCampaignsForAdmin } from '../../../lib/admin-campaigns.ts';
+import { CAMPAIGNS_PATH, formatDay, formatMoney } from '../../../lib/campaigns.ts';
+
+const user = Astro.locals.user!;
+const t = useAdminUi(user.locale);
+const c = t.campaigns;
+const rows = listCampaignsForAdmin();
+---
+
+<Admin title={t.nav.campaigns}>
+  <div class="toolbar">
+    <h1>{t.nav.campaigns}</h1>
+    <a class="btn" href="/admin/campaigns/new">+ {c.add}</a>
+  </div>
+  <p>{c.intro}</p>
+
+  {
+    rows.length === 0 ? (
+      <p class="card">{c.empty}</p>
+    ) : (
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{c.title}</th>
+            <th>{c.scope}</th>
+            <th>{c.kind}</th>
+            <th>{c.raised}</th>
+            <th>{t.list.status}</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr>
+              <td class="table__main">
+                <a href={`/admin/campaigns/${row.id}`}>
+                  <strong>{row.title}</strong>
+                </a>
+                {row.untranslated.length > 0 && (
+                  <span class="flag flag--warning" title={c.untranslated(row.untranslated.map((l) => LOCALE_NAMES[l]).join(', '))}>
+                    {row.untranslated.join(', ').toUpperCase()}
+                  </span>
+                )}
+                {row.status === 'published' && (
+                  <div>
+                    <a href={`/${CAMPAIGNS_PATH}/${row.slug}`} target="_blank" rel="noopener">
+                      <code>/{CAMPAIGNS_PATH}/{row.slug}</code>
+                    </a>
+                  </div>
+                )}
+              </td>
+              <td>{c.scopes[row.scope]}</td>
+              <td>{row.goalAmount === null ? c.permanent : `${c.temporary}, ${formatDay(row.endsOn!, user.locale)}`}</td>
+              <td data-label={c.raised}>
+                {formatMoney(row.raised, row.currency, user.locale)}
+                {row.goalAmount !== null && ` / ${formatMoney(row.goalAmount, row.currency, user.locale)}`}
+              </td>
+              <td>
+                <span class={`badge badge--${row.status}`}>{c.statuses[row.status]}</span>
+                {row.status === 'published' && row.state !== 'open' && <span class="badge badge--adopted">{c.states[row.state]}</span>}
+              </td>
+              <td>
+                <a href={`/admin/campaigns/${row.id}`}>{t.list.edit}</a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+</Admin>

@@ -5,9 +5,12 @@ import '@fontsource/poppins/600.css';
 import '@fontsource/poppins/700.css';
 import '@fontsource/fredoka/600.css';
 import '../styles/global.css';
+// The logo at twice its displayed size, served from a file whose name changes with its content (cached for good).
+import logo from '../assets/logo.webp';
 import Flag from '../components/Flag.astro';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, localizePath, type Locale } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
+import { listCampaignPaths } from '../lib/campaigns.ts';
 import { LINE_ICONS } from '../lib/icons.ts';
 import { NAV, SITE, type PageKey } from '../lib/site.ts';
 import { activeThemeCss } from '../lib/themes.ts';
@@ -36,7 +39,8 @@ const isCurrent = (page: string) => path === page || path.startsWith(`${page}/`)
 // Footer link columns: every page of the menu, grouped by what the visitor wants to do.
 const footerLinks: { title: string; pages: PageKey[] }[] = [
   { title: ui.footer.adopt, pages: ['adoptii-caini', 'adoptii-pisici', 'adoptii-virtuale-caini', 'adoptii-virtuale-pisici', 'cum-pot-adopta'] },
-  { title: ui.footer.help, pages: ['doneaza', 'redirectioneaza', 'voluntariat', 'ai-gasit-un-animal'] },
+  // The campaigns are linked while at least one is published.
+  { title: ui.footer.help, pages: ['doneaza', ...(listCampaignPaths().length ? (['campanii'] as const) : []), 'redirectioneaza', 'voluntariat', 'ai-gasit-un-animal'] },
   { title: ui.nav.info, pages: ['despre-noi', 'proiect-2022', 'raport-2024', 'ghid-de-crestere-si-ingrijire-pisici', 'in-memoriam'] },
 ];
 const cta = [
@@ -103,7 +107,7 @@ const cta = [
     <header class="site-header">
       <div class="site-header__inner">
         <a class="site-header__logo" href={href('/')} aria-label={ui.home}>
-          <img src="/logo.webp" alt={SITE.legalName} width="149" height="55" />
+          <img src={logo.src} alt={SITE.legalName} width="149" height="55" />
         </a>
 
         <details class="nav-toggle">
@@ -183,7 +187,7 @@ const cta = [
       <div class="site-footer__inner">
         <div class="site-footer__brand">
           <a class="site-footer__logo" href={href('/')} aria-label={ui.home}>
-            <img src="/logo.webp" alt={SITE.legalName} width="149" height="55" loading="lazy" />
+            <img src={logo.src} alt={SITE.legalName} width="149" height="55" loading="lazy" />
           </a>
           <ul class="social-links" aria-label={ui.footer.socials}>
             <li>

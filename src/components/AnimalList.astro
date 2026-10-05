@@ -101,7 +101,7 @@ const fields = [
     visible.length ? (
       <ul class="animal-grid">
         {visible.map((animal, index) => (
-          <AnimalCard animal={animal} locale={locale} eager={index < 4} />
+          <AnimalCard animal={animal} locale={locale} eager={index < 4} priority={index === 0} heading="h2" />
         ))}
       </ul>
     ) : (

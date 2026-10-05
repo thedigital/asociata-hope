@@ -36,12 +36,21 @@ Le site tourne dans un processus Node géré par PM2, derrière nginx, lui-même
    ```
 
 2. Remplir `/srv/hope/shared/.env` : `SITE_URL` (tant que le domaine n'est pas le domaine
-   définitif), `STRIPE_SECRET_KEY`, `SMTP_URL`, `BACKUP_REMOTE`.
+   définitif), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SMTP_URL`, `BACKUP_REMOTE`.
 3. Depuis le poste de travail, envoyer la base et les fichiers : `deploy/push-data.sh hope@vps`.
 4. Sur le serveur : `hope-deploy`.
 5. Dans Cloudflare, créer l'enregistrement DNS **proxifié** (nuage orange) du domaine vers le VPS,
    puis sur le serveur : `bash setup-nginx.sh <domaine>`.
-6. Créer les comptes admin : `cd /srv/hope/current && node --env-file=/srv/hope/shared/.env scripts/create-user.ts --email … --name … --locale ro` (en tant que `hope`).
+6. Créer le premier compte admin : `cd /srv/hope/current && node --env-file=/srv/hope/shared/.env scripts/create-user.ts --email … --name … --locale ro` (en tant que `hope`).
+   Les comptes suivants se créent dans l'admin (« Comptes ») : chaque personne reçoit un lien
+   à usage unique, valable 72 heures, où elle choisit son mot de passe et enregistre son
+   application d'authentification. La commande reste le recours si plus personne ne peut se connecter.
+7. Pour que les dons par carte des collectes soient comptés : dans Stripe (Développeurs >
+   Webhooks), ajouter un point de terminaison `https://<domaine>/stripe/webhook` avec les
+   événements `checkout.session.completed` et `invoice.paid`, copier son secret de signature
+   dans `STRIPE_WEBHOOK_SECRET`, puis `pm2 restart hope`. Sans lui, l'avancement d'une collecte
+   ne montre que le montant saisi à la main dans l'admin. Si Cloudflare bloque les robots,
+   laisser passer `/stripe/webhook` (la requête est vérifiée par sa signature).
 
 ## Déployer une version
 

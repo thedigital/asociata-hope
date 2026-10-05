@@ -1,15 +1,18 @@
 import type { AdminLocale } from './config.ts';
 import type { FormError } from '../lib/admin-animals.ts';
+import type { CampaignFormError } from '../lib/admin-campaigns.ts';
 import type { PageFormError } from '../lib/admin-pages.ts';
+import type { SetupError, UserFormError, UserState } from '../lib/admin-users.ts';
 import type { IssueCode } from '../lib/animal-checks.ts';
-import type { AdoptionType, Species, Status } from '../lib/taxonomy.ts';
+import type { CampaignState } from '../lib/campaigns.ts';
+import type { AdoptionType, CampaignScope, CampaignStatus, Species, Status } from '../lib/taxonomy.ts';
 import type { PatternId, ThemeId } from '../lib/themes.ts';
 
 /** Strings of the admin interface (Romanian and French). Taxonomy labels come from `ui.ts`. */
 export type AdminUi = {
   title: string;
   login: { title: string; email: string; password: string; code: string; codeHelp: string; submit: string; failed: string; locked: string };
-  nav: { animals: string; pages: string; messages: string; redirects: string; theme: string; site: string; logout: string };
+  nav: { animals: string; campaigns: string; pages: string; messages: string; redirects: string; theme: string; users: string; site: string; logout: string };
   messages: { intro: string; empty: string; pending: string; handled: string; all: string; markHandled: string; markPending: string; reply: string; confirmDelete: string; language: string; attachment: string };
   list: { add: string; search: string; all: string; empty: string; photo: string; name: string; age: string; status: string; order: string; up: string; down: string; edit: string; estimated: string };
   form: {
@@ -89,12 +92,81 @@ export type AdminUi = {
     seo: string;
     seoHelp: string;
     automatic: string;
-    body: string;
-    bodyHelp: string;
-    built: string;
-    differs: (languages: string) => string;
-    differsShort: string;
+    written: string;
     errors: Record<PageFormError, string>;
+  };
+  campaigns: {
+    intro: string;
+    add: string;
+    empty: string;
+    title: string;
+    summary: string;
+    summaryHelp: string;
+    textsHelp: string;
+    what: string;
+    scope: string;
+    scopes: Record<CampaignScope, string>;
+    animal: string;
+    animalHelp: string;
+    slugHelp: string;
+    statuses: Record<CampaignStatus, string>;
+    states: Record<Exclude<CampaignState, 'open'>, string>;
+    kind: string;
+    permanent: string;
+    permanentHelp: string;
+    temporary: string;
+    temporaryHelp: string;
+    goal: string;
+    currency: string;
+    endsOn: string;
+    endsOnHelp: string;
+    offline: string;
+    offlineHelp: string;
+    raised: string;
+    card: string;
+    cardNone: string;
+    cardOff: string;
+    image: string;
+    addImage: string;
+    replaceImage: string;
+    removeImage: string;
+    imageHelp: string;
+    untranslated: (languages: string) => string;
+    delete: string;
+    confirmDelete: string;
+    errors: Record<CampaignFormError, string>;
+  };
+  users: {
+    intro: string;
+    add: string;
+    name: string;
+    email: string;
+    language: string;
+    state: string;
+    states: Record<UserState, string>;
+    created: string;
+    you: string;
+    reset: string;
+    confirmReset: (name: string) => string;
+    confirmResetSelf: string;
+    confirmDelete: (name: string) => string;
+    link: (name: string) => string;
+    linkHelp: (hours: number) => string;
+    errors: Record<UserFormError, string>;
+  };
+  setup: {
+    title: string;
+    intro: (name: string, email: string) => string;
+    password: string;
+    passwordHelp: (length: number) => string;
+    confirmation: string;
+    app: string;
+    appHelp: string;
+    key: string;
+    submit: string;
+    invalid: string;
+    done: string;
+    errors: Record<SetupError, string>;
   };
   theme: {
     intro: string;
@@ -123,7 +195,7 @@ const ro: AdminUi = {
     failed: 'E-mail, parola sau cod incorecte.',
     locked: 'Prea multe incercari. Incercati din nou peste 15 minute.',
   },
-  nav: { animals: 'Animale', pages: 'Pagini', messages: 'Mesaje', redirects: 'Redirectionari', theme: 'Tema', site: 'Vezi site-ul', logout: 'Deconectare' },
+  nav: { animals: 'Animale', campaigns: 'Campanii', pages: 'Pagini', messages: 'Mesaje', redirects: 'Redirectionari', theme: 'Tema', users: 'Conturi', site: 'Vezi site-ul', logout: 'Deconectare' },
   messages: {
     intro: 'Mesajele trimise prin formularul de contact al site-ului.',
     empty: 'Niciun mesaj.',
@@ -250,7 +322,8 @@ const ro: AdminUi = {
     invalid: 'Adresele trebuie sa inceapa cu / si sa fie diferite.',
   },
   pages: {
-    intro: 'Textul si campurile SEO ale paginilor de continut, in cele patru limbi. Lista animalelor, pagina de start si pagina de contact nu se modifica aici.',
+    intro: 'Titlul si descrierea SEO ale paginilor de continut, in cele patru limbi. Textul paginilor nu se modifica aici.',
+    written: 'Scrise de mana',
     page: 'Pagina',
     address: 'Adresa',
     updated: 'Ultima modificare',
@@ -260,14 +333,97 @@ const ro: AdminUi = {
     seo: 'Titlu si descriere pentru motoarele de cautare',
     seoHelp: 'Lasati gol pentru a folosi valoarea automata, afisata in gri. Titlul apare in fila browserului si in rezultatele Google; descrierea, sub titlu, in rezultate.',
     automatic: 'Automat',
-    body: 'Textul paginii (HTML)',
-    bodyHelp: 'Textul este in format HTML: <p> pentru un paragraf, <h2> pentru un titlu, <ul><li> pentru o lista, <a href="…"> pentru un link. Pastrati aceleasi titluri si imagini in cele patru limbi.',
-    built: 'Continutul acestei pagini este construit de site (date ale asociatiei, animale, formulare): aici se modifica doar titlul si descrierea SEO.',
-    differs: (languages) => `Structura textului (titluri, imagini) difera de cea in romana pentru: ${languages}. O pagina trebuie sa arate la fel in toate limbile.`,
-    differsShort: 'structura diferita intre limbi',
     errors: {
-      body: 'Textul paginii lipseste in cel putin o limba.',
       tooLong: 'Un camp este prea lung (titlu SEO: 120 de caractere, descriere SEO: 300).',
+    },
+  },
+  campaigns: {
+    intro: 'Strângeri de fonduri, fiecare cu pagina ei pe site. O campanie permanentă nu are termen; una temporară are o sumă de atins și o ultimă zi.',
+    add: 'Campanie nouă',
+    empty: 'Nicio campanie.',
+    title: 'Titlu',
+    summary: 'Rezumat',
+    summaryHelp: 'O frază, afișată sub titlu și pe cartonașul campaniei.',
+    textsHelp: 'Titlul în română este obligatoriu. O limbă fără titlu afișează textele în română.',
+    what: 'Pentru ce',
+    scope: 'Destinație',
+    scopes: { global: 'Asociația în ansamblu', need: 'O nevoie concretă (hrană, tratamente…)', animal: 'Un animal anume', event: 'Un eveniment (Crăciun…)' },
+    animal: 'Animal',
+    animalHelp: 'De ales doar pentru o campanie destinată unui animal: campania apare pe fișa lui.',
+    slugHelp: 'Litere mici, cifre și cratime. Lăsați gol pentru a o genera din titlu. Dacă o modificați, vechea adresă este redirecționată automat.',
+    statuses: { draft: 'Ciornă', published: 'Publicată' },
+    states: { reached: 'Obiectiv atins', ended: 'Încheiată' },
+    kind: 'Durată',
+    permanent: 'Permanentă',
+    permanentHelp: 'fără termen și fără sumă de atins; donații unice sau lunare, în orice monedă.',
+    temporary: 'Temporară',
+    temporaryHelp: 'se închide în ultima zi sau când suma este atinsă; donații unice, în moneda campaniei.',
+    goal: 'Suma de atins',
+    currency: 'Moneda',
+    endsOn: 'Ultima zi',
+    endsOnHelp: 'Campania primește donații până la sfârșitul acestei zile, ora României.',
+    offline: 'Donații primite în afara site-ului',
+    offlineHelp: 'Virament, PayPal, numerar: suma totală, de actualizat manual. Se adaugă la donațiile cu cardul.',
+    raised: 'Strâns',
+    card: 'Donații cu cardul înregistrate:',
+    cardNone: 'niciuna',
+    cardOff: 'Înregistrarea automată a donațiilor cu cardul nu este configurată pe server (STRIPE_WEBHOOK_SECRET): până atunci, treceți toate donațiile în câmpul de mai sus.',
+    image: 'Imagine',
+    addImage: 'Adaugă o imagine',
+    replaceImage: 'Înlocuiește imaginea',
+    removeImage: 'Șterge imaginea actuală',
+    imageHelp: 'JPEG, PNG sau WebP, maximum 15 MB. Fără imagine, o campanie pentru un animal afișează fotografia lui.',
+    untranslated: (languages) => `Fără titlu în: ${languages}. Aceste limbi afișează textele în română.`,
+    delete: 'Șterge campania',
+    confirmDelete: 'Ștergeți definitiv această campanie și donațiile înregistrate pentru ea?',
+    errors: {
+      title: 'Titlul în română este obligatoriu.',
+      slug: 'Adresa poate conține doar litere mici, cifre și cratime.',
+      slugTaken: 'Această adresă este deja folosită de altă campanie.',
+      animal: 'Alegeți animalul căruia îi este destinată campania.',
+      goal: 'O campanie temporară are nevoie de o sumă de atins (număr întreg, mai mare decât zero).',
+      endsOn: 'O campanie temporară are nevoie de o ultimă zi.',
+      invalid: 'Formularul conține o valoare nevalidă sau un text prea lung.',
+    },
+  },
+  users: {
+    intro: 'Persoanele care se pot conecta la administrare. Un cont nou primeste un link: persoana isi alege singura parola si isi inregistreaza aplicatia de autentificare.',
+    add: 'Creeaza contul',
+    name: 'Nume',
+    email: 'E-mail',
+    language: 'Limba',
+    state: 'Stare',
+    states: { ready: 'Activ', pending: 'Asteapta folosirea linkului', expired: 'Link expirat' },
+    created: 'Creat la',
+    you: 'dumneavoastra',
+    reset: 'Reseteaza accesul',
+    confirmReset: (name) => `Parola si aplicatia de autentificare ale contului „${name}” nu vor mai functiona, iar contul va fi deconectat peste tot. Veti primi un link de trimis persoanei. Continuati?`,
+    confirmResetSelf: 'Parola si aplicatia dumneavoastra de autentificare nu vor mai functiona. Veti primi un link pentru a alege altele: daca il pierdeti, doar alt administrator va poate reda accesul. Continuati?',
+    confirmDelete: (name) => `Stergeti definitiv contul „${name}”?`,
+    link: (name) => `Link de trimis catre ${name}`,
+    linkHelp: (hours) => `Linkul este afisat o singura data si poate fi folosit o singura data, in urmatoarele ${hours} de ore. Trimiteti-l persoanei pe un canal sigur. Daca se pierde, creati altul cu „Reseteaza accesul”.`,
+    errors: {
+      email: 'Adresa de e-mail nu este valida.',
+      name: 'Numele este obligatoriu (maximum 80 de caractere).',
+      emailTaken: 'Exista deja un cont cu aceasta adresa de e-mail.',
+    },
+  },
+  setup: {
+    title: 'Configurarea contului',
+    intro: (name, email) => `Buna ziua, ${name}. Alegeti parola contului ${email} si inregistrati o aplicatie de autentificare: ambele vor fi cerute la fiecare conectare.`,
+    password: 'Parola',
+    passwordHelp: (length) => `Cel putin ${length} caractere.`,
+    confirmation: 'Confirmati parola',
+    app: 'Aplicatia de autentificare',
+    appHelp: 'Scanati acest cod QR cu o aplicatie de autentificare (Google Authenticator, Authy, 1Password…), apoi introduceti mai jos codul pe care il afiseaza.',
+    key: 'Sau introduceti manual aceasta cheie:',
+    submit: 'Salveaza si mergi la conectare',
+    invalid: 'Acest link nu mai este valabil: a fost deja folosit sau a expirat. Cereti unul nou unui administrator.',
+    done: 'Contul este configurat. Va puteti conecta.',
+    errors: {
+      password: 'Parola este prea scurta.',
+      mismatch: 'Cele doua parole nu sunt identice.',
+      code: 'Codul aplicatiei de autentificare nu este corect. Verificati ca ati scanat codul QR si incercati cu codul afisat acum.',
     },
   },
   theme: {
@@ -297,7 +453,7 @@ const fr: AdminUi = {
     failed: 'E-mail, mot de passe ou code incorrect.',
     locked: 'Trop de tentatives. Réessayez dans 15 minutes.',
   },
-  nav: { animals: 'Animaux', pages: 'Pages', messages: 'Messages', redirects: 'Redirections', theme: 'Thème', site: 'Voir le site', logout: 'Déconnexion' },
+  nav: { animals: 'Animaux', campaigns: 'Collectes', pages: 'Pages', messages: 'Messages', redirects: 'Redirections', theme: 'Thème', users: 'Comptes', site: 'Voir le site', logout: 'Déconnexion' },
   messages: {
     intro: 'Les messages envoyés depuis le formulaire de contact du site.',
     empty: 'Aucun message.',
@@ -424,7 +580,8 @@ const fr: AdminUi = {
     invalid: 'Les adresses doivent commencer par / et être différentes.',
   },
   pages: {
-    intro: 'Le texte et les champs SEO des pages de contenu, dans les quatre langues. Les listes d’animaux, la page d’accueil et la page de contact ne se modifient pas ici.',
+    intro: 'Le titre et la description SEO des pages de contenu, dans les quatre langues. Le texte des pages ne se modifie pas ici.',
+    written: 'Écrits à la main',
     page: 'Page',
     address: 'Adresse',
     updated: 'Dernière modification',
@@ -434,14 +591,97 @@ const fr: AdminUi = {
     seo: 'Titre et description pour les moteurs de recherche',
     seoHelp: 'Laissez vide pour utiliser la valeur automatique, affichée en gris. Le titre apparaît dans l’onglet du navigateur et dans les résultats de Google ; la description, sous le titre, dans les résultats.',
     automatic: 'Automatique',
-    body: 'Texte de la page (HTML)',
-    bodyHelp: 'Le texte est au format HTML : <p> pour un paragraphe, <h2> pour un titre, <ul><li> pour une liste, <a href="…"> pour un lien. Gardez les mêmes titres et les mêmes images dans les quatre langues.',
-    built: 'Le contenu de cette page est construit par le site (coordonnées de l’association, animaux, formulaires) : seuls le titre et la description SEO se modifient ici.',
-    differs: (languages) => `La structure du texte (titres, images) diffère de celle du roumain pour : ${languages}. Une page doit avoir le même aspect dans toutes les langues.`,
-    differsShort: 'structure différente selon la langue',
     errors: {
-      body: 'Le texte de la page manque dans au moins une langue.',
       tooLong: 'Un champ est trop long (titre SEO : 120 caractères, description SEO : 300).',
+    },
+  },
+  campaigns: {
+    intro: 'Les collectes de fonds, chacune avec sa page sur le site. Une collecte permanente n’a pas de fin ; une collecte temporaire a un montant à atteindre et un dernier jour.',
+    add: 'Nouvelle collecte',
+    empty: 'Aucune collecte.',
+    title: 'Titre',
+    summary: 'Résumé',
+    summaryHelp: 'Une phrase, affichée sous le titre et sur la carte de la collecte.',
+    textsHelp: 'Le titre en roumain est obligatoire. Une langue sans titre affiche les textes en roumain.',
+    what: 'Pour quoi',
+    scope: 'Destination',
+    scopes: { global: 'L’association dans son ensemble', need: 'Un besoin précis (croquettes, soins…)', animal: 'Un animal donné', event: 'Un événement (Noël…)' },
+    animal: 'Animal',
+    animalHelp: 'À choisir seulement pour une collecte destinée à un animal : la collecte apparaît sur sa fiche.',
+    slugHelp: 'Minuscules, chiffres et tirets. Laissez vide pour la générer depuis le titre. Si vous la modifiez, l’ancienne adresse est redirigée automatiquement.',
+    statuses: { draft: 'Brouillon', published: 'Publiée' },
+    states: { reached: 'Objectif atteint', ended: 'Terminée' },
+    kind: 'Durée',
+    permanent: 'Permanente',
+    permanentHelp: 'sans fin ni montant à atteindre ; dons uniques ou mensuels, dans toutes les devises.',
+    temporary: 'Temporaire',
+    temporaryHelp: 'se ferme le dernier jour ou quand le montant est atteint ; dons uniques, dans la devise de la collecte.',
+    goal: 'Montant à atteindre',
+    currency: 'Devise',
+    endsOn: 'Dernier jour',
+    endsOnHelp: 'La collecte reçoit des dons jusqu’à la fin de ce jour, heure de Roumanie.',
+    offline: 'Dons reçus hors du site',
+    offlineHelp: 'Virement, PayPal, espèces : le total, à mettre à jour à la main. Il s’ajoute aux dons par carte.',
+    raised: 'Collecté',
+    card: 'Dons par carte enregistrés :',
+    cardNone: 'aucun',
+    cardOff: 'L’enregistrement automatique des dons par carte n’est pas configuré sur le serveur (STRIPE_WEBHOOK_SECRET) : en attendant, reportez tous les dons dans le champ ci-dessus.',
+    image: 'Image',
+    addImage: 'Ajouter une image',
+    replaceImage: 'Remplacer l’image',
+    removeImage: 'Supprimer l’image actuelle',
+    imageHelp: 'JPEG, PNG ou WebP, 15 Mo maximum. Sans image, une collecte pour un animal affiche sa photo.',
+    untranslated: (languages) => `Sans titre en : ${languages}. Ces langues affichent les textes en roumain.`,
+    delete: 'Supprimer la collecte',
+    confirmDelete: 'Supprimer définitivement cette collecte et les dons enregistrés pour elle ?',
+    errors: {
+      title: 'Le titre en roumain est obligatoire.',
+      slug: 'L’adresse ne peut contenir que des minuscules, des chiffres et des tirets.',
+      slugTaken: 'Cette adresse est déjà utilisée par une autre collecte.',
+      animal: 'Choisissez l’animal auquel la collecte est destinée.',
+      goal: 'Une collecte temporaire a besoin d’un montant à atteindre (nombre entier, supérieur à zéro).',
+      endsOn: 'Une collecte temporaire a besoin d’un dernier jour.',
+      invalid: 'Le formulaire contient une valeur non valide ou un texte trop long.',
+    },
+  },
+  users: {
+    intro: 'Les personnes qui peuvent se connecter à l’administration. Un nouveau compte reçoit un lien : la personne choisit elle-même son mot de passe et enregistre son application d’authentification.',
+    add: 'Créer le compte',
+    name: 'Nom',
+    email: 'E-mail',
+    language: 'Langue',
+    state: 'État',
+    states: { ready: 'Actif', pending: 'En attente du lien', expired: 'Lien expiré' },
+    created: 'Créé le',
+    you: 'vous',
+    reset: 'Réinitialiser l’accès',
+    confirmReset: (name) => `Le mot de passe et l’application d’authentification du compte « ${name} » ne fonctionneront plus, et le compte sera déconnecté partout. Vous obtiendrez un lien à lui envoyer. Continuer ?`,
+    confirmResetSelf: 'Votre mot de passe et votre application d’authentification ne fonctionneront plus. Vous obtiendrez un lien pour en choisir d’autres : si vous le perdez, seul un autre administrateur pourra vous rendre l’accès. Continuer ?',
+    confirmDelete: (name) => `Supprimer définitivement le compte « ${name} » ?`,
+    link: (name) => `Lien à envoyer à ${name}`,
+    linkHelp: (hours) => `Ce lien n’est affiché qu’une fois et ne sert qu’une fois, dans les ${hours} heures. Envoyez-le à la personne par un canal sûr. S’il est perdu, créez-en un autre avec « Réinitialiser l’accès ».`,
+    errors: {
+      email: 'L’adresse e-mail n’est pas valide.',
+      name: 'Le nom est obligatoire (80 caractères maximum).',
+      emailTaken: 'Un compte existe déjà avec cette adresse e-mail.',
+    },
+  },
+  setup: {
+    title: 'Configuration du compte',
+    intro: (name, email) => `Bonjour ${name}. Choisissez le mot de passe du compte ${email} et enregistrez une application d’authentification : les deux seront demandés à chaque connexion.`,
+    password: 'Mot de passe',
+    passwordHelp: (length) => `Au moins ${length} caractères.`,
+    confirmation: 'Confirmez le mot de passe',
+    app: 'Application d’authentification',
+    appHelp: 'Scannez ce code QR avec une application d’authentification (Google Authenticator, Authy, 1Password…), puis saisissez ci-dessous le code qu’elle affiche.',
+    key: 'Ou saisissez cette clé à la main :',
+    submit: 'Enregistrer et aller à la connexion',
+    invalid: 'Ce lien n’est plus valable : il a déjà servi ou il a expiré. Demandez-en un nouveau à un administrateur.',
+    done: 'Le compte est configuré. Vous pouvez vous connecter.',
+    errors: {
+      password: 'Le mot de passe est trop court.',
+      mismatch: 'Les deux mots de passe ne sont pas identiques.',
+      code: 'Le code de l’application d’authentification n’est pas correct. Vérifiez que vous avez scanné le code QR et réessayez avec le code affiché maintenant.',
     },
   },
   theme: {

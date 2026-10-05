@@ -1313,8 +1313,7 @@ a:hover {
   transform: scale(1.04);
 }
 
-.animal-card h3,
-.animal-card__static h2 {
+.animal-card :is(h2, h3) {
   position: relative;
   margin: 0;
   padding: 1rem 0.75rem 0;
@@ -1348,7 +1347,8 @@ a:hover {
   padding: 0.4rem 1.1rem;
   border-radius: 999px;
   background: var(--sand-pale);
-  color: var(--call-dark);
+  /* Darker than the hovered buttons: small text on a pale ground needs the contrast. */
+  color: color-mix(in oklab, var(--call-dark), #000 15%);
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -3020,6 +3020,355 @@ fieldset[aria-invalid='true'] {
   .give-accounts .give-copy button {
     grid-area: 1 / 3;
   }
+}
+
+/* Fundraising campaigns: cards (list, home page), the progress towards a goal, the page of a campaign */
+.campaign-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.campaign-card {
+  flex: 1 1 280px;
+  max-width: 380px;
+}
+
+.campaign-card a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.campaign-card a:hover {
+  box-shadow: var(--shadow-raised);
+  transform: translateY(-4px);
+}
+
+.campaign-card img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+/* A campaign without a picture shows the ground of the title bands, so that every card has the same build. */
+.campaign-card__ground {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 3 / 2;
+  background: linear-gradient(118deg, var(--band-from), var(--band-middle) 38%, var(--band-to));
+}
+
+.campaign-card__ground::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--band-pattern);
+  opacity: var(--band-pattern-opacity);
+}
+
+.campaign-card__ground svg {
+  width: 72px;
+  height: 72px;
+  padding: 18px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.14);
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.campaign-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem 1.25rem 0.25rem;
+}
+
+.campaign-card__body > * {
+  margin: 0;
+}
+
+.campaign-card__scope {
+  align-self: start;
+  justify-self: start;
+  margin: 0;
+  padding: 0.2rem 0.8rem;
+  border-radius: 999px;
+  background: var(--sand-pale);
+  color: var(--primary-dark);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.campaign-card :is(h2, h3) {
+  font-size: var(--title-3);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.campaign-card__body > p:not([class]) {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.campaign-card .campaign-progress {
+  margin-top: auto;
+  padding-top: 0.4rem;
+}
+
+.campaign-card .animal-card__more {
+  align-self: center;
+}
+
+.campaign-progress {
+  margin: 0;
+}
+
+.campaign-progress__amount {
+  margin: 0 0 0.4rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.campaign-progress__amount strong {
+  color: var(--primary);
+  font-family: var(--font-title);
+  font-size: var(--title-3);
+  letter-spacing: -0.01em;
+}
+
+.campaign-progress progress {
+  display: block;
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: var(--primary-pale);
+  appearance: none;
+}
+
+.campaign-progress progress::-webkit-progress-bar {
+  background: var(--primary-pale);
+}
+
+.campaign-progress progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: var(--call);
+}
+
+.campaign-progress progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--call);
+}
+
+.campaign-progress--reached progress::-webkit-progress-value {
+  background: var(--green);
+}
+
+.campaign-progress--reached progress::-moz-progress-bar {
+  background: var(--green);
+}
+
+.campaign-progress__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-small);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.campaign-progress--permanent {
+  color: var(--muted);
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+
+/* List of the campaigns: cards under the title band, the closed ones after the others. */
+.campaigns {
+  position: relative;
+  margin-block: calc(-1 * var(--arc) / 2 - 0.5rem) clamp(3rem, 7vw, 5rem);
+}
+
+.campaigns__empty {
+  max-width: 640px;
+  margin-inline: auto;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.campaigns__empty p {
+  margin: 0 0 1.5rem;
+}
+
+.campaigns__past {
+  margin: clamp(2.5rem, 6vw, 4rem) 0 clamp(1.25rem, 3vw, 2rem);
+  font-size: var(--title-2);
+  text-align: center;
+}
+
+.home-campaigns__all {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 0;
+}
+
+/* Page of a campaign: the sheets of the donation page, the first one with the picture beside the text. */
+.campaign__about {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  align-items: start;
+}
+
+.campaign__image {
+  width: 100%;
+  border-radius: var(--radius-small);
+}
+
+.campaign__text {
+  display: grid;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+.campaign__description p {
+  margin: 0 0 1rem;
+  white-space: pre-line;
+}
+
+.campaign__description p:last-child,
+.campaign__animal {
+  margin-bottom: 0;
+}
+
+.campaign__animal {
+  margin-top: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+
+.campaign .give-method > .button {
+  justify-self: start;
+}
+
+.campaign__other h2 {
+  margin: 0 0 0.5rem;
+  font-size: var(--title-3);
+}
+
+.campaign__other p {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+}
+
+.campaign__back {
+  margin: 0;
+  text-align: center;
+}
+
+@media (min-width: 800px) {
+  .campaign__about--photo {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+}
+
+/* Campaign of an animal, on its page; campaigns in progress, on the donation page. */
+.campaign-box {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+  margin-top: 1.75rem;
+  padding: 1.25rem;
+  border-left: 4px solid var(--call);
+  border-radius: var(--radius-small);
+  background: var(--primary-pale);
+}
+
+.campaign-box > * {
+  margin: 0;
+}
+
+.campaign-box h2 {
+  font-size: var(--title-3);
+}
+
+.campaign-box .campaign-progress {
+  width: 100%;
+}
+
+.campaign-box .campaign-card__scope,
+.campaign-box progress,
+.campaign-box progress::-webkit-progress-bar {
+  background: var(--surface);
+}
+
+.give-campaigns h2 {
+  margin: 0 0 1rem;
+  font-size: var(--title-3);
+  text-align: center;
+}
+
+.give-campaigns ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.give-campaigns a {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-small);
+  background: var(--primary-pale);
+  color: inherit;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+.give-campaigns a:hover {
+  background: var(--sand-pale);
+}
+
+.give-campaigns strong {
+  color: var(--primary);
+}
+
+.give-campaigns span {
+  color: var(--muted);
+  font-size: 0.95rem;
 }
 
 /* Call-to-action tiles and footer */

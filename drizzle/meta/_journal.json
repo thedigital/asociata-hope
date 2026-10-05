@@ -36,6 +36,13 @@
       "when": 1791159520629,
       "tag": "0004_stale_arachne",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791195598211,
+      "tag": "0005_known_vertigo",
+      "breakpoints": true
     }
   ]
 }

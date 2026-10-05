@@ -14,3 +14,17 @@ export async function imageSize(kind: ImageKind, file: string): Promise<{ width:
   }
   return sizes.get(key) ?? null;
 }
+
+/**
+ * Gives the images of a stored page body the size of their file, when the markup has none: the
+ * browser then reserves their place before they load, and the text below does not move.
+ */
+export async function sizeBodyImages(html: string): Promise<string> {
+  const tags = [...new Set(html.match(/<img\b[^>]*>/g) ?? [])].filter((tag) => !/\swidth=/.test(tag));
+  for (const tag of tags) {
+    const file = tag.match(/\ssrc="\/media\/pages\/\d+\/([^"]+)"/)?.[1];
+    const size = file ? await imageSize('pages', file) : null;
+    if (size) html = html.replaceAll(tag, tag.replace(/^<img/, `<img width="${size.width}" height="${size.height}"`));
+  }
+  return html;
+}

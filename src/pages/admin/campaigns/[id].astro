@@ -1,0 +1,205 @@
+---
+import { useAdminUi } from '../../../i18n/admin.ts';
+import { ENABLED_LOCALES, LOCALES, LOCALE_NAMES, localizePath } from '../../../i18n/config.ts';
+import Admin from '../../../layouts/Admin.astro';
+import { CAMPAIGN_SUMMARY_MAX, CAMPAIGN_TITLE_MAX, deleteCampaign, getCampaignForEdit, listAnimalsForCampaign, parseCampaignForm, saveCampaign, setCampaignImage, type CampaignFormError } from '../../../lib/admin-campaigns.ts';
+import { CAMPAIGNS_PATH, formatMoney } from '../../../lib/campaigns.ts';
+import { imageUrl } from '../../../lib/media.ts';
+import { CURRENCIES, isStripeWebhookConfigured } from '../../../lib/stripe.ts';
+import { CAMPAIGN_SCOPES, CAMPAIGN_STATUSES } from '../../../lib/taxonomy.ts';
+
+const user = Astro.locals.user!;
+const t = useAdminUi(user.locale);
+const c = t.campaigns;
+const f = t.form;
+
+const isNew = Astro.params.id === 'new';
+const id = isNew ? null : Number(Astro.params.id);
+const existing = id ? getCampaignForEdit(id) : null;
+if (!isNew && !existing) return new Response('Not found', { status: 404 });
+
+let errors: CampaignFormError[] = [];
+let submitted: ReturnType<typeof parseCampaignForm> | null = null;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (id && form.get('_action') === 'delete') {
+    await deleteCampaign(id);
+    return Astro.redirect('/admin/campaigns', 303);
+  }
+  submitted = parseCampaignForm(form);
+  errors = submitted.errors;
+  if (!errors.length) {
+    const result = saveCampaign(id, submitted);
+    if ('error' in result) errors = [result.error];
+    else {
+      const image = form.get('image');
+      const imageOk = await setCampaignImage(result.id, image instanceof File ? image : null, form.has('removeImage'));
+      return Astro.redirect(`/admin/campaigns/${result.id}?saved=1${imageOk ? '' : '&image=rejected'}`, 303);
+    }
+  }
+  Astro.response.status = 422;
+}
+
+const values = submitted?.data ?? existing?.campaign ?? { slug: '', scope: 'need' as const, status: 'draft' as const, animalId: null, goalAmount: null, currency: 'ron' as const, endsOn: null, offlineAmount: 0 };
+const temporary = submitted ? submitted.temporary : values.goalAmount !== null;
+const text = (locale: string) => (submitted?.texts ?? existing?.texts ?? []).find((tr) => tr.locale === locale);
+const title = isNew ? c.add : text('ro')?.title || values.slug;
+const animals = listAnimalsForCampaign();
+const query = Astro.url.searchParams;
+---
+
+<Admin title={title}>
+  <div class="toolbar">
+    <h1>{title}</h1>
+    <div>
+      {existing?.campaign.status === 'published' && <a class="btn btn--light" href={`/${CAMPAIGNS_PATH}/${existing.campaign.slug}`} target="_blank" rel="noopener">{f.view} ↗</a>}
+      <a class="btn btn--light" href="/admin/campaigns">{f.back}</a>
+    </div>
+  </div>
+
+  {query.has('saved') && <p class="notice notice--ok" role="status">{f.saved}</p>}
+  {query.get('image') === 'rejected' && <p class="notice notice--error" role="alert">{f.rejected(1)}</p>}
+  {errors.map((error) => <p class="notice notice--error" role="alert">{c.errors[error]}</p>)}
+
+  <form class="form" method="post" enctype="multipart/form-data">
+    <fieldset class="card">
+      <legend>{c.what}</legend>
+      <div class="grid">
+        <label>
+          {c.scope}
+          <select name="scope">
+            {CAMPAIGN_SCOPES.map((v) => <option value={v} selected={v === values.scope}>{c.scopes[v]}</option>)}
+          </select>
+        </label>
+        <label data-scope="animal">
+          {c.animal}
+          <select name="animalId">
+            <option value="">{f.none}</option>
+            {animals.map((animal) => <option value={animal.id} selected={animal.id === values.animalId}>{animal.name} ({t.species[animal.species]}, {t.status[animal.status]})</option>)}
+          </select>
+          <small>{c.animalHelp}</small>
+        </label>
+        <label>
+          {f.status}
+          <select name="status">
+            {CAMPAIGN_STATUSES.map((v) => <option value={v} selected={v === values.status}>{c.statuses[v]}</option>)}
+          </select>
+        </label>
+        <label>
+          {f.slug}
+          <input type="text" name="slug" value={values.slug} maxlength="80" pattern="[a-z0-9]+(-[a-z0-9]+)*" />
+          <small>{c.slugHelp}</small>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>{c.kind}</legend>
+      <label class="check">
+        <input type="radio" name="kind" value="permanent" checked={!temporary} />
+        <span><strong>{c.permanent}</strong> — {c.permanentHelp}</span>
+      </label>
+      <label class="check">
+        <input type="radio" name="kind" value="temporary" checked={temporary} />
+        <span><strong>{c.temporary}</strong> — {c.temporaryHelp}</span>
+      </label>
+      <div class="grid" data-kind="temporary">
+        <label>
+          {c.goal}
+          <input type="text" name="goalAmount" inputmode="numeric" pattern="[0-9]{1,8}" value={values.goalAmount ?? ''} />
+        </label>
+        <label>
+          {c.currency}
+          <select name="currency">
+            {CURRENCIES.map((v) => <option value={v} selected={v === values.currency}>{v.toUpperCase()}</option>)}
+          </select>
+        </label>
+        <label>
+          {c.endsOn}
+          <input type="date" name="endsOn" value={values.endsOn ?? ''} />
+          <small>{c.endsOnHelp}</small>
+        </label>
+        <label>
+          {c.offline}
+          <input type="text" name="offlineAmount" inputmode="numeric" pattern="[0-9]{1,8}" value={values.offlineAmount ?? 0} />
+          <small>{c.offlineHelp}</small>
+        </label>
+      </div>
+      {
+        existing && (
+          <p class="notice">
+            {c.card}{' '}
+            {existing.card.length ? existing.card.map((row) => `${formatMoney(row.total, row.currency, user.locale)} (${row.count})`).join(', ') : c.cardNone}
+            {!isStripeWebhookConfigured() && <><br />{c.cardOff}</>}
+          </p>
+        )
+      }
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>{f.texts}</legend>
+      <small>{c.textsHelp}</small>
+      {
+        LOCALES.map((locale) => (
+          <details class="language" open={ENABLED_LOCALES[0] === locale}>
+            <summary>
+              {LOCALE_NAMES[locale]}
+              {text(locale)?.title ? ' ✓' : ''}
+            </summary>
+            {existing?.campaign.status === 'published' && (
+              <p>
+                <a href={localizePath(`/${CAMPAIGNS_PATH}/${existing.campaign.slug}`, locale)} target="_blank" rel="noopener">
+                  {f.view} ↗
+                </a>
+              </p>
+            )}
+            <label>
+              {c.title}
+              <input type="text" name={`title_${locale}`} value={text(locale)?.title ?? ''} maxlength={CAMPAIGN_TITLE_MAX} lang={locale} required={locale === 'ro'} />
+            </label>
+            <label>
+              {c.summary}
+              <input type="text" name={`summary_${locale}`} value={text(locale)?.summary ?? ''} maxlength={CAMPAIGN_SUMMARY_MAX} lang={locale} />
+              <small>{c.summaryHelp}</small>
+            </label>
+            <label>
+              {f.description}
+              <textarea name={`description_${locale}`} rows="8" lang={locale}>{text(locale)?.description ?? ''}</textarea>
+            </label>
+          </details>
+        ))
+      }
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>{c.image}</legend>
+      {
+        existing?.campaign.image && (
+          <>
+            <img class="campaign-image" src={imageUrl('campaigns', existing.campaign.image, 400)} alt="" loading="lazy" />
+            <label class="check"><input type="checkbox" name="removeImage" />{c.removeImage}</label>
+          </>
+        )
+      }
+      <label>
+        {existing?.campaign.image ? c.replaceImage : c.addImage}
+        <input type="file" name="image" accept="image/jpeg,image/png,image/webp" />
+        <small>{c.imageHelp}</small>
+      </label>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn" type="submit">{isNew ? f.create : f.save}</button>
+      {!isNew && <button class="btn btn--danger" type="submit" name="_action" value="delete" formnovalidate data-confirm={c.confirmDelete}>{c.delete}</button>}
+    </div>
+  </form>
+
+  <script is:inline nonce={Astro.locals.cspNonce}>
+    document.querySelectorAll('[data-confirm]').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        if (!confirm(button.dataset.confirm)) event.preventDefault();
+      });
+    });
+  </script>
+</Admin>

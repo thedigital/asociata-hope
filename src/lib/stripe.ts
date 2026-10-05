@@ -15,9 +15,12 @@ export const AMOUNTS: Record<Currency, { presets: number[]; min: number; max: nu
 };
 
 export type Donation = { amount: number; currency: Currency; frequency: Frequency; animal: string | null };
-export type DonationError = 'amount' | 'invalid';
+/** `campaign`: the campaign the gift was for is unknown or no longer accepts gifts. */
+export type DonationError = 'amount' | 'invalid' | 'campaign';
 
 export const isStripeConfigured = () => Boolean(env('STRIPE_SECRET_KEY'));
+/** Without the signing secret of the webhook, card donations are not counted for the campaigns. */
+export const isStripeWebhookConfigured = () => Boolean(env('STRIPE_WEBHOOK_SECRET'));
 
 export function parseDonationForm(form: FormData): Donation | { error: DonationError } {
   const currency = CURRENCIES.find((c) => c === form.get('currency'));
@@ -53,12 +56,14 @@ export async function createDonationSession(options: {
   productName: string;
   successUrl: string;
   cancelUrl: string;
+  /** Campaign the gift is for: the webhook reads it back to count the gift (src/lib/stripe-webhook.ts). */
+  campaignId?: number;
 }): Promise<string> {
   const key = env('STRIPE_SECRET_KEY');
   if (!key) throw new Error('STRIPE_SECRET_KEY is not set');
-  const { donation, locale, productName, successUrl, cancelUrl } = options;
+  const { donation, locale, productName, successUrl, cancelUrl, campaignId } = options;
   const monthly = donation.frequency === 'monthly';
-  const metadata = { source: 'website', frequency: donation.frequency, ...(donation.animal ? { animal: donation.animal } : {}) };
+  const metadata = { source: 'website', frequency: donation.frequency, ...(donation.animal ? { animal: donation.animal } : {}), ...(campaignId ? { campaign: campaignId } : {}) };
 
   const body = encode({
     mode: monthly ? 'subscription' : 'payment',

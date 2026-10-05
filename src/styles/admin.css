@@ -106,6 +106,18 @@ video {
   gap: 0.75rem;
 }
 
+/* On a phone the menu takes its own line under the name of the admin and the signed-in user. */
+@media (max-width: 720px) {
+  .admin-header nav {
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .admin-header form {
+    margin-left: auto;
+  }
+}
+
 .admin-main {
   width: min(100% - 2rem, 1100px);
   margin: 1.5rem auto 4rem;
@@ -222,14 +234,6 @@ textarea {
 textarea {
   resize: vertical;
   line-height: 1.55;
-}
-
-/* HTML source of a content page. */
-textarea.code {
-  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  tab-size: 2;
 }
 
 .grid {
@@ -387,6 +391,62 @@ textarea.code {
   border-radius: 8px;
 }
 
+/* On a phone a table does not fit: each row becomes a block, its cells on one wrapping line, named by `data-label`. */
+@media (max-width: 720px) {
+  .table,
+  .table tbody,
+  .table tr {
+    display: block;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.9rem;
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .table tr:last-child {
+    border-bottom: 0;
+  }
+
+  .table td {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .table td:empty {
+    display: none;
+  }
+
+  .table td[data-label]::before {
+    content: attr(data-label) ' ';
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  /* The cell that names the row takes a full line; the action goes to the end of the last one. */
+  .table td.table__main {
+    flex: 1 1 100%;
+  }
+
+  .table td:has(> img) + td.table__main {
+    flex-basis: calc(100% - 56px - 0.9rem);
+  }
+
+  .table td:last-child {
+    margin-left: auto;
+  }
+}
+
 .badge {
   display: inline-block;
   padding: 0.1rem 0.6rem;
@@ -481,6 +541,79 @@ textarea.code {
 
 .login h1 {
   text-align: center;
+}
+
+/* Campaign form: the fields of a temporary campaign and of an animal campaign show only when they apply. */
+.form:has(input[name='kind'][value='permanent']:checked) [data-kind='temporary'] label:not(:has([name='offlineAmount'])),
+.form:not(:has(select[name='scope'] option[value='animal']:checked)) [data-scope='animal'] {
+  display: none;
+}
+
+.form [data-kind] {
+  margin-top: 1rem;
+}
+
+.campaign-image {
+  display: block;
+  width: min(100%, 320px);
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+}
+
+.badge--draft {
+  background: #e6e9e6;
+}
+
+/* Accounts: small forms inside a table row, the setup link shown once, and the page of that link. */
+.inline-form {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+}
+
+.inline-form select {
+  flex: none;
+  width: auto;
+  padding-block: 0.3rem;
+}
+
+.inline-form .btn {
+  padding: 0.3rem 0.8rem;
+}
+
+.inline-form .link {
+  white-space: nowrap;
+}
+
+.link--danger {
+  color: var(--danger);
+}
+
+.setup-link {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.setup-link small {
+  color: var(--muted);
+}
+
+.setup-app {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.setup-app small {
+  color: var(--muted);
+}
+
+.setup-app__code {
+  width: min(100%, 220px);
+  margin-inline: auto;
+}
+
+.setup-app code {
+  overflow-wrap: anywhere;
 }
 
 /* Anomalies */

@@ -87,7 +87,8 @@ if (interactive) {
   totpLastStep = confirmed;
 }
 
-const credentials = { passwordHash: await hashPassword(password), totpSecret, totpLastStep };
+// A setup link sent from the admin (src/lib/admin-users.ts) stops working: these credentials replace it.
+const credentials = { passwordHash: await hashPassword(password), totpSecret, totpLastStep, setupTokenHash: null, setupExpiresAt: null };
 if (existing) {
   db.transaction((tx) => {
     tx.update(users).set({ ...credentials, name, locale }).where(eq(users.id, existing.id)).run();

@@ -69,6 +69,8 @@ SITE_URL=
 
 # Card donations (Stripe Checkout). Without it the donation page says card payment is unavailable.
 STRIPE_SECRET_KEY=
+# Signing secret of the Stripe webhook (https://<domain>/stripe/webhook): counts the card donations of the campaigns.
+STRIPE_WEBHOOK_SECRET=
 
 # E-mail notification of contact messages: smtps://user:password@smtp.example.org:465
 SMTP_URL=

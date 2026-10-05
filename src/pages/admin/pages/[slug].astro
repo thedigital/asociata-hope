@@ -1,9 +1,9 @@
 ---
 import { useAdminUi } from '../../../i18n/admin.ts';
-import { ENABLED_LOCALES, LOCALES, LOCALE_NAMES, localizePath, type Locale } from '../../../i18n/config.ts';
+import { LOCALES, LOCALE_NAMES, localizePath, type Locale } from '../../../i18n/config.ts';
 import { useUi } from '../../../i18n/ui.ts';
 import Admin from '../../../layouts/Admin.astro';
-import { SEO_DESCRIPTION_MAX, SEO_TITLE_MAX, getPageForEdit, hasStoredBody, isContentPage, parsePageForm, savePage, structureDifferences, type PageFormError } from '../../../lib/admin-pages.ts';
+import { SEO_DESCRIPTION_MAX, SEO_TITLE_MAX, getPageForEdit, isContentPage, parsePageForm, savePage, type PageFormError } from '../../../lib/admin-pages.ts';
 import { SITE } from '../../../lib/site.ts';
 
 const user = Astro.locals.user!;
@@ -13,12 +13,11 @@ const f = t.form;
 
 const slug = Astro.params.slug ?? '';
 if (!isContentPage(slug)) return new Response('Not found', { status: 404 });
-const withBody = hasStoredBody(slug);
 
 let errors: PageFormError[] = [];
 let submitted: ReturnType<typeof parsePageForm>['translations'] | null = null;
 if (Astro.request.method === 'POST') {
-  const result = parsePageForm(await Astro.request.formData(), slug);
+  const result = parsePageForm(await Astro.request.formData());
   if (!result.errors.length) {
     savePage(slug, result.translations);
     return Astro.redirect(`/admin/pages/${slug}?saved=1`, 303);
@@ -30,8 +29,6 @@ if (Astro.request.method === 'POST') {
 const stored = getPageForEdit(slug);
 // Values shown in the form: what was just submitted (on error), else what is stored.
 const translation = (locale: Locale) => (submitted ?? stored.translations).find((tr) => tr.locale === locale);
-// Checked on the stored texts, so the notice reflects what the site shows, not what is being typed.
-const differences = structureDifferences(slug, stored.translations);
 const title = useUi(user.locale).pages[slug];
 // What the public page uses when a field is left empty (src/pages/[...path].astro).
 const automatic = (locale: Locale) => {
@@ -51,8 +48,6 @@ const automatic = (locale: Locale) => {
 
   {Astro.url.searchParams.has('saved') && <p class="notice notice--ok" role="status">{f.saved}</p>}
   {errors.map((error) => <p class="notice notice--error" role="alert">{p.errors[error]}</p>)}
-  {differences.length > 0 && <p class="notice notice--error" role="alert">⚠ {p.differs(differences.map((l) => LOCALE_NAMES[l]).join(', '))}</p>}
-  {!withBody && <p class="notice">{p.built}</p>}
 
   <form class="form" method="post">
     <fieldset class="card">
@@ -65,6 +60,11 @@ const automatic = (locale: Locale) => {
               {LOCALE_NAMES[locale]}
               {translation(locale)?.seoTitle || translation(locale)?.seoDescription ? ' ✓' : ''}
             </summary>
+            <p>
+              <a href={localizePath(`/${slug}`, locale)} target="_blank" rel="noopener">
+                {f.view} ↗
+              </a>
+            </p>
             <label>
               {f.seoTitle}
               <input type="text" name={`seoTitle_${locale}`} value={translation(locale)?.seoTitle ?? ''} maxlength={SEO_TITLE_MAX} placeholder={automatic(locale).title} lang={locale} />
@@ -77,29 +77,6 @@ const automatic = (locale: Locale) => {
         ))
       }
     </fieldset>
-
-    {
-      withBody && (
-        <fieldset class="card">
-          <legend>{p.body}</legend>
-          <small>{p.bodyHelp}</small>
-          {LOCALES.map((locale) => (
-            <details class="language" open={ENABLED_LOCALES[0] === locale}>
-              <summary>
-                {LOCALE_NAMES[locale]}
-                {differences.includes(locale) ? ' ⚠' : ''}
-              </summary>
-              <p>
-                <a href={localizePath(`/${slug}`, locale)} target="_blank" rel="noopener">
-                  {f.view} ↗
-                </a>
-              </p>
-              <textarea class="code" name={`body_${locale}`} rows="24" lang={locale} spellcheck="false" aria-label={`${p.body} – ${LOCALE_NAMES[locale]}`} required>{translation(locale)?.body ?? ''}</textarea>
-            </details>
-          ))}
-        </fieldset>
-      )
-    }
 
     <div class="actions">
       <button class="btn" type="submit">{f.save}</button>

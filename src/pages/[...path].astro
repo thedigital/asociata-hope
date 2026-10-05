@@ -2,6 +2,8 @@
 import { and, eq } from 'drizzle-orm';
 import AnimalDetail from '../components/AnimalDetail.astro';
 import AnimalList from '../components/AnimalList.astro';
+import CampaignDetail from '../components/CampaignDetail.astro';
+import CampaignList from '../components/CampaignList.astro';
 import ContactForm from '../components/ContactForm.astro';
 import DonateMethods from '../components/DonateMethods.astro';
 import Home from '../components/Home.astro';
@@ -12,8 +14,9 @@ import { describeContact, useFormsUi } from '../i18n/forms.ts';
 import { formatAge, useUi } from '../i18n/ui.ts';
 import Base from '../layouts/Base.astro';
 import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from '../lib/animals.ts';
+import { CAMPAIGNS_PATH, campaignForAnimal, getCampaign, listCampaigns } from '../lib/campaigns.ts';
 import { CONTACT_MAX_BYTES, REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
-import { imageSize } from '../lib/image-size.ts';
+import { imageSize, sizeBodyImages } from '../lib/image-size.ts';
 import { breadcrumbLd, organizationLd, webPageLd, websiteLd, type Crumb } from '../lib/json-ld.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
 import { splitClosingPhoto, structureBody } from '../lib/page-body.ts';
@@ -50,12 +53,17 @@ const isHome = enabled && segments.length === 0;
 const isContact = enabled && segments.length === 1 && segments[0] === 'contact';
 // "In memoriam" is built from the animals with the `deceased` status, not from a stored body.
 const memoriam = page && segments[0] === 'in-memoriam' ? listDeceased() : null;
-const found = isHome || isContact || animal || animals || page;
+// Fundraising campaigns: the list, and one page per published campaign.
+const isCampaigns = enabled && segments[0] === CAMPAIGNS_PATH;
+const campaigns = isCampaigns && segments.length === 1 ? listCampaigns(locale) : null;
+const campaign = isCampaigns && segments.length === 2 ? getCampaign(segments[1], locale) : null;
+const animalCampaign = animal ? campaignForAnimal(animal.id, locale) : null;
+const found = isHome || isContact || animal || animals || page || campaigns || campaign;
 if (!found) Astro.response.status = REMOVED_PATHS.includes(path) ? 410 : 404;
 // A body that brings its own h1 (as on Wix) provides the page heading, so the page keeps a single h1.
 const ownHeading = page?.body.match(/<h1[^>]*>([\s\S]*?)<\/h1>\s*/);
 // Every language goes through the same structuring, so a page looks the same whatever the language.
-const pageBody = page ? structureBody(ownHeading ? page.body.replace(ownHeading[0], '') : page.body, ui) : undefined;
+const pageBody = page ? await sizeBodyImages(structureBody(ownHeading ? page.body.replace(ownHeading[0], '') : page.body, ui)) : undefined;
 
 const isStory = page !== null && STORY_PAGES.includes(segments[0] as ContentPage);
 const illustration = page ? PAGE_ILLUSTRATIONS[segments[0] as ContentPage] : undefined;
@@ -77,7 +85,11 @@ else if (animal && collection) {
   title = animal.translation?.seoTitle || `${animal.name} | ${ui.pages[collection.path as PageKey]} | ${SITE.name}`;
   description = animal.translation?.seoDescription || truncate(`${animal.name}${facts ? ` (${facts})` : ''} – ${(animal.translation?.description ?? '').replace(/\s+/g, ' ')}`);
   if (animal.photos[0]) image = imageUrl('animals', animal.photos[0].file, 1200);
-} else if (animals || isContact) {
+} else if (campaign) {
+  title = `${campaign.title} | ${ui.pages.campanii} | ${SITE.name}`;
+  description = campaign.summary || (campaign.description ? truncate(campaign.description.replace(/\s+/g, ' ')) : ui.seo.descriptions?.campanii) || description;
+  if (campaign.image) image = imageUrl(campaign.image.kind, campaign.image.file, 1200);
+} else if (animals || isContact || campaigns) {
   title = titleOf(ui.pages[key]);
   description = ui.seo.descriptions?.[key] || description;
 }
@@ -120,18 +132,21 @@ if (isContact && Astro.request.method === 'POST') {
 const donationAnimal = page && segments[0] === 'doneaza' ? query.get('animal')?.replace(/[\r\n]/g, ' ').slice(0, 80) || null : null;
 const isDonation = page !== null && segments[0] === 'doneaza';
 // Pages reached with parameters (filters, pre-filled forms, form results) are not indexed.
-const filtered = (animals !== null || isContact || isDonation) && [...Astro.url.searchParams.values()].some(Boolean);
-const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as ContentPage);
+const filtered = (animals !== null || isContact || isDonation || campaign !== null) && [...Astro.url.searchParams.values()].some(Boolean);
+// The list of campaigns has nothing to offer a search engine while no campaign is published.
+const unlisted = (page !== null && UNLISTED_PAGES.includes(segments[0] as ContentPage)) || campaigns?.length === 0;
 
 // Structured data: indexable pages only. The home page describes the association and the site,
 // the others give their place under it.
 const origin = Astro.site!.origin;
 const crumbs: Crumb[] = animal && collection
   ? [{ name: ui.pages[collection.path as PageKey], path: `/${collection.path}` }, { name: animal.name, path }]
-  : [{ name: ui.pages[key], path }];
+  : campaign
+    ? [{ name: ui.pages.campanii, path: `/${CAMPAIGNS_PATH}` }, { name: campaign.title, path }]
+    : [{ name: ui.pages[key], path }];
 const jsonLd = !found || filtered || unlisted ? [] : [
   ...(isHome ? [organizationLd(origin, locale, ui), websiteLd(origin, locale, ui)] : []),
-  webPageLd(origin, locale, { path, title, description, image, list: animals !== null }),
+  webPageLd(origin, locale, { path, title, description, image, list: animals !== null || campaigns !== null }),
   ...(isHome ? [] : [breadcrumbLd(origin, locale, ui, crumbs)]),
 ];
 ---
@@ -139,7 +154,9 @@ const jsonLd = !found || filtered || unlisted ? [] : [
 <Base locale={enabled ? locale : DEFAULT_LOCALE} path={path} title={title} description={description} image={image} noindex={!found || filtered || unlisted} alternates={Boolean(found)} jsonLd={jsonLd}>
   {isHome && <Home locale={locale} />}
   {animals && collection && <AnimalList collection={collection} animals={animals} locale={locale} filters={Astro.url.searchParams} />}
-  {animal && collection && <AnimalDetail collection={collection} animal={animal} locale={locale} />}
+  {animal && collection && <AnimalDetail collection={collection} animal={animal} locale={locale} campaign={animalCampaign} />}
+  {campaigns && <CampaignList campaigns={campaigns} locale={locale} />}
+  {campaign && <CampaignDetail campaign={campaign} locale={locale} error={query.get('error')} cancelled={query.has('cancelled')} />}
   {
     page && (
       <>
@@ -175,8 +192,8 @@ const jsonLd = !found || filtered || unlisted ? [] : [
         ) : illustration ? (
           <div class="container page-split">
             <div class="page-split__photos">
-              {splitPhotos.map(({ file, size }) => (
-                <img class="page-split__image" src={imageUrl('pages', file, 800)} srcset={srcset('pages', file, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt={ui.photoAlts[file] ?? ''} width={size?.width} height={size?.height} />
+              {splitPhotos.map(({ file, size }, index) => (
+                <img class="page-split__image" src={imageUrl('pages', file, 800)} srcset={srcset('pages', file, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt={ui.photoAlts[file] ?? ''} width={size?.width} height={size?.height} fetchpriority={index === 0 ? 'high' : undefined} />
               ))}
             </div>
             {segments[0] === 'redirectioneaza' ? (

@@ -10,9 +10,13 @@ interface Props {
   animal: AnimalCard;
   locale: Locale;
   eager?: boolean;
+  /** First card of a list: its photo is the largest element of the first screen. */
+  priority?: boolean;
+  /** Level of the name, under the title of the block that holds the card. */
+  heading?: 'h2' | 'h3';
 }
 
-const { animal, locale, eager = false } = Astro.props;
+const { animal, locale, eager = false, priority = false, heading: Heading = 'h3' } = Astro.props;
 const ui = useUi(locale);
 const url = localizePath(`/${COLLECTION_PATHS[animal.species][animal.adoptionType]}/${animal.slug}`, locale);
 const details = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMonths), animal.sex ? ui.sex[animal.sex] : null].filter(Boolean);
@@ -30,11 +34,12 @@ const details = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMont
           width="400"
           height="400"
           loading={eager ? 'eager' : 'lazy'}
+          fetchpriority={priority ? 'high' : undefined}
           decoding="async"
         />
       )
     }
-    <h3>{animal.name}</h3>
+    <Heading>{animal.name}</Heading>
     <p>{details.join(' · ')}</p>
     <span class="animal-card__more">{ui.animal.learnMore}</span>
   </a>

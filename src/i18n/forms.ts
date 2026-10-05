@@ -160,6 +160,7 @@ const ro: FormsUi = {
     product: (frequency, animal) => `${frequency === 'monthly' ? 'Donatie lunara' : 'Donatie'} – Asociatia HOPE${animal ? ` (${animal})` : ''}`,
     errors: {
       amount: 'Suma nu este valida.',
+      campaign: 'Această campanie nu mai primește donații.',
       invalid: 'Formularul nu este valid. Va rugam sa incercati din nou.',
       unavailable: 'Plata cu cardul nu este disponibila momentan. Va rugam sa folositi una dintre celelalte metode de mai jos.',
     },
@@ -258,6 +259,7 @@ const en: FormsUi = {
     product: (frequency, animal) => `${frequency === 'monthly' ? 'Monthly donation' : 'Donation'} – HOPE association${animal ? ` (${animal})` : ''}`,
     errors: {
       amount: 'The amount is not valid.',
+      campaign: 'This campaign no longer takes donations.',
       invalid: 'The form is not valid. Please try again.',
       unavailable: 'Card payment is temporarily unavailable. Please use one of the other methods below.',
     },
@@ -356,6 +358,7 @@ const fr: FormsUi = {
     product: (frequency, animal) => `${frequency === 'monthly' ? 'Don mensuel' : 'Don'} – association HOPE${animal ? ` (${animal})` : ''}`,
     errors: {
       amount: 'Le montant n’est pas valide.',
+      campaign: 'Cette collecte ne reçoit plus de dons.',
       invalid: 'Le formulaire n’est pas valide. Merci de réessayer.',
       unavailable: 'Le paiement par carte est momentanément indisponible. Merci d’utiliser l’un des autres moyens ci-dessous.',
     },
@@ -454,6 +457,7 @@ const de: FormsUi = {
     product: (frequency, animal) => `${frequency === 'monthly' ? 'Monatliche Spende' : 'Spende'} – Tierschutzverein HOPE${animal ? ` (${animal})` : ''}`,
     errors: {
       amount: 'Der Betrag ist ungültig.',
+      campaign: 'Diese Spendenaktion nimmt keine Spenden mehr an.',
       invalid: 'Das Formular ist ungültig. Bitte versuchen Sie es erneut.',
       unavailable: 'Die Kartenzahlung ist vorübergehend nicht verfügbar. Bitte nutzen Sie eine der anderen Möglichkeiten unten.',
     },

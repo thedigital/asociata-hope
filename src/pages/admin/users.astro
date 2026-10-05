@@ -1,0 +1,145 @@
+---
+import { useAdminUi } from '../../i18n/admin.ts';
+import { ADMIN_LOCALES, LOCALE_NAMES } from '../../i18n/config.ts';
+import Admin from '../../layouts/Admin.astro';
+import { SETUP_HOURS, deleteUser, inviteUser, listUsers, parseUserForm, resetUser, setUserLocale, type UserFormError, type UserInput } from '../../lib/admin-users.ts';
+import { SESSION_COOKIE } from '../../lib/auth.ts';
+
+const user = Astro.locals.user!;
+const t = useAdminUi(user.locale);
+const u = t.users;
+
+let errors: UserFormError[] = [];
+let typed: UserInput | null = null;
+// A setup link is shown once, in the answer to the request that created it: only its hash is stored.
+let link: { name: string; url: string } | null = null;
+const linkTo = (name: string, token: string) => ({ name, url: `${Astro.url.origin}/admin/setup?token=${token}` });
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = String(form.get('_action') ?? '');
+  const id = Number(form.get('id'));
+  const target = listUsers().find((row) => row.id === id);
+  if (action === 'invite') {
+    const parsed = parseUserForm(form);
+    const result = parsed.errors.length ? { error: parsed.errors[0] } : inviteUser(parsed.input);
+    if ('token' in result) link = linkTo(parsed.input.name, result.token);
+    else {
+      errors = parsed.errors.length ? parsed.errors : [result.error];
+      typed = parsed.input;
+      Astro.response.status = 422;
+    }
+  } else if (action === 'reset' && target) {
+    const result = resetUser(id, id === user.id ? Astro.cookies.get(SESSION_COOKIE)?.value : undefined);
+    if (result) link = linkTo(target.name, result.token);
+  } else if (action === 'delete') {
+    deleteUser(id, user.id);
+    return Astro.redirect('/admin/users', 303);
+  } else if (action === 'locale') {
+    setUserLocale(id, String(form.get('locale') ?? ''));
+    return Astro.redirect('/admin/users', 303);
+  }
+}
+
+const rows = listUsers();
+const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium' });
+---
+
+<Admin title={t.nav.users}>
+  <div class="toolbar">
+    <h1>{t.nav.users}</h1>
+  </div>
+  <p>{u.intro}</p>
+  {errors.map((error) => <p class="notice notice--error" role="alert">{u.errors[error]}</p>)}
+  {
+    link && (
+      <div class="notice notice--ok setup-link" role="status">
+        <strong>{u.link(link.name)}</strong>
+        <input type="text" value={link.url} readonly aria-label={u.link(link.name)} />
+        <small>{u.linkHelp(SETUP_HOURS)}</small>
+      </div>
+    )
+  }
+
+  <form class="card filters-bar" method="post">
+    <input type="hidden" name="_action" value="invite" />
+    <label>
+      {u.name}
+      <input type="text" name="name" value={typed?.name ?? ''} maxlength="80" autocomplete="off" required />
+    </label>
+    <label>
+      {u.email}
+      <input type="email" name="email" value={typed?.email ?? ''} maxlength="200" autocomplete="off" required />
+    </label>
+    <label>
+      {u.language}
+      <select name="locale">
+        {ADMIN_LOCALES.map((locale) => <option value={locale} selected={locale === (typed?.locale ?? 'ro')}>{LOCALE_NAMES[locale]}</option>)}
+      </select>
+    </label>
+    <button class="btn" type="submit">{u.add}</button>
+  </form>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>{u.name}</th>
+        <th>{u.email}</th>
+        <th>{u.language}</th>
+        <th>{u.state}</th>
+        <th>{u.created}</th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <td class="table__main">
+              <strong>{row.name}</strong>
+              {row.id === user.id && <span class="badge">{u.you}</span>}
+            </td>
+            <td>{row.email}</td>
+            <td>
+              <form class="inline-form" method="post">
+                <input type="hidden" name="_action" value="locale" />
+                <input type="hidden" name="id" value={row.id} />
+                <select name="locale" aria-label={`${u.language} – ${row.name}`}>
+                  {ADMIN_LOCALES.map((locale) => <option value={locale} selected={locale === row.locale}>{LOCALE_NAMES[locale]}</option>)}
+                </select>
+                <button class="btn btn--light" type="submit">OK</button>
+              </form>
+            </td>
+            <td>
+              <span class={`flag flag--${row.state === 'ready' ? 'ok' : row.state === 'pending' ? 'warning' : 'error'}`}>{u.states[row.state]}</span>
+            </td>
+            <td data-label={u.created}>{date.format(row.createdAt)}</td>
+            <td>
+              <form class="inline-form" method="post">
+                <input type="hidden" name="id" value={row.id} />
+                <button class="link" type="submit" name="_action" value="reset" data-confirm={row.id === user.id ? u.confirmResetSelf : u.confirmReset(row.name)}>
+                  {u.reset}
+                </button>
+                {row.id !== user.id && (
+                  <button class="link link--danger" type="submit" name="_action" value="delete" data-confirm={u.confirmDelete(row.name)}>
+                    {t.form.remove}
+                  </button>
+                )}
+              </form>
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  <script is:inline nonce={Astro.locals.cspNonce}>
+    document.querySelectorAll('[data-confirm]').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        if (!confirm(button.dataset.confirm)) event.preventDefault();
+      });
+    });
+    // The link is selected as soon as it is clicked, ready to be copied.
+    document.querySelector('.setup-link input')?.addEventListener('focus', (event) => event.target.select());
+  </script>
+</Admin>

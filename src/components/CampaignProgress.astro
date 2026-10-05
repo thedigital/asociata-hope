@@ -1,0 +1,35 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { useUi } from '../i18n/ui.ts';
+import { formatDay, formatMoney, type Campaign } from '../lib/campaigns.ts';
+
+interface Props {
+  campaign: Campaign;
+  locale: Locale;
+}
+
+/** Where a campaign stands: the amount collected against its goal and the time left, or that it has no end. */
+const { campaign, locale } = Astro.props;
+const t = useUi(locale).campaigns;
+const money = (amount: number) => formatMoney(amount, campaign.currency, locale);
+const time = campaign.state === 'reached' ? t.reached : campaign.state === 'ended' ? t.ended : campaign.daysLeft === null ? '' : campaign.daysLeft <= 30 ? t.daysLeft(campaign.daysLeft) : t.until(formatDay(campaign.endsOn!, locale));
+---
+
+{
+  campaign.goalAmount === null ? (
+    <p class="campaign-progress campaign-progress--permanent">{t.permanent}</p>
+  ) : (
+    <div class={`campaign-progress campaign-progress--${campaign.state}`}>
+      <p class="campaign-progress__amount">
+        <strong>{money(campaign.raised)}</strong> {t.raisedOf(money(campaign.goalAmount))}
+      </p>
+      <progress max="100" value={campaign.percent}>
+        {campaign.percent} %
+      </progress>
+      <p class="campaign-progress__meta">
+        <span>{campaign.percent} %</span>
+        <span>{time}</span>
+      </p>
+    </div>
+  )
+}

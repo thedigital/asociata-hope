@@ -6,6 +6,7 @@
 import { SCRATCH } from '../helpers/scratch.ts';
 import assert from 'node:assert/strict';
 import { spawn, type ChildProcess } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 import { existsSync, readdirSync } from 'node:fs';
 import { get } from 'node:http';
 import { createServer } from 'node:net';
@@ -13,6 +14,7 @@ import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../../src/db/client.ts';
+import { authenticate } from '../../src/lib/auth.ts';
 import { hashPassword } from '../../src/lib/password.ts';
 import { currentStep, generateSecret, totpCode } from '../../src/lib/totp.ts';
 
@@ -21,6 +23,7 @@ const EMAIL = 'ana@example.org';
 const PASSWORD = 'correct horse battery';
 const SECRET = generateSecret();
 const PDF = Buffer.from('%PDF-1.7\n%test\n');
+const WEBHOOK_SECRET = 'whsec_server_test';
 
 let server: ChildProcess;
 let origin = '';
@@ -54,7 +57,7 @@ before(async () => {
   const port = await freePort();
   origin = `http://127.0.0.1:${port}`;
   const { STRIPE_SECRET_KEY: _stripe, SMTP_URL: _smtp, SITE_URL: _site, ...env } = process.env;
-  server = spawn(process.execPath, [ENTRY], { env: { ...env, HOST: '127.0.0.1', PORT: String(port) }, stdio: ['ignore', 'ignore', 'inherit'] });
+  server = spawn(process.execPath, [ENTRY], { env: { ...env, HOST: '127.0.0.1', PORT: String(port), STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET }, stdio: ['ignore', 'ignore', 'inherit'] });
   for (let attempt = 0; attempt < 100; attempt++) {
     if (await fetch(`${origin}/robots.txt`).then((r) => r.ok, () => false)) return;
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -313,7 +316,7 @@ describe('admin sign-in', () => {
   let cookie = '';
 
   it('guards every admin path', async () => {
-    for (const path of ['/admin', '/admin/animals/1', '/admin/pages', '/admin/pages/despre-noi', '/admin/messages', '/admin/redirects', '/admin/theme', '/admin/attachments/1', '/admin/unknown']) {
+    for (const path of ['/admin', '/admin/animals/1', '/admin/pages', '/admin/pages/despre-noi', '/admin/campaigns', '/admin/campaigns/new', '/admin/users', '/admin/messages', '/admin/redirects', '/admin/theme', '/admin/attachments/1', '/admin/unknown']) {
       assert.deepEqual(await location(path), [302, '/admin/login'], path);
     }
     assert.deepEqual(await location('/admin', { cookie: 'session=forged' }), [302, '/admin/login']);
@@ -362,24 +365,108 @@ describe('admin sign-in', () => {
     assert.equal((await request('/admin/attachments/999', { headers: { cookie } })).status, 404);
   });
 
-  it('edits a content page: its text and its SEO fields reach the public page', async () => {
+  it('edits the SEO fields of a content page, never its text', async () => {
+    const { pages, pageTranslations } = schema;
+    const pageId = db.insert(pages).values({ slug: 'voluntariat' }).returning({ id: pages.id }).get().id;
+    db.insert(pageTranslations).values({ pageId, locale: 'fr', title: 'voluntariat', body: '<p>Texte fr</p>' }).run();
     assert.equal((await request('/admin/pages', { headers: { cookie } })).status, 200);
     assert.equal((await request('/admin/pages/unknown', { headers: { cookie } })).status, 404);
-    const fields: Record<string, string> = {};
-    for (const locale of ['ro', 'en', 'fr', 'de']) fields[`body_${locale}`] = `<h2>Titlu</h2><p onclick="x()">Text ${locale}</p><script>alert(1)</script>`;
-    const invalid = await request('/admin/pages/voluntariat', { form: { ...fields, body_de: ' ' }, headers: { cookie } });
-    assert.equal(invalid.status, 422);
-    assert.match(await invalid.text(), /Text fr/, 'what was typed is shown again');
+    const form = await (await request('/admin/pages/voluntariat', { headers: { cookie } })).text();
+    assert.ok(!form.includes('Texte fr') && !form.includes('body_fr'), 'the text of the page is not shown in the admin');
 
-    const saved = await request('/admin/pages/voluntariat', { form: { ...fields, seoTitle_fr: 'Devenir bénévole | Hope', seoDescription_fr: 'Une description écrite à la main.' }, headers: { cookie } });
+    const invalid = await request('/admin/pages/voluntariat', { form: { seoTitle_fr: 'a'.repeat(121), seoDescription_de: 'Beschreibung' }, headers: { cookie } });
+    assert.equal(invalid.status, 422);
+    assert.match(await invalid.text(), /Beschreibung/, 'what was typed is shown again');
+
+    const saved = await request('/admin/pages/voluntariat', { form: { seoTitle_fr: 'Devenir bénévole | Hope', seoDescription_fr: 'Une description écrite à la main.', body_fr: '<p>Autre</p>' }, headers: { cookie } });
     assert.deepEqual([saved.status, saved.headers.get('location')], [303, '/admin/pages/voluntariat?saved=1']);
     const french = await (await request('/fr/voluntariat')).text();
     assert.match(french, /<title>Devenir bénévole \| Hope<\/title>/);
     assert.match(french, /<meta name="description" content="Une description écrite à la main\."/);
-    assert.match(french, /<p>Text fr<\/p>/);
-    assert.ok(!french.includes('alert(1)') && !french.includes('onclick'));
+    assert.match(french, /<p>Texte fr<\/p>/);
     // A field left empty keeps the automatic value.
     assert.match(await (await request('/voluntariat')).text(), /<title>Voluntariat \| Hope<\/title>/);
+  });
+
+  it('creates an account through a link used once, where the person sets their own credentials', async () => {
+    assert.equal((await request('/admin/setup')).status, 404, 'no token');
+    assert.equal((await request('/admin/setup?token=unknown')).status, 404);
+    const invalid = await request('/admin/users', { form: { _action: 'invite', name: 'Bob', email: EMAIL, locale: 'ro' }, headers: { cookie } });
+    assert.equal(invalid.status, 422, 'the e-mail already has an account');
+
+    const invited = await request('/admin/users', { form: { _action: 'invite', name: 'Bob Ionescu', email: 'bob@example.org', locale: 'ro' }, headers: { cookie } });
+    assert.equal(invited.status, 200);
+    const link = (await invited.text()).match(/\/admin\/setup\?token=[\w-]{43}/)?.[0];
+    assert.ok(link, 'the link is shown in the answer');
+    const bob = () => db.select().from(schema.users).where(eq(schema.users.email, 'bob@example.org')).get()!;
+    assert.ok(!link.includes(bob().setupTokenHash!), 'only the hash of the token is stored');
+
+    // The page of the link needs no session, and shows the key of the authenticator app.
+    const page = await request(link);
+    assert.equal(page.status, 200);
+    assert.equal(page.headers.get('cache-control'), 'no-store');
+    assert.ok((await page.text()).includes(bob().totpSecret!));
+    const password = 'a password of her own';
+    const wrong = await request(link, { form: { password, confirmation: password, code: '000000' } });
+    assert.equal(wrong.status, 422);
+    const done = await request(link, { form: { password, confirmation: password, code: totpCode(bob().totpSecret!, currentStep()) } });
+    assert.deepEqual([done.status, done.headers.get('location')], [303, '/admin/login?ready']);
+    assert.equal((await request(link)).status, 404, 'the link works once');
+    assert.equal((await authenticate('bob@example.org', password, totpCode(bob().totpSecret!, currentStep() + 1)))?.name, 'Bob Ionescu');
+
+    // Nobody deletes their own account; another one is deleted with a form.
+    const me = db.select().from(schema.users).where(eq(schema.users.email, EMAIL)).get()!;
+    await request('/admin/users', { form: { _action: 'delete', id: String(me.id) }, headers: { cookie } });
+    assert.equal((await request('/admin', { headers: { cookie } })).status, 200);
+    await request('/admin/users', { form: { _action: 'delete', id: String(bob().id) }, headers: { cookie } });
+    assert.equal(db.select().from(schema.users).all().length, 1);
+  });
+
+  it('publishes a campaign: its page, the list, the sitemap, and the gifts counted by the webhook', async () => {
+    const empty = await (await request('/campanii')).text();
+    assert.match(empty, /<meta name="robots" content="noindex, follow"/, 'the empty list is not indexed');
+    assert.ok(!(await (await request('/sitemap.xml')).text()).includes('/campanii'));
+    assert.equal((await request('/campanii/hrana')).status, 404);
+
+    const endsOn = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
+    const fields = { title_ro: 'Hrană pentru iarnă', title_fr: 'Des croquettes pour l’hiver', summary_ro: 'O tonă de hrană uscată.', description_ro: 'Primul paragraf.\n\nAl doilea.', slug: 'hrana', scope: 'need', status: 'published', kind: 'temporary', goalAmount: '1000', currency: 'ron', endsOn, offlineAmount: '100' };
+    assert.equal((await request('/admin/campaigns/new', { form: { ...fields, goalAmount: '' }, headers: { cookie }, multipart: true })).status, 422);
+    const created = await request('/admin/campaigns/new', { form: fields, headers: { cookie }, multipart: true });
+    assert.equal(created.status, 303);
+    const id = Number(created.headers.get('location')!.match(/^\/admin\/campaigns\/(\d+)\?saved=1$/)![1]);
+    assert.equal((await request('/admin/campaigns', { headers: { cookie } })).status, 200);
+    assert.equal((await request(`/admin/campaigns/${id}`, { headers: { cookie } })).status, 200);
+
+    const french = await request('/fr/campanii/hrana');
+    const html = await french.text();
+    assert.equal(french.status, 200);
+    assert.match(html, /<title>Des croquettes pour l’hiver \| Collectes \| Hope<\/title>/);
+    assert.match(html, /<link rel="canonical" href="https:\/\/www\.adoptii-animale-hope\.org\/fr\/campanii\/hrana"/);
+    assert.match(html, /<progress max="100" value="10"/);
+    assert.match(html, /name="campaign" value="hrana"/);
+    assert.ok(!/\sstyle="/.test(html), 'public pages have no style attribute');
+    assert.match(await (await request('/fr/campanii/hrana?cancelled=1')).text(), /noindex, follow/);
+    const list = await (await request('/campanii')).text();
+    assert.ok(list.includes('Hrană pentru iarnă') && !list.includes('noindex'));
+    assert.ok((await (await request('/')).text()).includes('/campanii/hrana'), 'shown on the home page');
+    const sitemap = await (await request('/sitemap.xml')).text();
+    assert.ok(sitemap.includes('<loc>https://www.adoptii-animale-hope.org/de/campanii/hrana</loc>') && sitemap.includes('<loc>https://www.adoptii-animale-hope.org/campanii</loc>'));
+
+    // Stripe calls the webhook with a signed JSON body; anything else is refused.
+    const payload = JSON.stringify({ type: 'checkout.session.completed', data: { object: { id: 'cs_server', payment_status: 'paid', amount_total: 40_000, currency: 'ron', metadata: { campaign: String(id) } } } });
+    const timestamp = Math.floor(Date.now() / 1000);
+    const signature = `t=${timestamp},v1=${createHmac('sha256', WEBHOOK_SECRET).update(`${timestamp}.${payload}`).digest('hex')}`;
+    const hook = (headers: Record<string, string>) => request('/stripe/webhook', { body: payload, headers: { 'content-type': 'application/json', ...headers } });
+    assert.equal((await hook({})).status, 400);
+    assert.equal((await hook({ 'stripe-signature': signature.replace(/.$/, '0') })).status, 400);
+    assert.deepEqual(await (await hook({ 'stripe-signature': signature })).json(), { received: true, recorded: true });
+    assert.deepEqual(await (await hook({ 'stripe-signature': signature })).json(), { received: true, recorded: false });
+    assert.equal((await fetch(`${origin}/stripe/webhook`)).status, 404);
+    assert.match(await (await request('/campanii/hrana')).text(), /<progress max="100" value="50"/);
+
+    // Card payment is not configured on this server: the donor comes back to the page of the campaign.
+    const gift = await request('/donate', { form: { campaign: 'hrana', locale: 'fr', currency: 'ron', frequency: 'once', amount: '50' } });
+    assert.deepEqual([gift.status, gift.headers.get('location')], [303, '/fr/campanii/hrana?error=unavailable#card']);
   });
 
   it('ends the session at sign-out', async () => {

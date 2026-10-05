@@ -12,10 +12,11 @@ const redirect = (location: string, status = 301) => new Response(null, { status
 
 const isFormPost = (request: Request) => request.method === 'POST' && /^(application\/x-www-form-urlencoded|multipart\/form-data)\b/i.test(request.headers.get('content-type') ?? '');
 
+const STRIPE_WEBHOOK = '/stripe/webhook';
 const LANGUAGE_COOKIE = 'lang';
 const ONE_YEAR = 60 * 60 * 24 * 365;
 /** Public HTML pages only: not media, documents, the admin, or files such as sitemap.xml. */
-const isPublicPage = (pathname: string) => !/^\/(media|files|admin|_)/.test(pathname) && !/\.[a-z0-9]+$/i.test(pathname);
+const isPublicPage = (pathname: string) => !/^\/(media|files|admin|stripe|_)/.test(pathname) && !/\.[a-z0-9]+$/i.test(pathname);
 
 /**
  * Content-Security-Policy of an HTML page: everything comes from the site itself. Inline scripts and
@@ -60,13 +61,15 @@ export const onRequest = defineMiddleware(async ({ url, request, cookies, locals
 
   // Every POST of the site is an HTML form. Astro only checks the origin of form content types, so
   // anything else is refused here rather than failing later when the form is read.
-  if (request.method !== 'GET' && request.method !== 'HEAD' && !isFormPost(request)) return new Response('Unsupported Media Type', { status: 415 });
+  // The only exception is the Stripe webhook, a signed JSON request (src/pages/stripe/webhook.ts).
+  if (request.method !== 'GET' && request.method !== 'HEAD' && !isFormPost(request) && !(pathname === STRIPE_WEBHOOK && request.method === 'POST')) return new Response('Unsupported Media Type', { status: 415 });
 
-  // Admin: every page except the login form requires a valid session.
+  // Admin: every page requires a valid session, except the login form and the page of a setup link
+  // (it checks the token of the link itself).
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     const token = cookies.get(SESSION_COOKIE)?.value;
     locals.user = (token && getSessionUser(token)) || undefined;
-    if (!locals.user && pathname !== '/admin/login') return redirect('/admin/login', 302);
+    if (!locals.user && pathname !== '/admin/login' && pathname !== '/admin/setup') return redirect('/admin/login', 302);
     const response = secure(await next(), locals.cspNonce, true);
     response.headers.set('cache-control', 'no-store');
     response.headers.set('x-robots-tag', 'noindex, nofollow');

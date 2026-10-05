@@ -49,8 +49,9 @@ let dummyHash: Promise<string> | undefined;
 export async function authenticate(email: string, password: string, code: string): Promise<AdminUser | null> {
   const user = db.select().from(users).where(eq(users.email, email.trim().toLowerCase())).get();
   dummyHash ??= hashPassword(randomBytes(16).toString('hex'));
-  const passwordOk = await verifyPassword(user?.passwordHash ?? (await dummyHash), password).catch(() => false);
-  if (!user || !passwordOk || !user.totpSecret) return null;
+  // An account waiting for its setup link has an empty hash: it is checked like an unknown e-mail.
+  const passwordOk = await verifyPassword(user?.passwordHash || (await dummyHash), password).catch(() => false);
+  if (!user?.passwordHash || !passwordOk || !user.totpSecret) return null;
   const step = verifyTotp(user.totpSecret, code, user.totpLastStep);
   if (step === null) return null;
   // Remember the step: the same code cannot be replayed, even inside its validity window.

@@ -42,6 +42,12 @@ export const TRAITS = [
   'well-behaved',
 ] as const;
 
+/** What a fundraising campaign is for: the association as a whole, a precise need, one animal, an event. */
+export const CAMPAIGN_SCOPES = ['global', 'need', 'animal', 'event'] as const;
+export const CAMPAIGN_STATUSES = ['draft', 'published'] as const;
+
+export type CampaignScope = (typeof CAMPAIGN_SCOPES)[number];
+export type CampaignStatus = (typeof CAMPAIGN_STATUSES)[number];
 export type Species = (typeof SPECIES)[number];
 export type AdoptionType = (typeof ADOPTION_TYPES)[number];
 export type Sex = (typeof SEXES)[number];

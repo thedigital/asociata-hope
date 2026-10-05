@@ -3,15 +3,19 @@ import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { formatAge, gendered, joinList, useUi } from '../i18n/ui.ts';
 import type { Collection, getAnimal } from '../lib/animals.ts';
+import type { Campaign } from '../lib/campaigns.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
+import CampaignProgress from './CampaignProgress.astro';
 
 interface Props {
   collection: Collection;
   animal: NonNullable<ReturnType<typeof getAnimal>>;
   locale: Locale;
+  /** Open fundraising campaign for this animal, if any. */
+  campaign?: Campaign | null;
 }
 
-const { collection, animal, locale } = Astro.props;
+const { collection, animal, locale, campaign = null } = Astro.props;
 const ui = useUi(locale);
 const listUrl = localizePath(`/${collection.path}`, locale);
 const isVirtual = collection.adoptionType === 'virtual';
@@ -99,6 +103,17 @@ const [main, ...others] = animal.photos;
               ▶ Video
             </a>
           </p>
+        )
+      }
+      {
+        campaign && (
+          <aside class="campaign-box">
+            <p class="campaign-card__scope">{ui.campaigns.animalBox}</p>
+            <h2 lang={campaign.textLocale}>{campaign.title}</h2>
+            {campaign.summary && <p lang={campaign.textLocale}>{campaign.summary}</p>}
+            <CampaignProgress campaign={campaign} locale={locale} />
+            <a class="button button--small" href={localizePath(campaign.path, locale)}>{ui.campaigns.see}</a>
+          </aside>
         )
       }
       <div class="animal__actions">

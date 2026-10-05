@@ -5,7 +5,7 @@ export const DATA_DIR = resolve(process.env.DATA_DIR ?? 'data');
 export const UPLOADS_DIR = join(DATA_DIR, 'uploads');
 export const CACHE_DIR = join(DATA_DIR, 'cache');
 
-export const IMAGE_KINDS = ['animals', 'pages'] as const;
+export const IMAGE_KINDS = ['animals', 'pages', 'campaigns'] as const;
 export type ImageKind = (typeof IMAGE_KINDS)[number];
 /** Only these widths are generated, so the cache cannot be filled with arbitrary sizes. */
 export const IMAGE_WIDTHS = [160, 400, 800, 1200] as const;
