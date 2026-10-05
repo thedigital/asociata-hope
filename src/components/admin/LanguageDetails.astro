@@ -1,0 +1,34 @@
+---
+import { useAdminUi } from '../../i18n/admin.ts';
+import { LOCALE_NAMES, type Locale } from '../../i18n/config.ts';
+
+interface Props {
+  locale: Locale;
+  /** Something is written in this language: marked in the summary. */
+  filled: boolean;
+  open?: boolean;
+  /** Public address in this language, when there is something to see. */
+  view?: string | false | null;
+}
+
+/** The fields of one language in a form that has them for every language. */
+const { locale, filled, open = false, view } = Astro.props;
+const f = useAdminUi(Astro.locals.user!.locale).form;
+---
+
+<details class="language" open={open}>
+  <summary>
+    {LOCALE_NAMES[locale]}
+    {filled ? ' ✓' : ''}
+  </summary>
+  {
+    view && (
+      <p>
+        <a href={view} target="_blank" rel="noopener">
+          {f.view} ↗
+        </a>
+      </p>
+    )
+  }
+  <slot />
+</details>

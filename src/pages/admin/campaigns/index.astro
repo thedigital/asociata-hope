@@ -2,6 +2,7 @@
 import { useAdminUi } from '../../../i18n/admin.ts';
 import { LOCALE_NAMES } from '../../../i18n/config.ts';
 import Admin from '../../../layouts/Admin.astro';
+import Toolbar from '../../../components/admin/Toolbar.astro';
 import { listCampaignsForAdmin } from '../../../lib/admin-campaigns.ts';
 import { CAMPAIGNS_PATH, formatDay, formatMoney, formatShown } from '../../../lib/campaigns.ts';
 import { CURRENCIES } from '../../../lib/stripe.ts';
@@ -16,10 +17,9 @@ const breakdown = (row: (typeof rows)[number]) =>
 ---
 
 <Admin title={t.nav.campaigns}>
-  <div class="toolbar">
-    <h1>{t.nav.campaigns}</h1>
+  <Toolbar title={t.nav.campaigns}>
     <a class="btn" href="/admin/campaigns/new">+ {c.add}</a>
-  </div>
+  </Toolbar>
   <p>{c.intro}</p>
 
   {

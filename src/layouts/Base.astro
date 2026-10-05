@@ -8,10 +8,10 @@ import '../styles/global.css';
 // The logo at twice its displayed size, served from a file whose name changes with its content (cached for good).
 import logo from '../assets/logo.webp';
 import Flag from '../components/Flag.astro';
+import Icon from '../components/Icon.astro';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, localizePath, type Locale } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import { listCampaignPaths } from '../lib/campaigns.ts';
-import { LINE_ICONS } from '../lib/icons.ts';
 import { NAV, SITE, type PageKey } from '../lib/site.ts';
 import { activeThemeCss } from '../lib/themes.ts';
 
@@ -48,25 +48,25 @@ const cta = [
     ...ui.cta.dogs,
     href: href('/adoptii-caini'),
     kind: 'adopt',
-    icon: LINE_ICONS.dog,
+    icon: 'dog' as const,
   },
   {
     ...ui.cta.cats,
     href: href('/adoptii-pisici'),
     kind: 'adopt',
-    icon: LINE_ICONS.cat,
+    icon: 'cat' as const,
   },
   {
     ...ui.cta.donate,
     href: href('/doneaza'),
     kind: 'give',
-    icon: LINE_ICONS.heart,
+    icon: 'heart' as const,
   },
   {
     ...ui.cta.volunteer,
     href: href('/voluntariat'),
     kind: 'help',
-    icon: LINE_ICONS.care,
+    icon: 'care' as const,
   },
 ];
 ---
@@ -174,7 +174,7 @@ const cta = [
       {
         cta.map((tile) => (
           <a class={`cta-tiles__tile cta-tiles__tile--${tile.kind}`} href={tile.href}>
-            <svg class="cta-tiles__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={tile.icon} />
+            <Icon name={tile.icon} class="cta-tiles__icon" />
             <h2>{tile.title}</h2>
             <p>{tile.text}</p>
             <span class="cta-tiles__more">{tile.button}</span>

@@ -6,6 +6,8 @@ import { LOCALE_NAMES } from '../../i18n/config.ts';
 import { describeContact, useFormsUi } from '../../i18n/forms.ts';
 import Admin from '../../layouts/Admin.astro';
 import { deleteContactMessage, type ContactValues } from '../../lib/contact.ts';
+import Toolbar from '../../components/admin/Toolbar.astro';
+import Tabs from '../../components/admin/Tabs.astro';
 
 const user = Astro.locals.user!;
 const t = useAdminUi(user.locale);
@@ -37,14 +39,14 @@ const toValues = (row: (typeof rows)[number]): ContactValues => {
 ---
 
 <Admin title={t.nav.messages}>
-  <div class="toolbar">
-    <h1>{t.nav.messages}</h1>
-  </div>
+  <Toolbar title={t.nav.messages} />
   <p>{m.intro}</p>
 
-  <nav class="tabs">
-    {(['pending', 'handled', 'all'] as const).map((v) => <a href={`/admin/messages?view=${v}`} aria-current={v === view ? 'page' : undefined}>{m[v]}</a>)}
-  </nav>
+  <Tabs tabs={(['pending', 'handled', 'all'] as const).map((v) => ({
+    href: `/admin/messages?view=${v}`,
+    label: m[v],
+    current: v === view
+  }))} />
 
   {rows.length === 0 && <p class="card">{m.empty}</p>}
   {
@@ -88,12 +90,4 @@ const toValues = (row: (typeof rows)[number]): ContactValues => {
       </details>
     ))
   }
-
-  <script is:inline nonce={Astro.locals.cspNonce}>
-    document.querySelectorAll('[data-confirm]').forEach((button) => {
-      button.addEventListener('click', (event) => {
-        if (!confirm(button.dataset.confirm)) event.preventDefault();
-      });
-    });
-  </script>
 </Admin>

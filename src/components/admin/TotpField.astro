@@ -1,0 +1,18 @@
+---
+import { useAdminUi } from '../../i18n/admin.ts';
+import type { AdminLocale } from '../../i18n/config.ts';
+
+interface Props {
+  /** Nobody is signed in where the code is asked: the language comes from the page. */
+  locale: AdminLocale;
+}
+
+/** The six digits of the authenticator app. */
+const t = useAdminUi(Astro.props.locale).login;
+---
+
+<label>
+  {t.code}
+  <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" required />
+  <small>{t.codeHelp}</small>
+</label>

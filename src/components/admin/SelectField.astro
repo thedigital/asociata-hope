@@ -1,0 +1,24 @@
+---
+interface Props {
+  label: string;
+  name: string;
+  /** Value and label of each option. */
+  options: (readonly [string | number, string])[];
+  value: string | number | null | undefined;
+  /** Label of the empty option, for a field that may have no value. */
+  none?: string;
+  help?: string;
+  [data: `data-${string}`]: string;
+}
+
+const { label, name, options, value, none, help, ...attrs } = Astro.props;
+---
+
+<label {...attrs}>
+  {label}
+  <select name={name}>
+    {none !== undefined && <option value="">{none}</option>}
+    {options.map(([option, text]) => <option value={option} selected={option === value}>{text}</option>)}
+  </select>
+  {help && <small>{help}</small>}
+</label>

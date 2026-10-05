@@ -73,8 +73,9 @@ export function parseAnimalForm(form: FormData) {
     adoptionType: adoptionType ?? 'real',
     status: status ?? 'draft',
     sex: oneOf(SEXES, text('sex')),
-    size: oneOf(SIZES, text('size')),
-    color: oneOf(COLORS, text('color')),
+    // A dog is described by its size, a cat by its colour: the form shows the one that applies.
+    size: species === 'cat' ? null : oneOf(SIZES, text('size')),
+    color: species === 'cat' ? oneOf(COLORS, text('color')) : null,
     birthDate: birthDate || null,
     birthDateEstimated: form.has('birthDateEstimated'),
     vaccinated: form.has('vaccinated'),

@@ -1,0 +1,15 @@
+---
+interface Props {
+  /** Plain text typed in the admin: an empty line separates two paragraphs. */
+  text: string;
+  class?: string;
+  lang?: string;
+}
+
+const { text, class: className, lang } = Astro.props;
+const paragraphs = text.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+---
+
+<div class={className} lang={lang}>
+  {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+</div>

@@ -4,8 +4,11 @@ import { localizePath } from '../i18n/config.ts';
 import { formatAge, gendered, joinList, useUi } from '../i18n/ui.ts';
 import type { Collection, getAnimal } from '../lib/animals.ts';
 import type { Campaign } from '../lib/campaigns.ts';
-import { imageUrl, srcset } from '../lib/media.ts';
+import { imageUrl } from '../lib/media.ts';
 import CampaignProgress from './CampaignProgress.astro';
+import DetailList from './DetailList.astro';
+import Paragraphs from './Paragraphs.astro';
+import Picture from './Picture.astro';
 
 interface Props {
   collection: Collection;
@@ -24,16 +27,15 @@ const contactReason = isVirtual ? 'sponsorship' : animal.species === 'dog' ? 'ad
 // Lower-case every label but the first, as in a sentence: "Docile and affectionate".
 const sentence = (labels: string[]) => joinList(labels.map((label, i) => (i ? label.toLowerCase() : label)), ui.and);
 const health = (['vaccinated', 'sterilized', 'dewormed'] as const).filter((key) => animal[key]).map((key) => gendered(ui.health[key], animal.sex));
-const facts = [
+const facts = ([
   [ui.animal.age, animal.ageMonths === null ? null : formatAge(ui, animal.ageMonths)],
   [ui.animal.size, animal.size ? gendered(ui.size[animal.size], animal.sex) : null],
   [ui.animal.color, animal.color ? ui.color[animal.color] : null],
   [ui.animal.sex, animal.sex ? ui.sex[animal.sex] : null],
   [ui.animal.behavior, animal.traits.length ? sentence(animal.traits.map((t) => gendered(ui.traits[t], animal.sex))) : null],
   [ui.animal.health, health.length ? sentence(health) : null],
-].filter(([, value]) => value);
+] as const).filter((fact): fact is readonly [string, string] => Boolean(fact[1]));
 
-const paragraphs = (animal.translation?.description ?? '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
 const [main, ...others] = animal.photos;
 ---
 
@@ -45,15 +47,16 @@ const [main, ...others] = animal.photos;
       {
         main && (
           <a class="animal__photo" href={imageUrl('animals', main.file, 1200)}>
-            <img
+            <Picture
               id="animal-photo"
-              src={imageUrl('animals', main.file, 800)}
-              srcset={srcset('animals', main.file, [400, 800, 1200])}
+              kind="animals"
+              file={main.file}
+              widths={[400, 800, 1200]}
               sizes="(min-width: 900px) 480px, 100vw"
               alt={main.alt || animal.name}
               width={main.width ?? 800}
               height={main.height ?? 800}
-              fetchpriority="high"
+              priority
             />
           </a>
         )
@@ -83,19 +86,8 @@ const [main, ...others] = animal.photos;
     <div class="animal__card">
       {isVirtual && <p class="animal__badge">{ui.animal.virtualAdoption}</p>}
       <h1>{animal.name}</h1>
-      <dl>
-        {
-          facts.map(([label, value]) => (
-            <div>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))
-        }
-      </dl>
-      <div class="animal__description" lang={animal.translation?.locale}>
-        {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-      </div>
+      <DetailList items={facts} />
+      <Paragraphs class="animal__description" text={animal.translation?.description ?? ''} lang={animal.translation?.locale} />
       {
         animal.videoUrl && (
           <p>

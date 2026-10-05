@@ -1,0 +1,24 @@
+---
+import type { IconName } from '../lib/icons.ts';
+import Icon from './Icon.astro';
+
+interface Props {
+  /** Anchor of the section, e.g. `card` for the Stripe return URLs. */
+  id: string;
+  icon: IconName;
+  title: string;
+  hint: string;
+}
+
+/** One way of giving: every section of the donation page and of a campaign is built this way. */
+const { id, icon, title, hint } = Astro.props;
+---
+
+<section class={`give-method give-method--${id}`} id={id} aria-labelledby={`${id}-title`}>
+  <header class="give-method__head">
+    <Icon name={icon} class="give-icon" />
+    <h2 id={`${id}-title`}>{title}</h2>
+    <p>{hint}</p>
+  </header>
+  <slot />
+</section>

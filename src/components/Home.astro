@@ -5,11 +5,11 @@ import { useUi } from '../i18n/ui.ts';
 import { useFormsUi } from '../i18n/forms.ts';
 import { findCollection, listAnimals, type AnimalCard as Animal } from '../lib/animals.ts';
 import { CAMPAIGNS_PATH, listCampaigns } from '../lib/campaigns.ts';
-import { imageSize } from '../lib/image-size.ts';
-import { imageUrl, srcset } from '../lib/media.ts';
 import { DONATION_METHODS, SITE } from '../lib/site.ts';
-import AnimalCard from './AnimalCard.astro';
-import CampaignCard from './CampaignCard.astro';
+import AnimalGrid from './AnimalGrid.astro';
+import CampaignGrid from './CampaignGrid.astro';
+import Picture from './Picture.astro';
+import PhotoTiles from './PhotoTiles.astro';
 import RedirectSummary from './RedirectSummary.astro';
 
 interface Props {
@@ -33,9 +33,6 @@ const sponsorships = [
   { label: t.virtualCats, href: href('/adoptii-virtuale-pisici'), file: '313291_079206781e9a4fb7b249e7f0bebe6f31_mv2.jpg' },
   { label: t.virtualDogs, href: href('/adoptii-virtuale-caini'), file: '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg' },
 ];
-// Uncropped pictures keep their own proportions: the size is read from the file, never written here.
-const heroSize = await imageSize('pages', HERO);
-const sanctuarySize = await imageSize('pages', SANCTUARY);
 
 const published = (path: string) => listAnimals(findCollection(path)!);
 const dogs = published('adoptii-caini');
@@ -85,7 +82,7 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
       </ul>
     </div>
     <div class="hero__photo">
-      <img src={imageUrl('pages', HERO, 800)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 900px) 620px, 100vw" alt={ui.photoAlts[HERO]} width={heroSize?.width} height={heroSize?.height} fetchpriority="high" />
+      <Picture kind="pages" file={HERO} widths={[400, 800, 1200]} sizes="(min-width: 900px) 620px, 100vw" alt={ui.photoAlts[HERO]} priority />
     </div>
   </div>
 </section>
@@ -93,25 +90,12 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
 <section class="home-section">
   <h2>{t.adoptions}</h2>
   <p class="home-section__lead">{t.adoptionsLead}</p>
-  <ul class="tiles">
-    {
-      adoptions.map((tile) => (
-        <li>
-          <a href={tile.href}>
-            <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 700px) 480px, 100vw" alt={ui.photoAlts[tile.file]} width="800" height="800" loading="lazy" />
-            <span>{tile.label}</span>
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+  <PhotoTiles locale={locale} tiles={adoptions} sizes="(min-width: 700px) 480px, 100vw" />
   {
     waiting.length > 0 && (
       <div class="home-waiting">
         <h3>{t.waiting}</h3>
-        <ul class="animal-grid">
-          {waiting.map((animal) => <AnimalCard animal={animal} locale={locale} />)}
-        </ul>
+        <AnimalGrid animals={waiting} locale={locale} />
       </div>
     )
   }
@@ -123,18 +107,7 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
       <h2>{t.virtual}</h2>
       <p>{t.virtualLead}</p>
     </div>
-    <ul class="tiles">
-      {
-        sponsorships.map((tile) => (
-          <li>
-            <a href={tile.href}>
-              <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 900px) 320px, (min-width: 700px) 480px, 100vw" alt={ui.photoAlts[tile.file]} width="800" height="800" loading="lazy" />
-              <span>{tile.label}</span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <PhotoTiles locale={locale} tiles={sponsorships} sizes="(min-width: 900px) 320px, (min-width: 700px) 480px, 100vw" />
   </div>
 </section>
 
@@ -143,9 +116,7 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
     <section class="home-section home-campaigns">
       <h2>{ui.campaigns.inProgress}</h2>
       <p class="home-section__lead">{ui.campaigns.inProgressLead}</p>
-      <ul class="campaign-grid">
-        {campaigns.slice(0, HOME_CAMPAIGNS).map((campaign) => <CampaignCard campaign={campaign} locale={locale} />)}
-      </ul>
+      <CampaignGrid campaigns={campaigns.slice(0, HOME_CAMPAIGNS)} locale={locale} />
       {campaigns.length > HOME_CAMPAIGNS && (
         <p class="home-campaigns__all">
           <a class="button button--teal" href={href(`/${CAMPAIGNS_PATH}`)}>{ui.campaigns.all}</a>
@@ -178,7 +149,7 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
 </section>
 
 <section class="home-section home-redirect">
-  <img src={imageUrl('pages', SANCTUARY, 800)} srcset={srcset('pages', SANCTUARY, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt={ui.photoAlts[SANCTUARY]} width={sanctuarySize?.width} height={sanctuarySize?.height} loading="lazy" />
+  <Picture kind="pages" file={SANCTUARY} widths={[400, 800]} sizes="(min-width: 900px) 460px, 100vw" alt={ui.photoAlts[SANCTUARY]} loading="lazy" />
   <div>
     <RedirectSummary locale={locale} />
   </div>

@@ -19,7 +19,18 @@ const locale = user?.locale ?? Astro.props.locale ?? 'ro';
 const t = useAdminUi(locale);
 const { title } = Astro.props;
 const current = Astro.url.pathname;
-const pending = user ? db.select({ n: count() }).from(schema.contactMessages).where(isNull(schema.contactMessages.handledAt)).get()!.n : 0;
+const pendingMessages = user ? db.select({ n: count() }).from(schema.contactMessages).where(isNull(schema.contactMessages.handledAt)).get()!.n : 0;
+const under = (path: string) => current === path || current.startsWith(`${path}/`);
+// The list of animals is the first screen of the admin.
+const menu = [
+  { href: '/admin', label: t.nav.animals, current: current === '/admin' || under('/admin/animals') },
+  { href: '/admin/pages', label: t.nav.pages, current: under('/admin/pages') },
+  { href: '/admin/campaigns', label: t.nav.campaigns, current: under('/admin/campaigns') },
+  { href: '/admin/messages', label: t.nav.messages, current: under('/admin/messages'), count: pendingMessages },
+  { href: '/admin/redirects', label: t.nav.redirects, current: under('/admin/redirects') },
+  { href: '/admin/theme', label: t.nav.theme, current: under('/admin/theme') },
+  { href: '/admin/users', label: t.nav.users, current: under('/admin/users') },
+];
 ---
 
 <!doctype html>
@@ -40,16 +51,14 @@ const pending = user ? db.select({ n: count() }).from(schema.contactMessages).wh
             {t.title}
           </a>
           <nav>
-            <a href="/admin" aria-current={current === '/admin' || current.startsWith('/admin/animals') ? 'page' : undefined}>{t.nav.animals}</a>
-            <a href="/admin/pages" aria-current={current.startsWith('/admin/pages') ? 'page' : undefined}>{t.nav.pages}</a>
-            <a href="/admin/campaigns" aria-current={current.startsWith('/admin/campaigns') ? 'page' : undefined}>{t.nav.campaigns}</a>
-            <a href="/admin/messages" aria-current={current === '/admin/messages' ? 'page' : undefined}>
-              {t.nav.messages}
-              {pending > 0 && <span class="count">{pending}</span>}
-            </a>
-            <a href="/admin/redirects" aria-current={current === '/admin/redirects' ? 'page' : undefined}>{t.nav.redirects}</a>
-            <a href="/admin/theme" aria-current={current === '/admin/theme' ? 'page' : undefined}>{t.nav.theme}</a>
-            <a href="/admin/users" aria-current={current === '/admin/users' ? 'page' : undefined}>{t.nav.users}</a>
+            {
+              menu.map((entry) => (
+                <a href={entry.href} aria-current={entry.current ? 'page' : undefined}>
+                  {entry.label}
+                  {entry.count ? <span class="count">{entry.count}</span> : null}
+                </a>
+              ))
+            }
             <a href="/" target="_blank" rel="noopener">{t.nav.site} ↗</a>
           </nav>
           <form method="post" action="/admin/logout">
@@ -62,5 +71,17 @@ const pending = user ? db.select({ n: count() }).from(schema.contactMessages).wh
     <main class="admin-main">
       <slot />
     </main>
+    {
+      user && (
+        <script is:inline nonce={Astro.locals.cspNonce}>
+          // Handle confirmation dialogs on buttons with data-confirm
+          document.querySelectorAll('[data-confirm]').forEach((button) => {
+            button.addEventListener('click', (event) => {
+              if (!confirm(button.dataset.confirm)) event.preventDefault();
+            });
+          });
+        </script>
+      )
+    }
   </body>
 </html>

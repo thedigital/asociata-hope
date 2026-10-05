@@ -1,0 +1,18 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import type { Campaign } from '../lib/campaigns.ts';
+import CampaignCard from './CampaignCard.astro';
+
+interface Props {
+  campaigns: Campaign[];
+  locale: Locale;
+  /** Level of the titles, under the title of the block that holds the grid. */
+  heading?: 'h2' | 'h3';
+}
+
+const { campaigns, locale, heading } = Astro.props;
+---
+
+<ul class="campaign-grid">
+  {campaigns.map((campaign) => <CampaignCard campaign={campaign} locale={locale} heading={heading} />)}
+</ul>

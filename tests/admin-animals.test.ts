@@ -58,7 +58,7 @@ describe('parseAnimalForm', () => {
       status: 'published',
       sex: 'male',
       size: 'large',
-      color: 'black',
+      color: null,
       birthDate: '2020-03-01',
       birthDateEstimated: true,
       vaccinated: true,
@@ -81,6 +81,12 @@ describe('parseAnimalForm', () => {
   it('refuses a missing or too long name', () => {
     assert.deepEqual(parseAnimalForm(form({ name: ' ' })).errors, ['name', 'slug']);
     assert.deepEqual(parseAnimalForm(form({ name: 'a'.repeat(81), slug: 'a' })).errors, ['name']);
+  });
+
+  it('keeps the size of a dog and the colour of a cat, never the other one', () => {
+    const facts = (species: string) => parseAnimalForm(form({ species, size: 'large', color: 'black' })).data;
+    assert.deepEqual([facts('dog').size, facts('dog').color], ['large', null]);
+    assert.deepEqual([facts('cat').size, facts('cat').color], [null, 'black']);
   });
 
   it('never stores a value outside the taxonomy', () => {

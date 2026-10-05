@@ -3,9 +3,9 @@ import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { formatAge, useUi } from '../i18n/ui.ts';
 import type { AnimalCard } from '../lib/animals.ts';
-import { LINE_ICONS } from '../lib/icons.ts';
-import { imageUrl, srcset } from '../lib/media.ts';
 import { COLLECTION_PATHS } from '../lib/taxonomy.ts';
+import Icon from './Icon.astro';
+import Picture from './Picture.astro';
 
 interface Props {
   animal: AnimalCard;
@@ -30,15 +30,17 @@ const details = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMont
   <Body class="animal-card__body" href={link ? url : undefined}>
     {
       animal.photo && (
-        <img
-          src={imageUrl('animals', animal.photo.file, 400)}
-          srcset={srcset('animals', animal.photo.file, [400, 800])}
+        <Picture
+          kind="animals"
+          file={animal.photo.file}
+          fallback={400}
+          widths={[400, 800]}
+          width={400}
+          height={400}
           sizes="(min-width: 1100px) 300px, (min-width: 700px) 33vw, 50vw"
           alt={animal.photo.alt || animal.name}
-          width="400"
-          height="400"
           loading={eager ? 'eager' : 'lazy'}
-          fetchpriority={priority ? 'high' : undefined}
+          priority={priority}
           decoding="async"
         />
       )
@@ -46,7 +48,7 @@ const details = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMont
     {
       animal.campaign && (
         <span class="animal-card__campaign">
-          <svg viewBox="0 0 24 24" aria-hidden="true" set:html={LINE_ICONS.heart} />
+          <Icon name="heart" />
           {ui.campaigns.badge}
         </span>
       )

@@ -69,6 +69,7 @@ export function bodyOutline(body: string): { headings: string; lists: number; im
  * image (a document to download) or one followed by text stays where it is.
  */
 export function splitClosingPhoto(body: string): { body: string; photo: string | null } {
-  const figure = body.match(/<div class="figure"><img src="\/media\/pages\/\d+\/([^"]+)"[^>]*><\/div>\s*$/);
+  // The size written by `sizeBodyImages` comes before `src`.
+  const figure = body.match(/<div class="figure"><img\b[^>]*?\ssrc="\/media\/pages\/\d+\/([^"]+)"[^>]*><\/div>\s*$/);
   return figure ? { body: body.slice(0, figure.index), photo: figure[1] } : { body, photo: null };
 }

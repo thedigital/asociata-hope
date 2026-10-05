@@ -1,4 +1,7 @@
 ---
+import AuthCard from '../../components/admin/AuthCard.astro';
+import Notice from '../../components/admin/Notice.astro';
+import TotpField from '../../components/admin/TotpField.astro';
 import { useAdminUi } from '../../i18n/admin.ts';
 import Admin from '../../layouts/Admin.astro';
 import { SESSION_COOKIE, authenticate, clearFailures, createSession, isLocked, recordFailure } from '../../lib/auth.ts';
@@ -37,11 +40,9 @@ if (Astro.request.method === 'POST') {
 ---
 
 <Admin title={t.login.title} locale={locale}>
-  <form class="login card" method="post">
-    <img src="/logo.webp" alt="Hope" width="149" height="55" />
-    <h1>{t.login.title}</h1>
-    {error && <p class="notice notice--error" role="alert">{error}</p>}
-    {!error && Astro.url.searchParams.has('ready') && <p class="notice notice--ok" role="status">{t.setup.done}</p>}
+  <AuthCard title={t.login.title}>
+    {error && <Notice kind="error">{error}</Notice>}
+    {!error && Astro.url.searchParams.has('ready') && <Notice kind="ok">{t.setup.done}</Notice>}
     <label>
       {t.login.email}
       <input type="email" name="email" value={email} autocomplete="username" required autofocus />
@@ -50,11 +51,7 @@ if (Astro.request.method === 'POST') {
       {t.login.password}
       <input type="password" name="password" autocomplete="current-password" required />
     </label>
-    <label>
-      {t.login.code}
-      <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" required />
-      <small>{t.login.codeHelp}</small>
-    </label>
+    <TotpField locale={locale} />
     <button class="btn" type="submit">{t.login.submit}</button>
-  </form>
+  </AuthCard>
 </Admin>

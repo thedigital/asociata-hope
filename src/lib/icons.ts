@@ -1,6 +1,6 @@
 /**
  * Line icons shared by the closing tiles, the donation page and the contact page: inner markup of
- * an `svg` drawn on a 24 px grid, stroke only.
+ * an `svg` drawn on a 24 px grid, stroke only. `Icon.astro` draws them.
  */
 export const LINE_ICONS = {
   dog: '<path d="M11.25 16.25h1.5L12 17z"/><path d="M16 14v.5M8 14v.5"/><path d="M4.42 11.25A13.2 13.2 0 0 0 4 14.56C4 18.73 7.58 21 12 21s8-2.27 8-6.44a11.7 11.7 0 0 0-.49-3.31"/><path d="M8.5 8.5c-.38 1.05-1.08 2.03-2.34 2.5-1.93.72-3.58-.3-3.66-1-.11-1 1.18-6.53 4-7 1.92-.32 3.65.85 3.65 2.24A7.5 7.5 0 0 1 14 5.28c0-1.39 1.84-2.6 3.77-2.28 2.82.47 4.11 6 4 7-.08.7-1.73 1.72-3.66 1-1.26-.47-1.85-1.45-2.24-2.5"/>',
@@ -11,4 +11,9 @@ export const LINE_ICONS = {
   form: '<path d="M6 3.5h8.5l3.5 3.5v13.5H6z"/><path d="M14.5 3.5V7H18M9.5 17l5-5"/><path d="M9.75 12.25h.01M14.25 16.75h.01"/>',
   upload: '<path d="M12 15.5V4.5M7.5 9 12 4.5 16.5 9"/><path d="M4.5 15.5v2a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-2"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  card: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
+  transfer: '<path d="M3 10l9-5.5 9 5.5M5.5 10v7.5M10 10v7.5M14 10v7.5M18.5 10v7.5M3 20h18"/>',
+  paypal: '<path d="M17 8V5H6.5a2.5 2.5 0 0 0 0 5H20v9.5H6.5A2.5 2.5 0 0 1 4 17V7.5"/><path d="M16 14.75h.01"/>',
 } as const;
+
+export type IconName = keyof typeof LINE_ICONS;

@@ -1,0 +1,10 @@
+---
+interface Props {
+  /** `error` is announced at once, `ok` when the reader gets there; without a kind, a plain remark. */
+  kind?: 'ok' | 'error';
+}
+
+const { kind } = Astro.props;
+---
+
+<p class:list={['notice', kind && `notice--${kind}`]} role={kind === 'error' ? 'alert' : kind === 'ok' ? 'status' : undefined}><slot /></p>

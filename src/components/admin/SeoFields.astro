@@ -1,0 +1,26 @@
+---
+import { useAdminUi } from '../../i18n/admin.ts';
+import type { Locale } from '../../i18n/config.ts';
+import { SEO_DESCRIPTION_MAX, SEO_TITLE_MAX } from '../../lib/admin-pages.ts';
+
+interface Props {
+  locale: Locale;
+  title: string | null | undefined;
+  description: string | null | undefined;
+  /** The values used while the fields are empty, shown in grey. */
+  automatic?: { title: string; description: string };
+}
+
+/** SEO title and description of one language, posted as `seoTitle_{locale}` and `seoDescription_{locale}`. */
+const { locale, title, description, automatic } = Astro.props;
+const f = useAdminUi(Astro.locals.user!.locale).form;
+---
+
+<label>
+  {f.seoTitle}
+  <input type="text" name={`seoTitle_${locale}`} value={title ?? ''} maxlength={SEO_TITLE_MAX} placeholder={automatic?.title} lang={locale} />
+</label>
+<label>
+  {f.seoDescription}
+  <textarea name={`seoDescription_${locale}`} rows="3" maxlength={SEO_DESCRIPTION_MAX} placeholder={automatic?.description} lang={locale}>{description ?? ''}</textarea>
+</label>

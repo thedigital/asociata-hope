@@ -2,6 +2,11 @@
 import { useAdminUi } from '../../../i18n/admin.ts';
 import { ENABLED_LOCALES, LOCALES, LOCALE_NAMES } from '../../../i18n/config.ts';
 import { gendered, useUi } from '../../../i18n/ui.ts';
+import LanguageDetails from '../../../components/admin/LanguageDetails.astro';
+import Notice from '../../../components/admin/Notice.astro';
+import SelectField from '../../../components/admin/SelectField.astro';
+import SeoFields from '../../../components/admin/SeoFields.astro';
+import Toolbar from '../../../components/admin/Toolbar.astro';
 import Admin from '../../../layouts/Admin.astro';
 import { MAX_UPLOAD_BYTES, addPhotos, deleteAnimal, deletePhoto, getAnimalForEdit, movePhoto, parseAnimalForm, saveAnimal, setVideo, type FormError } from '../../../lib/admin-animals.ts';
 import { checkAnimal, countByLevel } from '../../../lib/animal-checks.ts';
@@ -90,18 +95,12 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
 ---
 
 <Admin title={title}>
-  <div class="toolbar">
-    <h1>{title}</h1>
-    <div>
-      {existing && existing.animal.status === 'published' && <a class="btn btn--light" href={existing.path} target="_blank" rel="noopener">{f.view} ↗</a>}
-      <a class="btn btn--light" href={listUrl(values.species, values.adoptionType)}>{f.back}</a>
-    </div>
-  </div>
+  <Toolbar title={title} back={listUrl(values.species, values.adoptionType)} view={existing?.animal.status === 'published' ? existing.path : false} />
 
-  {flags.has('saved') && <p class="notice notice--ok" role="status">{f.saved}</p>}
-  {flags.has('rejected') && <p class="notice notice--error" role="alert">{f.rejected(Number(flags.get('rejected')))}</p>}
-  {flags.has('video') && <p class="notice notice--error" role="alert">{f.videoRejected}</p>}
-  {errors.map((error) => <p class="notice notice--error" role="alert">{t.errors[error]}</p>)}
+  {flags.has('saved') && <Notice kind="ok">{f.saved}</Notice>}
+  {flags.has('rejected') && <Notice kind="error">{f.rejected(Number(flags.get('rejected')))}</Notice>}
+  {flags.has('video') && <Notice kind="error">{f.videoRejected}</Notice>}
+  {errors.map((error) => <Notice kind="error">{t.errors[error]}</Notice>)}
 
   {
     issues.length > 0 && (
@@ -125,7 +124,7 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
       </section>
     )
   }
-  {existing && issues.length === 0 && <p class="notice notice--ok">✓ {t.issues.none}</p>}
+  {existing && issues.length === 0 && <Notice kind="ok">✓ {t.issues.none}</Notice>}
 
   <form id="animal-form" class="form" method="post" enctype="multipart/form-data" data-max-bytes={MAX_UPLOAD_BYTES} data-too-large={f.uploadTooLarge}>
     <input type="hidden" name="_action" value="save" />
@@ -142,51 +141,18 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
           <input type="text" name="slug" value={values.slug} maxlength="80" pattern="[a-z0-9\-]+" />
           <small>{f.slugHelp}</small>
         </label>
-        <label>
-          {f.species}
-          <select name="species">
-            {SPECIES.map((v) => <option value={v} selected={v === values.species}>{t.species[v]}</option>)}
-          </select>
-        </label>
-        <label>
-          {f.adoptionType}
-          <select name="adoptionType">
-            {ADOPTION_TYPES.map((v) => <option value={v} selected={v === values.adoptionType}>{t.adoptionType[v]}</option>)}
-          </select>
-        </label>
-        <label>
-          {f.status}
-          <select name="status">
-            {STATUSES.map((v) => <option value={v} selected={v === values.status}>{t.status[v]}</option>)}
-          </select>
-        </label>
+        <SelectField label={f.species} name="species" options={SPECIES.map((v) => [v, t.species[v]] as const)} value={values.species} />
+        <SelectField label={f.adoptionType} name="adoptionType" options={ADOPTION_TYPES.map((v) => [v, t.adoptionType[v]] as const)} value={values.adoptionType} />
+        <SelectField label={f.status} name="status" options={STATUSES.map((v) => [v, t.status[v]] as const)} value={values.status} />
       </div>
     </fieldset>
 
     <fieldset class="card">
       <legend>{f.characteristics}</legend>
       <div class="grid">
-        <label>
-          {f.sex}
-          <select name="sex">
-            <option value="">{f.none}</option>
-            {SEXES.map((v) => <option value={v} selected={v === values.sex}>{ui.sex[v]}</option>)}
-          </select>
-        </label>
-        <label>
-          {f.size}
-          <select name="size">
-            <option value="">{f.none}</option>
-            {SIZES.map((v) => <option value={v} selected={v === values.size}>{gendered(ui.size[v], null)}</option>)}
-          </select>
-        </label>
-        <label>
-          {f.color}
-          <select name="color">
-            <option value="">{f.none}</option>
-            {COLORS.map((v) => <option value={v} selected={v === values.color}>{ui.color[v]}</option>)}
-          </select>
-        </label>
+        <SelectField label={f.sex} name="sex" options={SEXES.map((v) => [v, ui.sex[v]] as const)} value={values.sex} none={f.none} />
+        <SelectField label={f.size} name="size" options={SIZES.map((v) => [v, gendered(ui.size[v], null)] as const)} value={values.size} none={f.none} data-species="dog" />
+        <SelectField label={f.color} name="color" options={COLORS.map((v) => [v, ui.color[v]] as const)} value={values.color} none={f.none} data-species="cat" />
         <label>
           {f.birthDate}
           <input type="date" name="birthDate" value={values.birthDate ?? ''} />
@@ -221,11 +187,7 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
       <legend>{f.texts}</legend>
       {
         LOCALES.map((locale) => (
-          <details class="language" open={ENABLED_LOCALES[0] === locale}>
-            <summary>
-              {LOCALE_NAMES[locale]}
-              {translation(locale)?.description ? ' ✓' : ''}
-            </summary>
+          <LanguageDetails locale={locale} filled={Boolean(translation(locale)?.description)} open={ENABLED_LOCALES[0] === locale}>
             <label>
               {f.description}
               <textarea name={`description_${locale}`} rows="10" lang={locale}>{translation(locale)?.description ?? ''}</textarea>
@@ -233,16 +195,13 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
             <details>
               <summary>{f.seo}</summary>
               <small>{f.seoHelp}</small>
-              <label>
-                {f.seoTitle}
-                <input type="text" name={`seoTitle_${locale}`} value={translation(locale)?.seoTitle ?? ''} maxlength="120" />
-              </label>
-              <label>
-                {f.seoDescription}
-                <textarea name={`seoDescription_${locale}`} rows="2" maxlength="300">{translation(locale)?.seoDescription ?? ''}</textarea>
-              </label>
+              <SeoFields
+                locale={locale}
+                title={translation(locale)?.seoTitle}
+                description={translation(locale)?.seoDescription}
+              />
             </details>
-          </details>
+          </LanguageDetails>
         ))
       }
     </fieldset>
@@ -304,11 +263,6 @@ const sortedTraits = TRAITS.map((trait) => ({ trait, label: gendered(ui.traits[t
   <form id="photo-form" method="post"></form>
 
   <script is:inline nonce={Astro.locals.cspNonce}>
-    document.querySelectorAll('[data-confirm]').forEach((button) => {
-      button.addEventListener('click', (event) => {
-        if (!confirm(button.dataset.confirm)) event.preventDefault();
-      });
-    });
     // A request above the limit would be refused by the proxy with a bare error page, losing what was typed.
     const animalForm = document.getElementById('animal-form');
     animalForm.addEventListener('submit', (event) => {

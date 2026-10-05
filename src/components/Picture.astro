@@ -1,0 +1,41 @@
+---
+import { imageSize } from '../lib/image-size.ts';
+import { imageUrl, srcset, type ImageKind, type ImageWidth } from '../lib/media.ts';
+
+interface Props {
+  kind: ImageKind;
+  file: string;
+  /** Widths offered to the browser; `sizes` tells it which one the layout needs. */
+  widths: readonly ImageWidth[];
+  sizes: string;
+  /** Width of the `src`, for browsers that ignore `srcset`. */
+  fallback?: ImageWidth;
+  alt: string;
+  /** Size of a cropped picture. Without it the picture keeps its own proportions: the size is read from the file. */
+  width?: number;
+  height?: number;
+  /** Largest element of the first screen. */
+  priority?: boolean;
+  loading?: 'lazy' | 'eager';
+  decoding?: 'async';
+  class?: string;
+  id?: string;
+}
+
+const { kind, file, widths, sizes, fallback = 800, alt, width, height, priority = false, loading, decoding, class: className, id } = Astro.props;
+const size = width === undefined ? await imageSize(kind, file) : { width, height };
+---
+
+<img
+  class={className}
+  id={id}
+  src={imageUrl(kind, file, fallback)}
+  srcset={srcset(kind, file, widths)}
+  sizes={sizes}
+  alt={alt}
+  width={size?.width}
+  height={size?.height}
+  loading={loading}
+  fetchpriority={priority ? 'high' : undefined}
+  decoding={decoding}
+/>

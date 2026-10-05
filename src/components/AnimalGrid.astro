@@ -1,0 +1,22 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import type { AnimalCard as Animal } from '../lib/animals.ts';
+import AnimalCard from './AnimalCard.astro';
+
+interface Props {
+  animals: Animal[];
+  locale: Locale;
+  /** Level of the names, under the title of the block that holds the grid. */
+  heading?: 'h2' | 'h3';
+  /** False for animals without a page (in memoriam). */
+  link?: boolean;
+  /** The grid opens the page: its first row loads at once, its first photo before everything else. */
+  first?: boolean;
+}
+
+const { animals, locale, heading, link, first = false } = Astro.props;
+---
+
+<ul class="animal-grid">
+  {animals.map((animal, index) => <AnimalCard animal={animal} locale={locale} heading={heading} link={link} eager={first && index < 4} priority={first && index === 0} />)}
+</ul>

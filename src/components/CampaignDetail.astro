@@ -3,10 +3,12 @@ import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import { CAMPAIGNS_PATH, type Campaign } from '../lib/campaigns.ts';
-import { imageSize } from '../lib/image-size.ts';
-import { imageUrl, srcset } from '../lib/media.ts';
 import CampaignProgress from './CampaignProgress.astro';
 import DonateForm from './DonateForm.astro';
+import GiveMethod from './GiveMethod.astro';
+import PageHero from './PageHero.astro';
+import Paragraphs from './Paragraphs.astro';
+import Picture from './Picture.astro';
 
 interface Props {
   campaign: Campaign;
@@ -24,38 +26,29 @@ const { campaign, locale, error, cancelled } = Astro.props;
 const ui = useUi(locale);
 const t = ui.campaigns;
 const href = (path: string) => localizePath(path, locale);
-const paragraphs = campaign.description.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
-// The picture keeps its own proportions: its real size is given to the browser to avoid a layout shift.
-const size = campaign.image ? await imageSize(campaign.image.kind, campaign.image.file) : null;
 const open = campaign.state === 'open';
 ---
 
-<section class="page-hero">
-  <h1 lang={campaign.textLocale}>{campaign.title}</h1>
-  {campaign.summary && <p class="page-hero__lead" lang={campaign.textLocale}>{campaign.summary}</p>}
-</section>
+<PageHero title={campaign.title} lang={campaign.textLocale} lead={campaign.summary} />
 <div class="container give campaign">
   <section class:list={['give__intro', 'campaign__about', { 'campaign__about--photo': campaign.image }]}>
     {
       campaign.image && (
-        <img
+        <Picture
           class="campaign__image"
-          src={imageUrl(campaign.image.kind, campaign.image.file, 800)}
-          srcset={srcset(campaign.image.kind, campaign.image.file, [400, 800, 1200])}
+          kind={campaign.image.kind}
+          file={campaign.image.file}
+          widths={[400, 800, 1200]}
           sizes="(min-width: 800px) 400px, 100vw"
           alt=""
-          width={size?.width}
-          height={size?.height}
-          fetchpriority="high"
+          priority
         />
       )
     }
     <div class="campaign__text">
       <p class="campaign-card__scope">{t.scopes[campaign.scope]}</p>
       <CampaignProgress campaign={campaign} locale={locale} />
-      <div class="campaign__description" lang={campaign.textLocale}>
-        {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-      </div>
+      <Paragraphs class="campaign__description" text={campaign.description} lang={campaign.textLocale} />
       {
         campaign.animal && (
           <p class="campaign__animal">
@@ -66,12 +59,12 @@ const open = campaign.state === 'open';
     </div>
   </section>
 
-  <section class="give-method" id="card" aria-labelledby="card-title">
-    <header class="give-method__head">
-      <svg class="give-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"></rect><path d="M2.5 10h19M6.5 15h4"></path></svg>
-      <h2 id="card-title">{open ? t.give : campaign.state === 'reached' ? t.reached : t.ended}</h2>
-      <p>{open ? t.giveHint : t.closedText}</p>
-    </header>
+  <GiveMethod
+    id="card"
+    icon="card"
+    title={open ? t.give : campaign.state === 'reached' ? t.reached : t.ended}
+    hint={open ? t.giveHint : t.closedText}
+  >
     {
       open ? (
         <DonateForm locale={locale} animal={null} error={error} cancelled={cancelled} campaign={campaign} />
@@ -79,7 +72,7 @@ const open = campaign.state === 'open';
         <a class="button" href={href('/doneaza')}>{ui.donate}</a>
       )
     }
-  </section>
+  </GiveMethod>
 
   {
     open && (

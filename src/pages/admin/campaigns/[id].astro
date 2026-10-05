@@ -1,6 +1,10 @@
 ---
 import { useAdminUi } from '../../../i18n/admin.ts';
-import { ENABLED_LOCALES, LOCALES, LOCALE_NAMES, localizePath } from '../../../i18n/config.ts';
+import { ENABLED_LOCALES, LOCALES, localizePath } from '../../../i18n/config.ts';
+import LanguageDetails from '../../../components/admin/LanguageDetails.astro';
+import Notice from '../../../components/admin/Notice.astro';
+import SelectField from '../../../components/admin/SelectField.astro';
+import Toolbar from '../../../components/admin/Toolbar.astro';
 import Admin from '../../../layouts/Admin.astro';
 import { CAMPAIGN_SUMMARY_MAX, CAMPAIGN_TITLE_MAX, deleteCampaign, getCampaignForEdit, listAnimalsForCampaign, parseCampaignForm, saveCampaign, setCampaignImage, type CampaignFormError } from '../../../lib/admin-campaigns.ts';
 import { CAMPAIGNS_PATH, formatMoney, formatShown } from '../../../lib/campaigns.ts';
@@ -53,42 +57,19 @@ const rates = existing ? `1 EUR = ${CURRENCIES.filter((v) => v !== 'eur').map((v
 ---
 
 <Admin title={title}>
-  <div class="toolbar">
-    <h1>{title}</h1>
-    <div>
-      {existing?.campaign.status === 'published' && <a class="btn btn--light" href={`/${CAMPAIGNS_PATH}/${existing.campaign.slug}`} target="_blank" rel="noopener">{f.view} ↗</a>}
-      <a class="btn btn--light" href="/admin/campaigns">{f.back}</a>
-    </div>
-  </div>
+  <Toolbar title={title} back="/admin/campaigns" view={existing?.campaign.status === 'published' ? `/${CAMPAIGNS_PATH}/${existing.campaign.slug}` : false} />
 
-  {query.has('saved') && <p class="notice notice--ok" role="status">{f.saved}</p>}
-  {query.get('image') === 'rejected' && <p class="notice notice--error" role="alert">{f.rejected(1)}</p>}
-  {errors.map((error) => <p class="notice notice--error" role="alert">{c.errors[error]}</p>)}
+  {query.has('saved') && <Notice kind="ok">{f.saved}</Notice>}
+  {query.get('image') === 'rejected' && <Notice kind="error">{f.rejected(1)}</Notice>}
+  {errors.map((error) => <Notice kind="error">{c.errors[error]}</Notice>)}
 
   <form class="form" method="post" enctype="multipart/form-data">
     <fieldset class="card">
       <legend>{c.what}</legend>
       <div class="grid">
-        <label>
-          {c.scope}
-          <select name="scope">
-            {CAMPAIGN_SCOPES.map((v) => <option value={v} selected={v === values.scope}>{c.scopes[v]}</option>)}
-          </select>
-        </label>
-        <label data-scope="animal">
-          {c.animal}
-          <select name="animalId">
-            <option value="">{f.none}</option>
-            {animals.map((animal) => <option value={animal.id} selected={animal.id === values.animalId}>{animal.name} ({t.species[animal.species]}, {t.status[animal.status]})</option>)}
-          </select>
-          <small>{c.animalHelp}</small>
-        </label>
-        <label>
-          {f.status}
-          <select name="status">
-            {CAMPAIGN_STATUSES.map((v) => <option value={v} selected={v === values.status}>{c.statuses[v]}</option>)}
-          </select>
-        </label>
+        <SelectField label={c.scope} name="scope" options={CAMPAIGN_SCOPES.map((v) => [v, c.scopes[v]] as const)} value={values.scope} />
+        <SelectField label={c.animal} name="animalId" options={animals.map((animal) => [animal.id, `${animal.name} (${t.species[animal.species]}, ${t.status[animal.status]})`] as const)} value={values.animalId} none={f.none} help={c.animalHelp} data-scope="animal" />
+        <SelectField label={f.status} name="status" options={CAMPAIGN_STATUSES.map((v) => [v, c.statuses[v]] as const)} value={values.status} />
         <label>
           {f.slug}
           <input type="text" name="slug" value={values.slug} maxlength="80" pattern="[a-z0-9]+(-[a-z0-9]+)*" />
@@ -112,13 +93,7 @@ const rates = existing ? `1 EUR = ${CURRENCIES.filter((v) => v !== 'eur').map((v
           {c.goal}
           <input type="text" name="goalAmount" inputmode="numeric" pattern="[0-9]{1,8}" value={values.goalAmount ?? ''} />
         </label>
-        <label>
-          {c.currency}
-          <select name="currency">
-            {CURRENCIES.map((v) => <option value={v} selected={v === values.currency}>{v.toUpperCase()}</option>)}
-          </select>
-          <small>{c.currencyHelp}</small>
-        </label>
+        <SelectField label={c.currency} name="currency" options={CURRENCIES.map((v) => [v, v.toUpperCase()] as const)} value={values.currency} help={c.currencyHelp} />
         <label>
           {c.endsOn}
           <input type="date" name="endsOn" value={values.endsOn ?? ''} />
@@ -156,8 +131,8 @@ const rates = existing ? `1 EUR = ${CURRENCIES.filter((v) => v !== 'eur').map((v
           }
         </tbody>
       </table>
-      {existing && <p class="notice">{c.approxTotal(formatShown(existing.total(existing.campaign.currency), user.locale), rates)}</p>}
-      {!isStripeWebhookConfigured() && <p class="notice">{c.cardOff}</p>}
+      {existing && <Notice>{c.approxTotal(formatShown(existing.total(existing.campaign.currency), user.locale), rates)}</Notice>}
+      {!isStripeWebhookConfigured() && <Notice>{c.cardOff}</Notice>}
     </fieldset>
 
     <fieldset class="card">
@@ -165,18 +140,12 @@ const rates = existing ? `1 EUR = ${CURRENCIES.filter((v) => v !== 'eur').map((v
       <small>{c.textsHelp}</small>
       {
         LOCALES.map((locale) => (
-          <details class="language" open={ENABLED_LOCALES[0] === locale}>
-            <summary>
-              {LOCALE_NAMES[locale]}
-              {text(locale)?.title ? ' ✓' : ''}
-            </summary>
-            {existing?.campaign.status === 'published' && (
-              <p>
-                <a href={localizePath(`/${CAMPAIGNS_PATH}/${existing.campaign.slug}`, locale)} target="_blank" rel="noopener">
-                  {f.view} ↗
-                </a>
-              </p>
-            )}
+          <LanguageDetails
+            locale={locale}
+            filled={Boolean(text(locale)?.title)}
+            open={ENABLED_LOCALES[0] === locale}
+            view={existing?.campaign.status === 'published' ? localizePath(`/${CAMPAIGNS_PATH}/${existing.campaign.slug}`, locale) : false}
+          >
             <label>
               {c.title}
               <input type="text" name={`title_${locale}`} value={text(locale)?.title ?? ''} maxlength={CAMPAIGN_TITLE_MAX} lang={locale} required={locale === 'ro'} />
@@ -190,7 +159,7 @@ const rates = existing ? `1 EUR = ${CURRENCIES.filter((v) => v !== 'eur').map((v
               {f.description}
               <textarea name={`description_${locale}`} rows="8" lang={locale}>{text(locale)?.description ?? ''}</textarea>
             </label>
-          </details>
+          </LanguageDetails>
         ))
       }
     </fieldset>
@@ -217,12 +186,4 @@ const rates = existing ? `1 EUR = ${CURRENCIES.filter((v) => v !== 'eur').map((v
       {!isNew && <button class="btn btn--danger" type="submit" name="_action" value="delete" formnovalidate data-confirm={c.confirmDelete}>{c.delete}</button>}
     </div>
   </form>
-
-  <script is:inline nonce={Astro.locals.cspNonce}>
-    document.querySelectorAll('[data-confirm]').forEach((button) => {
-      button.addEventListener('click', (event) => {
-        if (!confirm(button.dataset.confirm)) event.preventDefault();
-      });
-    });
-  </script>
 </Admin>

@@ -1,0 +1,10 @@
+---
+interface Props {
+  /** `error` is announced at once, the others when the reader gets there. */
+  kind?: 'error' | 'ok';
+}
+
+const { kind } = Astro.props;
+---
+
+<p class:list={['form-notice', kind && `form-notice--${kind}`]} role={kind === 'error' ? 'alert' : 'status'}><slot /></p>

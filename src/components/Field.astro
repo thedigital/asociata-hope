@@ -1,0 +1,19 @@
+---
+interface Props {
+  label: string;
+  /** Message shown under the input when the field was refused. */
+  error?: string | false;
+  class?: string;
+  /** Reasons of the contact form the field exists for. */
+  'data-reasons'?: string;
+}
+
+/** A labelled input of a public form: the input itself is the slot. */
+const { label, error, class: className, 'data-reasons': reasons } = Astro.props;
+---
+
+<label class:list={['field', className]} data-reasons={reasons}>
+  <span>{label}</span>
+  <slot />
+  {error && <small class="field__error">{error}</small>}
+</label>

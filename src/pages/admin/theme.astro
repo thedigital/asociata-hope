@@ -1,5 +1,7 @@
 ---
 import { useAdminUi } from '../../i18n/admin.ts';
+import Notice from '../../components/admin/Notice.astro';
+import Toolbar from '../../components/admin/Toolbar.astro';
 import Admin from '../../layouts/Admin.astro';
 import { PATTERN_IDS, THEMES, THEME_IDS, getThemeSettings, isBandColor, isPatternId, isThemeId, patternStyles, saveThemeSettings, themeChoice, themeStyle, type ThemeChoice, type ThemeId } from '../../lib/themes.ts';
 
@@ -39,14 +41,13 @@ const patterns = patternStyles();
 ---
 
 <Admin title={t.nav.theme}>
-  <div class="toolbar">
-    <h1>{t.nav.theme}</h1>
+  <Toolbar title={t.nav.theme}>
     <!-- First submit button of the form, so that the Enter key saves instead of resetting a theme. -->
     <button class="btn" type="submit" form="theme">{th.save}</button>
-  </div>
+  </Toolbar>
   <p>{th.intro}</p>
-  {error && <p class="notice notice--error" role="alert">{error}</p>}
-  {!error && Astro.url.searchParams.has('saved') && <p class="notice notice--ok" role="status">{t.form.saved}</p>}
+  {error && <Notice kind="error">{error}</Notice>}
+  {!error && Astro.url.searchParams.has('saved') && <Notice kind="ok">{t.form.saved}</Notice>}
 
   <form class="form" id="theme" method="post">
     <div class="themes">

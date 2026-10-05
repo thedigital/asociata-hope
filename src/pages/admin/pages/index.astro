@@ -2,6 +2,7 @@
 import { useAdminUi } from '../../../i18n/admin.ts';
 import { LOCALE_NAMES } from '../../../i18n/config.ts';
 import { useUi } from '../../../i18n/ui.ts';
+import Toolbar from '../../../components/admin/Toolbar.astro';
 import Admin from '../../../layouts/Admin.astro';
 import { listPagesForAdmin } from '../../../lib/admin-pages.ts';
 import { HOME_PAGE, UNLISTED_PAGES, type ContentPage } from '../../../lib/site.ts';
@@ -16,9 +17,7 @@ const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium', timeSty
 ---
 
 <Admin title={t.nav.pages}>
-  <div class="toolbar">
-    <h1>{t.nav.pages}</h1>
-  </div>
+  <Toolbar title={t.nav.pages} />
   <p>{p.intro}</p>
 
   <table class="table">

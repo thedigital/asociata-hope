@@ -3,9 +3,9 @@ import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import type { Campaign } from '../lib/campaigns.ts';
-import { LINE_ICONS } from '../lib/icons.ts';
-import { imageUrl, srcset } from '../lib/media.ts';
 import CampaignProgress from './CampaignProgress.astro';
+import Icon from './Icon.astro';
+import Picture from './Picture.astro';
 
 interface Props {
   campaign: Campaign;
@@ -22,19 +22,21 @@ const t = useUi(locale).campaigns;
   <a href={localizePath(campaign.path, locale)}>
     {
       campaign.image ? (
-        <img
-          src={imageUrl(campaign.image.kind, campaign.image.file, 800)}
-          srcset={srcset(campaign.image.kind, campaign.image.file, [400, 800])}
+        <Picture
+          kind={campaign.image.kind}
+          file={campaign.image.file}
+          widths={[400, 800]}
           sizes="(min-width: 700px) 360px, 100vw"
           alt=""
-          width="800"
-          height="533"
+          width={800}
+          height={533}
+          fallback={800}
           loading="lazy"
           decoding="async"
         />
       ) : (
         <span class="campaign-card__ground">
-          <svg viewBox="0 0 24 24" aria-hidden="true" set:html={LINE_ICONS.heart} />
+          <Icon name="heart" />
         </span>
       )
     }

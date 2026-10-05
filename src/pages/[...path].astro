@@ -1,13 +1,15 @@
 ---
 import { and, eq } from 'drizzle-orm';
-import AnimalCard from '../components/AnimalCard.astro';
 import AnimalDetail from '../components/AnimalDetail.astro';
+import AnimalGrid from '../components/AnimalGrid.astro';
 import AnimalList from '../components/AnimalList.astro';
 import CampaignDetail from '../components/CampaignDetail.astro';
 import CampaignList from '../components/CampaignList.astro';
 import ContactForm from '../components/ContactForm.astro';
 import DonateMethods from '../components/DonateMethods.astro';
 import Home from '../components/Home.astro';
+import PageHero from '../components/PageHero.astro';
+import Picture from '../components/Picture.astro';
 import RedirectDetail from '../components/RedirectDetail.astro';
 import { db, schema } from '../db/client.ts';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, localizePath, splitLocale } from '../i18n/config.ts';
@@ -18,9 +20,9 @@ import { getPageSeo } from '../lib/admin-pages.ts';
 import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from '../lib/animals.ts';
 import { CAMPAIGNS_PATH, campaignForAnimal, getCampaign, listCampaigns } from '../lib/campaigns.ts';
 import { CONTACT_MAX_BYTES, REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
-import { imageSize, sizeBodyImages } from '../lib/image-size.ts';
+import { sizeBodyImages } from '../lib/image-size.ts';
 import { breadcrumbLd, organizationLd, webPageLd, websiteLd, type Crumb } from '../lib/json-ld.ts';
-import { imageUrl, srcset } from '../lib/media.ts';
+import { imageUrl } from '../lib/media.ts';
 import { splitClosingPhoto, structureBody } from '../lib/page-body.ts';
 import { automaticPageSeo } from '../lib/seo.ts';
 import { CONTENT_PAGES, HOME_PAGE, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey, type SeoPage } from '../lib/site.ts';
@@ -70,10 +72,10 @@ const pageBody = page ? await sizeBodyImages(structureBody(ownHeading ? page.bod
 
 const isStory = page !== null && STORY_PAGES.includes(segments[0] as ContentPage);
 const illustration = page ? PAGE_ILLUSTRATIONS[segments[0] as ContentPage] : undefined;
-// The photo keeps its own proportions: its real size is given to the browser to avoid a layout shift.
+// The photo keeps its own proportions: its real size is read from the file to avoid a layout shift.
 // Beside the text, the photo that closes the body joins the illustration in the photo column.
 const split = illustration && pageBody ? splitClosingPhoto(pageBody) : null;
-const splitPhotos = illustration ? await Promise.all([...new Set([illustration, ...(split?.photo ? [split.photo] : [])])].map(async (file) => ({ file, size: await imageSize('pages', file) }))) : [];
+const splitPhotos = illustration ? [...new Set([illustration, ...(split?.photo ? [split.photo] : [])])] : [];
 
 const key = segments[0] as PageKey;
 // Every content page has a sentence under its title; the about page states the mission, with the sentence of the home hero.
@@ -162,23 +164,18 @@ const jsonLd = !found || filtered || unlisted ? [] : [
   {
     page && (
       <>
-        <section class="page-hero">
-          {ownHeading ? <h1 set:html={ownHeading[1]} /> : <h1>{ui.pages[key]}</h1>}
-          {heroLead && <p class="page-hero__lead">{heroLead}</p>}
-        </section>
+        <PageHero title={ownHeading ? ownHeading[1] : ui.pages[key]} html={Boolean(ownHeading)} lead={heroLead} />
         {memoriam ? (
           <div class="container memoriam">
-            <ul class="animal-grid">
-              {memoriam.map((item) => <AnimalCard animal={item} locale={locale} heading="h2" link={false} />)}
-            </ul>
+            <AnimalGrid animals={memoriam} locale={locale} heading="h2" link={false} />
           </div>
         ) : isDonation ? (
           <DonateMethods locale={locale} animal={donationAnimal} error={query.get('error')} cancelled={query.has('cancelled')} />
         ) : illustration ? (
           <div class="container page-split">
             <div class="page-split__photos">
-              {splitPhotos.map(({ file, size }, index) => (
-                <img class="page-split__image" src={imageUrl('pages', file, 800)} srcset={srcset('pages', file, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt={ui.photoAlts[file] ?? ''} width={size?.width} height={size?.height} fetchpriority={index === 0 ? 'high' : undefined} />
+              {splitPhotos.map((file, index) => (
+                <Picture class="page-split__image" kind="pages" file={file} widths={[400, 800]} sizes="(min-width: 900px) 460px, 100vw" alt={ui.photoAlts[file] ?? ''} priority={index === 0} />
               ))}
             </div>
             {segments[0] === 'redirectioneaza' ? (
@@ -200,10 +197,7 @@ const jsonLd = !found || filtered || unlisted ? [] : [
   {
     isContact && (
       <>
-        <section class="page-hero">
-          <h1>{ui.pages.contact}</h1>
-          {contactState !== 'sent' && <p class="page-hero__lead">{ui.contactPage.intro}</p>}
-        </section>
+        <PageHero title={ui.pages.contact} lead={contactState !== 'sent' ? ui.contactPage.intro : null} />
         <div class="container contact">
           <ContactForm locale={locale} values={contact} errors={contactErrors} state={contactState} />
         </div>
@@ -213,10 +207,7 @@ const jsonLd = !found || filtered || unlisted ? [] : [
   {
     !found && (
       <>
-        <section class="page-hero">
-          <h1>{ui.notFound.title}</h1>
-          <p class="page-hero__lead">{ui.notFound.text}</p>
-        </section>
+        <PageHero title={ui.notFound.title} lead={ui.notFound.text} />
         <div class="container prose">
           <p>
             <a class="button" href={localizePath('/', enabled ? locale : DEFAULT_LOCALE)}>

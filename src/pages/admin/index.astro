@@ -10,6 +10,8 @@ import { COLLECTIONS, findCollection } from '../../lib/animals.ts';
 import { imageUrl } from '../../lib/media.ts';
 import type { PageKey } from '../../lib/site.ts';
 import { STATUSES, ageInMonths, type Status } from '../../lib/taxonomy.ts';
+import Toolbar from '../../components/admin/Toolbar.astro';
+import Tabs from '../../components/admin/Tabs.astro';
 
 const user = Astro.locals.user!;
 const t = useAdminUi(user.locale);
@@ -49,20 +51,15 @@ const tabUrl = (path: string) => `/admin?c=${path}`;
 ---
 
 <Admin title={t.nav.animals}>
-  <div class="toolbar">
-    <h1>{t.nav.animals}</h1>
+  <Toolbar title={t.nav.animals}>
     <a class="btn" href={`/admin/animals/new?c=${collection.path}`}>+ {t.list.add}</a>
-  </div>
+  </Toolbar>
 
-  <nav class="tabs">
-    {
-      COLLECTIONS.map((c) => (
-        <a href={tabUrl(c.path)} aria-current={c.path === collection.path ? 'page' : undefined}>
-          {ui.pages[c.path as PageKey]}
-        </a>
-      ))
-    }
-  </nav>
+  <Tabs tabs={COLLECTIONS.map((c) => ({
+    href: tabUrl(c.path),
+    label: ui.pages[c.path as PageKey],
+    current: c.path === collection.path
+  }))} />
 
   <form class="filters-bar" method="get">
     <input type="hidden" name="c" value={collection.path} />

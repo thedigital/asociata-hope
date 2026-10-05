@@ -1,0 +1,30 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { useFormsUi } from '../i18n/forms.ts';
+
+interface Props {
+  locale: Locale;
+  /** What the button copies. */
+  value: string;
+  /** What is shown, when it differs (an IBAN in groups of four). */
+  shown?: string;
+  /** Label above the value rather than beside it. */
+  stacked?: boolean;
+  as?: 'li' | 'div';
+}
+
+/**
+ * A value to copy (IBAN, PayPal account) with its label in the slot. The button is revealed by the
+ * script of `DonateMethods.astro`, where the clipboard exists.
+ */
+const { locale, value, shown = value, stacked = false, as: Tag = 'div' } = Astro.props;
+const t = useFormsUi(locale).donate;
+---
+
+<Tag class:list={['give-copy', stacked && 'give-copy--stacked']}>
+  <slot />
+  <span class="give-copy__value">{shown}</span>
+  <button type="button" data-copy={value} data-copied={t.copied} hidden>
+    {t.copy}
+  </button>
+</Tag>

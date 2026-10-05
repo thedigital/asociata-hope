@@ -1,0 +1,29 @@
+---
+import { useAdminUi } from '../../i18n/admin.ts';
+
+interface Props {
+  title: string;
+  /** Form pages: the list the form goes back to. Other pages put their own actions in the slot. */
+  back?: string;
+  /** Form pages: public address of what is edited, when it is published. */
+  view?: string | false | null;
+}
+
+/** Title of an admin screen and its actions. */
+const { title, back, view } = Astro.props;
+const f = useAdminUi(Astro.locals.user?.locale ?? 'ro').form;
+---
+
+<div class="toolbar">
+  <h1>{title}</h1>
+  {
+    back ? (
+      <div>
+        {view && <a class="btn btn--light" href={view} target="_blank" rel="noopener">{f.view} ↗</a>}
+        <a class="btn btn--light" href={back}>{f.back}</a>
+      </div>
+    ) : (
+      <slot />
+    )
+  }
+</div>

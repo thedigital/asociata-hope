@@ -1,0 +1,19 @@
+---
+interface Props {
+  title: string;
+  /** True when the title is the `h1` of a stored page body, which carries markup. */
+  html?: boolean;
+  /** The sentence under the title. */
+  lead?: string | null;
+  /** Language of the texts when it may differ from the one of the page. */
+  lang?: string;
+}
+
+/** Title band of every page but the home page and the page of an animal. */
+const { title, html = false, lead, lang } = Astro.props;
+---
+
+<section class="page-hero">
+  {html ? <h1 lang={lang} set:html={title} /> : <h1 lang={lang}>{title}</h1>}
+  {lead && <p class="page-hero__lead" lang={lang}>{lead}</p>}
+</section>

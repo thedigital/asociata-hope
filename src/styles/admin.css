@@ -543,6 +543,12 @@ textarea {
   text-align: center;
 }
 
+/* Animal form: the size is asked for a dog, the colour for a cat. */
+.form:has(select[name='species'] option[value='cat']:checked) [data-species='dog'],
+.form:has(select[name='species'] option[value='dog']:checked) [data-species='cat'] {
+  display: none;
+}
+
 /* Campaign form: the fields of a temporary campaign and of an animal campaign show only when they apply. */
 .form:has(input[name='kind'][value='permanent']:checked) [data-kind='temporary'],
 .form:not(:has(select[name='scope'] option[value='animal']:checked)) [data-scope='animal'] {

@@ -1,6 +1,9 @@
 ---
 import { useAdminUi } from '../../i18n/admin.ts';
 import { ADMIN_LOCALES, LOCALE_NAMES } from '../../i18n/config.ts';
+import Notice from '../../components/admin/Notice.astro';
+import SelectField from '../../components/admin/SelectField.astro';
+import Toolbar from '../../components/admin/Toolbar.astro';
 import Admin from '../../layouts/Admin.astro';
 import { SETUP_HOURS, deleteUser, inviteUser, listUsers, parseUserForm, resetUser, setUserLocale, type UserFormError, type UserInput } from '../../lib/admin-users.ts';
 import { SESSION_COOKIE } from '../../lib/auth.ts';
@@ -46,11 +49,9 @@ const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium' });
 ---
 
 <Admin title={t.nav.users}>
-  <div class="toolbar">
-    <h1>{t.nav.users}</h1>
-  </div>
+  <Toolbar title={t.nav.users} />
   <p>{u.intro}</p>
-  {errors.map((error) => <p class="notice notice--error" role="alert">{u.errors[error]}</p>)}
+  {errors.map((error) => <Notice kind="error">{u.errors[error]}</Notice>)}
   {
     link && (
       <div class="notice notice--ok setup-link" role="status">
@@ -71,12 +72,7 @@ const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium' });
       {u.email}
       <input type="email" name="email" value={typed?.email ?? ''} maxlength="200" autocomplete="off" required />
     </label>
-    <label>
-      {u.language}
-      <select name="locale">
-        {ADMIN_LOCALES.map((locale) => <option value={locale} selected={locale === (typed?.locale ?? 'ro')}>{LOCALE_NAMES[locale]}</option>)}
-      </select>
-    </label>
+    <SelectField label={u.language} name="locale" options={ADMIN_LOCALES.map((locale) => [locale, LOCALE_NAMES[locale]] as const)} value={typed?.locale ?? 'ro'} />
     <button class="btn" type="submit">{u.add}</button>
   </form>
 
@@ -134,11 +130,6 @@ const date = new Intl.DateTimeFormat(user.locale, { dateStyle: 'medium' });
   </table>
 
   <script is:inline nonce={Astro.locals.cspNonce}>
-    document.querySelectorAll('[data-confirm]').forEach((button) => {
-      button.addEventListener('click', (event) => {
-        if (!confirm(button.dataset.confirm)) event.preventDefault();
-      });
-    });
     // The link is selected as soon as it is clicked, ready to be copied.
     document.querySelector('.setup-link input')?.addEventListener('focus', (event) => event.target.select());
   </script>

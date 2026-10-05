@@ -3,6 +3,8 @@ import { asc, eq } from 'drizzle-orm';
 import { db, schema } from '../../db/client.ts';
 import { useAdminUi } from '../../i18n/admin.ts';
 import Admin from '../../layouts/Admin.astro';
+import Toolbar from '../../components/admin/Toolbar.astro';
+import Notice from '../../components/admin/Notice.astro';
 
 const user = Astro.locals.user!;
 const t = useAdminUi(user.locale);
@@ -36,11 +38,9 @@ const rows = db.select().from(redirects).orderBy(asc(redirects.fromPath)).all();
 ---
 
 <Admin title={t.nav.redirects}>
-  <div class="toolbar">
-    <h1>{t.nav.redirects}</h1>
-  </div>
+  <Toolbar title={t.nav.redirects} />
   <p>{r.intro}</p>
-  {error && <p class="notice notice--error" role="alert">{error}</p>}
+  {error && <Notice kind="error">{error}</Notice>}
 
   <form class="card filters-bar" method="post">
     <label>

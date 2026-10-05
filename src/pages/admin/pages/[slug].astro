@@ -1,9 +1,13 @@
 ---
 import { useAdminUi } from '../../../i18n/admin.ts';
-import { LOCALES, LOCALE_NAMES, localizePath, type Locale } from '../../../i18n/config.ts';
+import { LOCALES, localizePath, type Locale } from '../../../i18n/config.ts';
 import { useUi } from '../../../i18n/ui.ts';
+import LanguageDetails from '../../../components/admin/LanguageDetails.astro';
+import Notice from '../../../components/admin/Notice.astro';
+import SeoFields from '../../../components/admin/SeoFields.astro';
+import Toolbar from '../../../components/admin/Toolbar.astro';
 import Admin from '../../../layouts/Admin.astro';
-import { SEO_DESCRIPTION_MAX, SEO_TITLE_MAX, getPageForEdit, isSeoPage, parsePageForm, savePage, type PageFormError } from '../../../lib/admin-pages.ts';
+import { getPageForEdit, isSeoPage, parsePageForm, savePage, type PageFormError } from '../../../lib/admin-pages.ts';
 import { automaticPageSeo } from '../../../lib/seo.ts';
 import { HOME_PAGE } from '../../../lib/site.ts';
 
@@ -38,16 +42,10 @@ const automatic = (locale: Locale) => automaticPageSeo(slug, locale);
 ---
 
 <Admin title={title}>
-  <div class="toolbar">
-    <h1>{title}</h1>
-    <div>
-      <a class="btn btn--light" href={path} target="_blank" rel="noopener">{f.view} ↗</a>
-      <a class="btn btn--light" href="/admin/pages">{f.back}</a>
-    </div>
-  </div>
+  <Toolbar title={title} back="/admin/pages" view={path} />
 
-  {Astro.url.searchParams.has('saved') && <p class="notice notice--ok" role="status">{f.saved}</p>}
-  {errors.map((error) => <p class="notice notice--error" role="alert">{p.errors[error]}</p>)}
+  {Astro.url.searchParams.has('saved') && <Notice kind="ok">{f.saved}</Notice>}
+  {errors.map((error) => <Notice kind="error">{p.errors[error]}</Notice>)}
 
   <form class="form" method="post">
     <fieldset class="card">
@@ -55,25 +53,19 @@ const automatic = (locale: Locale) => automaticPageSeo(slug, locale);
       <small>{p.seoHelp}</small>
       {
         LOCALES.map((locale) => (
-          <details class="language" open>
-            <summary>
-              {LOCALE_NAMES[locale]}
-              {translation(locale)?.seoTitle || translation(locale)?.seoDescription ? ' ✓' : ''}
-            </summary>
-            <p>
-              <a href={localizePath(path, locale)} target="_blank" rel="noopener">
-                {f.view} ↗
-              </a>
-            </p>
-            <label>
-              {f.seoTitle}
-              <input type="text" name={`seoTitle_${locale}`} value={translation(locale)?.seoTitle ?? ''} maxlength={SEO_TITLE_MAX} placeholder={automatic(locale).title} lang={locale} />
-            </label>
-            <label>
-              {f.seoDescription}
-              <textarea name={`seoDescription_${locale}`} rows="3" maxlength={SEO_DESCRIPTION_MAX} placeholder={automatic(locale).description} lang={locale}>{translation(locale)?.seoDescription ?? ''}</textarea>
-            </label>
-          </details>
+          <LanguageDetails
+            locale={locale}
+            filled={Boolean(translation(locale)?.seoTitle || translation(locale)?.seoDescription)}
+            open
+            view={localizePath(path, locale)}
+          >
+            <SeoFields
+              locale={locale}
+              title={translation(locale)?.seoTitle}
+              description={translation(locale)?.seoDescription}
+              automatic={automatic(locale)}
+            />
+          </LanguageDetails>
         ))
       }
     </fieldset>

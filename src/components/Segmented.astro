@@ -1,0 +1,24 @@
+---
+interface Props {
+  name: string;
+  /** Accessible name of the group. */
+  label: string;
+  options: { value: string; label: string }[];
+  selected: string;
+  small?: boolean;
+}
+
+/** A choice between a few values, shown as one bar of radio buttons. */
+const { name, label, options, selected, small = false } = Astro.props;
+---
+
+<div class:list={['segmented', small && 'segmented--small']} role="radiogroup" aria-label={label}>
+  {
+    options.map((option) => (
+      <label>
+        <input type="radio" name={name} value={option.value} checked={option.value === selected} />
+        <span>{option.label}</span>
+      </label>
+    ))
+  }
+</div>

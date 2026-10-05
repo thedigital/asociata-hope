@@ -1,6 +1,10 @@
 ---
 import QRCode from 'qrcode';
+import AuthCard from '../../components/admin/AuthCard.astro';
+import Notice from '../../components/admin/Notice.astro';
+import TotpField from '../../components/admin/TotpField.astro';
 import { useAdminUi } from '../../i18n/admin.ts';
+import type { AdminLocale } from '../../i18n/config.ts';
 import Admin from '../../layouts/Admin.astro';
 import { completeSetup, findSetup, type SetupError } from '../../lib/admin-users.ts';
 import { SESSION_COOKIE } from '../../lib/auth.ts';
@@ -14,7 +18,8 @@ import { otpauthUrl } from '../../lib/totp.ts';
  */
 const token = Astro.url.searchParams.get('token') ?? '';
 const account = findSetup(token);
-const t = useAdminUi(account?.locale ?? Astro.locals.user?.locale ?? 'ro');
+const locale: AdminLocale = account?.locale ?? Astro.locals.user?.locale ?? 'ro';
+const t = useAdminUi(locale);
 const s = t.setup;
 let error: SetupError | null = null;
 
@@ -33,14 +38,12 @@ if (!account) Astro.response.status = 404;
 const qrCode = account ? await QRCode.toString(otpauthUrl(account.totpSecret, account.email, 'Hope'), { type: 'svg', margin: 1 }) : '';
 ---
 
-<Admin title={s.title} locale={account?.locale}>
+<Admin title={s.title} locale={locale}>
   {
     account ? (
-      <form class="login card" method="post">
-        <img src="/logo.webp" alt="Hope" width="149" height="55" />
-        <h1>{s.title}</h1>
+      <AuthCard title={s.title}>
         <p>{s.intro(account.name, account.email)}</p>
-        {error && <p class="notice notice--error" role="alert">{s.errors[error]}</p>}
+        {error && <Notice kind="error">{s.errors[error]}</Notice>}
         <input type="hidden" name="username" value={account.email} autocomplete="username" />
         <label>
           {s.password}
@@ -59,20 +62,14 @@ const qrCode = account ? await QRCode.toString(otpauthUrl(account.totpSecret, ac
             {s.key} <code>{account.totpSecret}</code>
           </small>
         </div>
-        <label>
-          {t.login.code}
-          <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" maxlength="7" required />
-          <small>{t.login.codeHelp}</small>
-        </label>
+        <TotpField locale={locale} />
         <button class="btn" type="submit">{s.submit}</button>
-      </form>
+      </AuthCard>
     ) : (
-      <div class="login card">
-        <img src="/logo.webp" alt="Hope" width="149" height="55" />
-        <h1>{s.title}</h1>
-        <p class="notice notice--error" role="alert">{s.invalid}</p>
+      <AuthCard title={s.title} form={false}>
+        <Notice kind="error">{s.invalid}</Notice>
         <a class="btn btn--light" href="/admin/login">{t.login.title}</a>
-      </div>
+      </AuthCard>
     )
   }
 </Admin>
