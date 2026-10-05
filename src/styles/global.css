@@ -602,7 +602,7 @@ a:hover {
   margin: 0.4rem 0 0;
 }
 
-/* Key figures under the buttons: the figure above its caption, a sand bar on the left of each. */
+/* Key figures under the buttons: a short word, the figure, then its caption, a sand bar on the left of each. */
 .hero__stats {
   display: flex;
   justify-content: center;
@@ -620,6 +620,11 @@ a:hover {
   font-size: var(--text-small);
   line-height: 1.35;
   text-align: left;
+}
+
+.hero__stats-over {
+  display: block;
+  color: var(--sand);
 }
 
 .hero__stats strong {

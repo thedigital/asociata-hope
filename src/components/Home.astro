@@ -6,7 +6,7 @@ import { useFormsUi } from '../i18n/forms.ts';
 import { findCollection, listAnimals, type AnimalCard as Animal } from '../lib/animals.ts';
 import { imageSize } from '../lib/image-size.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
-import { DONATION_METHODS } from '../lib/site.ts';
+import { DONATION_METHODS, SITE } from '../lib/site.ts';
 import AnimalCard from './AnimalCard.astro';
 import RedirectSummary from './RedirectSummary.astro';
 
@@ -39,10 +39,10 @@ const published = (path: string) => listAnimals(findCollection(path)!);
 const dogs = published('adoptii-caini');
 const cats = published('adoptii-pisici');
 const stats = [
-  { count: dogs.length, label: t.stats.dogs },
-  { count: cats.length, label: t.stats.cats },
-  { count: published('adoptii-virtuale-caini').length + published('adoptii-virtuale-pisici').length, label: t.stats.virtual },
-].filter((stat) => stat.count > 0);
+  { over: t.statsOver.animals, count: SITE.figures.animalsInCare, label: t.stats.animals },
+  { over: t.statsOver.years, count: new Date().getFullYear() - SITE.foundedYear, label: t.stats.years },
+  { over: t.statsOver.food, count: SITE.figures.foodKgPerMonth, label: t.stats.food },
+];
 
 // Animals shown on the home page: four dogs and four cats, a different set each day so that every one gets its turn.
 const WAITING = 4;
@@ -67,17 +67,16 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
         <a class="button" href={href('/adoptii-caini')}>{ui.cta.dogs.button}</a>
         <a class="button button--light" href={href('/adoptii-pisici')}>{ui.cta.cats.button}</a>
       </p>
-      {
-        stats.length > 0 && (
-          <ul class="hero__stats">
-            {stats.map((stat) => (
-              <li>
-                <strong>{stat.count}</strong> {stat.label}
-              </li>
-            ))}
-          </ul>
-        )
-      }
+      <ul class="hero__stats">
+        {
+          stats.map((stat) => (
+            <li>
+              <span class="hero__stats-over">{stat.over}</span>
+              <strong>{stat.count.toLocaleString(locale)}</strong> {stat.label}
+            </li>
+          ))
+        }
+      </ul>
     </div>
     <div class="hero__photo">
       <img src={imageUrl('pages', HERO, 800)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 900px) 620px, 100vw" alt="" width={heroSize?.width} height={heroSize?.height} fetchpriority="high" />

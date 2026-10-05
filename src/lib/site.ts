@@ -13,6 +13,13 @@ export const SITE = {
   accounts: { RON: 'RO63INGB0000999905937826', EUR: 'RO54INGB0000999905938085', USD: 'RO87INGB0000999912576365' },
   /** Donation by SMS: text to send and short number (Romanian operators). */
   sms: { text: 'DAU', number: '8845' },
+  /** Year the association was founded; the years of activity are counted from it. */
+  foundedYear: 2016,
+  /**
+   * Key figures of the home page, written by hand (rounded, not counted in the database).
+   * Food: about 100 medium-sized dogs at 320 g of dry food a day and 55 cats at 65 g, over a month.
+   */
+  figures: { animalsInCare: 150, foodKgPerMonth: 1000 },
   social: {
     facebook: 'https://www.facebook.com/Hope.Animal.Protection.Organization/',
     instagram: 'https://www.instagram.com/asociatia_hope',

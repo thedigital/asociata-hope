@@ -32,8 +32,10 @@ export type Ui = {
     donateText: string;
     /** The mission in one sentence: under the title of the home hero and of the about page. */
     lead: string;
-    /** Captions of the figures of the hero: published animals, counted in the database. */
-    stats: { dogs: string; cats: string; virtual: string };
+    /** Captions of the figures of the hero (`SITE.figures`): animals in care, years of activity, kilograms of food per month. */
+    stats: { animals: string; years: string; food: string };
+    /** Short word above each figure of the hero ("more than", "already", "about"). */
+    statsOver: { animals: string; years: string; food: string };
     /** Also shown under the title of the two adoption lists. */
     adoptionsLead: string;
     /** Title of the animals shown on the home page, a different set each day. */
@@ -175,7 +177,8 @@ const ro: Ui = {
     donateTitle: 'Doneaza',
     donateText: 'Doneaza pentru ingrijirea cateilor si pisicilor Asociatiei pentru protectia animalelor HOPE',
     lead: 'Salvăm, îngrijim și dăm spre adopție câini și pisici fără stăpân din București și din împrejurimi.',
-    stats: { dogs: 'câini de adoptat', cats: 'pisici de adoptat', virtual: 'animale în adopție virtuală' },
+    stats: { animals: 'animale în grija noastră', years: 'ani de activitate', food: 'kg de hrană în fiecare lună' },
+    statsOver: { animals: 'peste', years: 'deja', food: 'aproximativ' },
     adoptionsLead: 'Fiecare dintre ei așteaptă o familie care să îl iubească. Poate chiar pe a dumneavoastră.',
     waiting: 'Își caută o familie',
     virtualLead: 'Nu puteți adopta? Alegeți un animăluț și susțineți-i de la distanță hrana și îngrijirea: el rămâne în grija noastră, iar dumneavoastră îi deveniți părinte virtual.',
@@ -348,7 +351,8 @@ const en: Ui = {
     donateTitle: 'Donate',
     donateText: 'Donate to support the care of the dogs and cats of the HOPE Animal Protection Association',
     lead: 'We rescue, care for and rehome stray dogs and cats in and around Bucharest.',
-    stats: { dogs: 'dogs for adoption', cats: 'cats for adoption', virtual: 'animals to sponsor' },
+    stats: { animals: 'animals in our care', years: 'years of activity', food: 'kg of food every month' },
+    statsOver: { animals: 'more than', years: 'already', food: 'about' },
     adoptionsLead: 'Each of them is waiting for a family to love them. It could be yours.',
     waiting: 'Looking for a family',
     virtualLead: 'Can’t adopt? Choose an animal and support its food and care from a distance: it stays in our care, and you become its sponsor.',
@@ -521,7 +525,8 @@ const fr: Ui = {
     donateTitle: 'Faire un don',
     donateText: 'Soutenez les chiens et les chats de l’association HOPE en faisant un don',
     lead: 'Nous recueillons, soignons et faisons adopter des chiens et des chats errants de Bucarest et de ses environs.',
-    stats: { dogs: 'chiens à adopter', cats: 'chats à adopter', virtual: 'animaux à parrainer' },
+    stats: { animals: 'animaux à notre charge', years: "années d'activité", food: 'kg de nourriture chaque mois' },
+    statsOver: { animals: 'plus de', years: 'déjà', food: 'environ' },
     adoptionsLead: 'Chacun d’eux attend une famille qui l’aimera. Peut-être la vôtre.',
     waiting: 'Ils cherchent une famille',
     virtualLead: 'Vous ne pouvez pas adopter ? Choisissez un animal et financez à distance sa nourriture et ses soins : il reste sous notre garde, et vous devenez son parrain ou sa marraine.',
@@ -694,7 +699,8 @@ const de: Ui = {
     donateTitle: 'Spenden',
     donateText: 'Unterstützen Sie mit Ihrer Spende die Hunde und Katzen des Tierschutzvereins HOPE',
     lead: 'Wir retten, versorgen und vermitteln herrenlose Hunde und Katzen aus Bukarest und Umgebung.',
-    stats: { dogs: 'Hunde zur Adoption', cats: 'Katzen zur Adoption', virtual: 'Tiere für eine Patenschaft' },
+    stats: { animals: 'Tiere in unserer Obhut', years: 'Jahre im Einsatz', food: 'kg Futter jeden Monat' },
+    statsOver: { animals: 'über', years: 'bereits', food: 'rund' },
     adoptionsLead: 'Jedes von ihnen wartet auf eine Familie, die es liebt. Vielleicht auf Ihre.',
     waiting: 'Sie suchen ein Zuhause',
     virtualLead: 'Sie können kein Tier aufnehmen? Wählen Sie ein Tier aus und unterstützen Sie aus der Ferne sein Futter und seine Pflege: Es bleibt in unserer Obhut, und Sie werden sein Pate oder seine Patin.',
