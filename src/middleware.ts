@@ -4,6 +4,7 @@ import { db, schema } from './db/client.ts';
 import { localizePath, preferredLocale, splitLocale } from './i18n/config.ts';
 import { SESSION_COOKIE, getSessionUser } from './lib/auth.ts';
 import { LEGACY_REDIRECTS } from './lib/site.ts';
+import './lib/shutdown.ts';
 
 const redirect = (location: string, status = 301) => new Response(null, { status, headers: { location } });
 

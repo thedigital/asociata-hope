@@ -50,11 +50,11 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [ ] Créer les comptes admin de l'association (`pnpm user:create`) ; il n'y a qu'un compte aujourd'hui.
 
 ### Hébergement et bascule
-- [ ] Rien n'existe encore pour le déploiement : pas de configuration serveur, de service, de reverse proxy, d'intégration continue ni de README.
-- [ ] VPS : Node 24, service qui relance `pnpm start`, reverse proxy avec HTTPS.
+- [x] Scripts d'installation et de déploiement dans `deploy/` (procédure dans `deploy/README.md`) : VPS avec Node 24, PM2, nginx derrière Cloudflare, versions dans des dossiers séparés avec retour arrière. Testés à blanc en local et en conteneur, pas encore sur le VPS.
+- [ ] Exécuter l'installation sur le VPS quand l'accès sera disponible ; pas d'intégration continue.
 - [ ] Le serveur Node ne compresse pas les réponses et n'envoie ni `Cache-Control` sur le HTML, ni HSTS, ni CSP : à régler dans le reverse proxy (ou le middleware).
-- [ ] Redirection `adoptii-animale-hope.org` → `www.adoptii-animale-hope.org` et HTTP → HTTPS.
-- [ ] Sauvegarde automatique de `data/hope.db` et de `data/uploads/` (hors git).
+- [x] Redirection `adoptii-animale-hope.org` → `www.adoptii-animale-hope.org` et HTTP → HTTPS : dans la configuration nginx générée, avec la compression et HSTS. Restent `Cache-Control` sur le HTML et CSP.
+- [ ] Sauvegarde automatique de `data/hope.db` et de `data/uploads/` (hors git). Le déploiement copie la base avant chaque migration, mais sur le même disque.
 - [ ] Plan de bascule DNS : baisser le TTL avant, garder Wix actif quelques jours, puis surveiller les 404 et la Search Console.
 - [ ] `favicon.ico` répond 404 (seul `favicon.svg` existe) ; les navigateurs et robots le demandent quand même.
 

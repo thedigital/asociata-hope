@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
 // First page of the blank form published by ANAF (static.anaf.ro, 230_OPANAF_15_2021.pdf).
@@ -46,6 +46,9 @@ export async function redirectFormPdf(year: number): Promise<Uint8Array> {
   const bytes = await pdf.save();
   forms.set(year, bytes);
   await mkdir(dirname(cacheFile(year)), { recursive: true });
-  await writeFile(cacheFile(year), bytes);
+  // Written aside then renamed: another request or worker never reads a half-written file.
+  const partial = `${cacheFile(year)}.${process.pid}.tmp`;
+  await writeFile(partial, bytes);
+  await rename(partial, cacheFile(year));
   return bytes;
 }

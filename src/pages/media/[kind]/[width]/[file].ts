@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import type { APIRoute } from 'astro';
 import sharp from 'sharp';
@@ -18,7 +18,10 @@ export const GET: APIRoute = async ({ params }) => {
     if (!original) return new Response('Not found', { status: 404 });
     image = await sharp(original).rotate().resize({ width, withoutEnlargement: true }).webp({ quality: 78 }).toBuffer();
     await mkdir(dirname(cached), { recursive: true });
-    await writeFile(cached, image);
+    // Written aside then renamed: another request or worker never reads a half-written file.
+    const partial = `${cached}.${process.pid}.tmp`;
+    await writeFile(partial, image);
+    await rename(partial, cached);
   }
   return new Response(new Uint8Array(image), {
     headers: { 'content-type': 'image/webp', 'cache-control': 'public, max-age=31536000, immutable' },
