@@ -4,7 +4,6 @@ import { eq } from 'drizzle-orm';
 import { db, schema } from './db/client.ts';
 import { localizePath, preferredLocale, splitLocale } from './i18n/config.ts';
 import { SESSION_COOKIE, getSessionUser } from './lib/auth.ts';
-import { LEGACY_REDIRECTS } from './lib/site.ts';
 import './lib/shutdown.ts';
 
 /** Redirects stay on the site: a target starting with `//` or `/\` would be read as another host. */
@@ -76,9 +75,15 @@ export const onRequest = defineMiddleware(async ({ url, request, cookies, locals
     return response;
   }
 
+  // Rules of the `redirects` table, managed from the admin: every redirect of one address to another
+  // is there, and they come first so that an old address is answered in one hop. A rule without
+  // target answers 410 Gone.
+  const rule = db.select().from(schema.redirects).where(eq(schema.redirects.fromPath, pathname)).get();
+  if (rule) return rule.toPath ? redirect(rule.toPath, rule.status) : new Response('Gone', { status: 410 });
+
   // Documents kept their file name but moved out of the Wix-specific path.
   const legacyFile = pathname.match(/^(?:\/[a-z]{2})?\/_files\/ugd\/([\w.-]+)$/);
-  if (legacyFile) return redirect(LEGACY_REDIRECTS[`/files/${legacyFile[1]}`] ?? `/files/${legacyFile[1]}`);
+  if (legacyFile) return redirect(`/files/${legacyFile[1]}`);
 
   // Wix also answered under /ro, redirected to the root; Romanian has no prefix here either.
   if (pathname === '/ro' || pathname.startsWith('/ro/')) return redirect((pathname.slice(3) || '/') + search);
@@ -87,11 +92,6 @@ export const onRequest = defineMiddleware(async ({ url, request, cookies, locals
   if (/^\/[\w-]+-sitemap\.xml$/.test(pathname)) return redirect('/sitemap.xml');
 
   const { locale, path } = splitLocale(pathname);
-  if (path in LEGACY_REDIRECTS) return redirect(localizePath(LEGACY_REDIRECTS[path], locale));
-
-  // Rules managed from the admin. A rule without target answers 410 Gone.
-  const rule = db.select().from(schema.redirects).where(eq(schema.redirects.fromPath, pathname)).get();
-  if (rule) return rule.toPath ? redirect(rule.toPath, rule.status) : new Response('Gone', { status: 410 });
 
   // First visit only: send the visitor to the version matching the browser language. The cookie
   // records that the choice was made, so the language switcher is never overridden afterwards.

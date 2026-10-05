@@ -1,5 +1,5 @@
 /**
- * Line icons shared by the closing tiles, the donation page and the contact page: inner markup of
+ * Line icons shared by the header menu, the closing tiles, the donation page and the contact page: inner markup of
  * an `svg` drawn on a 24 px grid, stroke only. `Icon.astro` draws them.
  */
 export const LINE_ICONS = {
@@ -14,6 +14,14 @@ export const LINE_ICONS = {
   card: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
   transfer: '<path d="M3 10l9-5.5 9 5.5M5.5 10v7.5M10 10v7.5M14 10v7.5M18.5 10v7.5M3 20h18"/>',
   paypal: '<path d="M17 8V5H6.5a2.5 2.5 0 0 0 0 5H20v9.5H6.5A2.5 2.5 0 0 1 4 17V7.5"/><path d="M16 14.75h.01"/>',
+  steps: '<rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5V3h6v1.5M8.5 12.5l2.5 2.5 4.5-5"/>',
+  book: '<path d="M12 6.5C10.5 5 8 4.5 3.5 4.5v13c4.5 0 7 .5 8.5 2 1.5-1.5 4-2 8.5-2v-13c-4.5 0-7 .5-8.5 2Z"/><path d="M12 6.5v13"/>',
+  megaphone: '<path d="M3.5 10v4h3l8 4.5v-13l-8 4.5z"/><path d="M18 9.5a4 4 0 0 1 0 5M7 14v4.5h2.5"/>',
+  search: '<circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5.5 5.5"/>',
+  people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-4 3-6 6.5-6s6 2 6.5 6"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M18 14.5c2 .8 3.2 2.6 3.5 5.5"/>',
+  home: '<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>',
+  chart: '<path d="M4 20h16"/><path d="M7 20v-6M12 20V6M17 20v-9"/>',
+  candle: '<path d="M12 3c1.5 1.8 2 2.8 2 3.8a2 2 0 0 1-4 0c0-1 .5-2 2-3.8Z"/><rect x="8" y="11" width="8" height="10" rx="1.5"/><path d="M12 9v2"/>',
 } as const;
 
 export type IconName = keyof typeof LINE_ICONS;

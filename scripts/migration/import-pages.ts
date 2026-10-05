@@ -25,6 +25,9 @@ const MIGRATION = join(ROOT, 'migration');
 const UPLOADS = join(ROOT, 'data/uploads');
 const ORIGIN = 'https://www.adoptii-animale-hope.org';
 const LOCALES = ['ro', 'en', 'fr'] as const;
+/** Pages renamed since the crawl: the slug they had on Wix, which names their file in migration/raw and their entry in the baseline. */
+const WIX_SLUGS: Record<string, string> = { 'rapoarte-de-activitate': 'raport-2024' };
+const wixSlug = (slug: string) => WIX_SLUGS[slug] ?? slug;
 const dryRun = process.argv.includes('--dry-run');
 
 const exists = (p: string) => access(p).then(() => true, () => false);
@@ -127,14 +130,14 @@ const baseline: Baseline = JSON.parse(await readFile(join(MIGRATION, 'seo-baseli
 
 /** Hand-written Romanian title of a page, null where Wix only had its default. */
 function wixSeo(slug: string): { seoTitle: string | null } {
-  const title = baseline[`/${slug}`]?.title;
+  const title = baseline[`/${wixSlug(slug)}`]?.title;
   return { seoTitle: title && !title.endsWith(`| ${SITE.name}`) ? title : null };
 }
 
 const rows: { slug: string; locale: (typeof LOCALES)[number]; body: string }[] = [];
 for (const slug of CONTENT_PAGES) {
   for (const locale of LOCALES) {
-    const html = await readFile(join(MIGRATION, 'raw', locale, `${slug}.html`), 'utf8');
+    const html = await readFile(join(MIGRATION, 'raw', locale, `${wixSlug(slug)}.html`), 'utf8');
     const main = parse(html, { blockTextElements: { script: false, style: false } }).querySelector('main');
     if (!main) throw new Error(`${locale}/${slug}: no <main>`);
     const parts: string[] = [];

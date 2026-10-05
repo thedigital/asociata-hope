@@ -14,6 +14,8 @@
  * Where Wix recorded a value worth keeping, it must still be there: canonical and hreflang of the
  * 351 URLs, and in Romanian (the only language Wix wrote them in) the titles and the description of
  * the home page.
+ * A page renamed since (`RENAMED`) must answer 301 to its new address at the old one, in
+ * every language, and the new address is checked like any other page.
  * Exits with code 1 when a check fails.
  */
 import { readFile } from 'node:fs/promises';
@@ -46,20 +48,23 @@ const WIX_MISDIRECTED: Record<string, { to: string; name: string }> = {
   '/adoptii-pisici/anais': { to: '/adoptii-pisici/serena', name: 'Anais' },
 };
 
+/** Pages renamed since Wix, with their new path: a rule of the `redirects` table per language. */
+const RENAMED: Record<string, string> = { '/raport-2024': '/rapoarte-de-activitate' };
+
 const SITE_ORIGIN = 'https://www.adoptii-animale-hope.org';
 const collectionPaths = COLLECTIONS.map((c) => c.path);
 const normalize = (text: string | null | undefined) => (text ?? '').replace(/\s+/g, ' ').trim();
 const stripSlash = (url: string | null | undefined) => (url ?? '').replace(/\/$/, '');
 
 /** Plain request without Accept-Language, like a search engine crawler: the language redirect must not trigger. */
-function fetchPage(path: string): Promise<{ status: number; body: string }> {
+function fetchPage(path: string): Promise<{ status: number; body: string; location: string }> {
   const get = origin.startsWith('https:') ? httpsGet : httpGet;
   return new Promise((resolve, reject) => {
     get(origin + path, (res) => {
       let body = '';
       res.setEncoding('utf8');
       res.on('data', (chunk) => (body += chunk));
-      res.on('end', () => resolve({ status: res.statusCode ?? 0, body }));
+      res.on('end', () => resolve({ status: res.statusCode ?? 0, body, location: res.headers.location ?? '' }));
     }).on('error', reject);
   });
 }
@@ -67,9 +72,20 @@ function fetchPage(path: string): Promise<{ status: number; body: string }> {
 /** Pages already seen with a title or a description, by language: home, lists and content pages each have their own. */
 const seen = new Map<string, string>();
 /** The paths of the site are those Wix had in Romanian; each one exists in every language. */
-const paths = Object.keys(baseline).filter((path) => !isLocale(path.split('/')[1] ?? '') || path.split('/')[1] === DEFAULT_LOCALE);
+const wixPaths = Object.keys(baseline).filter((path) => !isLocale(path.split('/')[1] ?? '') || path.split('/')[1] === DEFAULT_LOCALE);
 let checked = 0;
 let failures = 0;
+// A renamed page: its old address redirects in every language, and the new one takes its place in the list.
+for (const [from, to] of Object.entries(RENAMED)) {
+  for (const locale of ENABLED_LOCALES) {
+    const { status, location } = await fetchPage(localizePath(from, locale));
+    checked++;
+    if (status === 301 && location.replace(origin, '') === localizePath(to, locale)) continue;
+    failures++;
+    console.log(`${localizePath(from, locale)}\n  - status ${status} to "${location}", expected 301 to ${localizePath(to, locale)}`);
+  }
+}
+const paths = wixPaths.map((path) => RENAMED[path] ?? path);
 for (const localPath of paths) {
   const local = localPath.split('/').filter(Boolean);
   const own = WIX_MISDIRECTED[localPath];

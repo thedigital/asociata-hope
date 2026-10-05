@@ -1,4 +1,5 @@
 /** Site-wide constants: organisation details, page slugs and navigation structure. */
+import type { IconName } from './icons.ts';
 
 export const SITE = {
   name: 'Hope',
@@ -39,7 +40,7 @@ export const CONTENT_PAGES = [
   'proiect-2022',
   'ai-gasit-un-animal',
   'cum-pot-adopta',
-  'raport-2024',
+  'rapoarte-de-activitate',
   'ghid-de-crestere-si-ingrijire-pisici',
   'in-memoriam',
   'voluntariat',
@@ -94,9 +95,28 @@ export const NAV: NavItem[] = [
   { group: 'adopt', items: ['adoptii-caini', 'adoptii-pisici', 'cum-pot-adopta', 'ghid-de-crestere-si-ingrijire-pisici'] },
   { group: 'virtual', items: ['adoptii-virtuale-caini', 'adoptii-virtuale-pisici'] },
   { group: 'help', items: ['doneaza', 'campanii', 'redirectioneaza', 'voluntariat', 'ai-gasit-un-animal'] },
-  { group: 'info', items: ['despre-noi', 'proiect-2022', 'raport-2024', 'in-memoriam'] },
+  { group: 'info', items: ['despre-noi', 'proiect-2022', 'rapoarte-de-activitate', 'in-memoriam'] },
   { page: 'contact' },
 ];
+
+/** Line icon of each page listed under a group of the menu (`LINE_ICONS`). */
+export const NAV_ICONS: Partial<Record<PageKey, IconName>> = {
+  'adoptii-caini': 'dog',
+  'adoptii-pisici': 'cat',
+  'cum-pot-adopta': 'steps',
+  'ghid-de-crestere-si-ingrijire-pisici': 'book',
+  'adoptii-virtuale-caini': 'dog',
+  'adoptii-virtuale-pisici': 'cat',
+  doneaza: 'heart',
+  campanii: 'megaphone',
+  redirectioneaza: 'form',
+  voluntariat: 'care',
+  'ai-gasit-un-animal': 'search',
+  'despre-noi': 'people',
+  'proiect-2022': 'home',
+  'rapoarte-de-activitate': 'chart',
+  'in-memoriam': 'candle',
+};
 
 /** Pages reached only after a payment: not indexed and kept out of the sitemap. */
 const UNLISTED = ['donation-thank-you-page', 'confirmare-plata'] as const satisfies readonly ContentPage[];
@@ -105,9 +125,3 @@ export const UNLISTED_PAGES: readonly ContentPage[] = UNLISTED;
 
 /** Wix paths dropped on purpose (the shop page was published by mistake): they answer 410 Gone in every language. */
 export const REMOVED_PATHS: readonly string[] = ['/shop'];
-
-/** Paths that no longer exist, with their permanent redirect target. */
-export const LEGACY_REDIRECTS: Record<string, string> = {
-  // The scanned redirection form of 2023, replaced by the form generated for the current year.
-  '/files/313291_0ee1b28245244859bb09190fb50db677.pdf': '/formular-230.pdf',
-};

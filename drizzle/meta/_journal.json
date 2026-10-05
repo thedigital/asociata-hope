@@ -64,6 +64,20 @@
       "when": 1791213965736,
       "tag": "0008_clear_wix_page_descriptions",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1791218931471,
+      "tag": "0009_rename_activity_reports_page",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1791219271949,
+      "tag": "0010_code_redirects_to_table",
+      "breakpoints": true
     }
   ]
 }

@@ -12,7 +12,7 @@ import Icon from '../components/Icon.astro';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, absoluteUrl, localizePath, type Locale } from '../i18n/config.ts';
 import { useUi } from '../i18n/ui.ts';
 import { listCampaignPaths } from '../lib/campaigns.ts';
-import { NAV, SITE, type PageKey } from '../lib/site.ts';
+import { NAV, NAV_ICONS, SITE, type PageKey } from '../lib/site.ts';
 import { activeThemeCss } from '../lib/themes.ts';
 
 interface Props {
@@ -42,7 +42,7 @@ const menu = NAV.map((item) => ('group' in item ? { ...item, items: item.items.f
 const footerLinks: { title: string; pages: PageKey[] }[] = [
   { title: ui.nav.adopt, pages: ['adoptii-caini', 'adoptii-pisici', 'adoptii-virtuale-caini', 'adoptii-virtuale-pisici', 'cum-pot-adopta'] },
   { title: ui.nav.help, pages: ['doneaza', ...(hasCampaigns ? (['campanii'] as const) : []), 'redirectioneaza', 'voluntariat', 'ai-gasit-un-animal'] },
-  { title: ui.nav.info, pages: ['despre-noi', 'proiect-2022', 'raport-2024', 'ghid-de-crestere-si-ingrijire-pisici', 'in-memoriam'] },
+  { title: ui.nav.info, pages: ['despre-noi', 'proiect-2022', 'rapoarte-de-activitate', 'ghid-de-crestere-si-ingrijire-pisici', 'in-memoriam'] },
 ];
 const cta = [
   {
@@ -132,6 +132,7 @@ const cta = [
                         {item.items.map((page) => (
                           <li>
                             <a href={href(`/${page}`)} aria-current={isCurrent(`/${page}`) ? 'page' : undefined}>
+                              {NAV_ICONS[page] && <Icon name={NAV_ICONS[page]} class="site-nav__icon" />}
                               {ui.pages[page]}
                             </a>
                           </li>
