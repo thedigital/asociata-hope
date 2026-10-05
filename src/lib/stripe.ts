@@ -9,9 +9,9 @@ export type Frequency = (typeof FREQUENCIES)[number];
 
 /** Suggested amounts and accepted range, in whole units of each currency. */
 export const AMOUNTS: Record<Currency, { presets: number[]; min: number; max: number }> = {
-  ron: { presets: [50, 100, 250], min: 10, max: 50_000 },
-  eur: { presets: [10, 25, 50], min: 2, max: 10_000 },
-  usd: { presets: [10, 25, 50], min: 2, max: 10_000 },
+  ron: { presets: [10, 25, 50, 100, 250], min: 10, max: 50_000 },
+  eur: { presets: [5, 10, 25, 50, 100], min: 2, max: 10_000 },
+  usd: { presets: [5, 10, 25, 50, 100], min: 2, max: 10_000 },
 };
 
 export type Donation = { amount: number; currency: Currency; frequency: Frequency; animal: string | null };

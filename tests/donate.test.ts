@@ -74,9 +74,9 @@ describe('parseDonationForm', () => {
   });
 
   it('keeps the expected ranges', () => {
-    assert.deepEqual(AMOUNTS.ron, { presets: [50, 100, 250], min: 10, max: 50_000 });
-    assert.deepEqual(AMOUNTS.eur, { presets: [10, 25, 50], min: 2, max: 10_000 });
-    assert.deepEqual(AMOUNTS.usd, { presets: [10, 25, 50], min: 2, max: 10_000 });
+    assert.deepEqual(AMOUNTS.ron, { presets: [10, 25, 50, 100, 250], min: 10, max: 50_000 });
+    assert.deepEqual(AMOUNTS.eur, { presets: [5, 10, 25, 50, 100], min: 2, max: 10_000 });
+    assert.deepEqual(AMOUNTS.usd, { presets: [5, 10, 25, 50, 100], min: 2, max: 10_000 });
     for (const currency of CURRENCIES) {
       for (const preset of AMOUNTS[currency].presets) assert.ok(preset >= AMOUNTS[currency].min && preset <= AMOUNTS[currency].max);
     }

@@ -56,9 +56,9 @@ const defaultFrequency: Frequency = animal ? 'monthly' : 'once';
       <div class="amounts" data-currency={currency} hidden={index > 0}>
         {AMOUNTS[currency].presets.map((amount, position) => (
           <label>
-            <input type="radio" name="amount" value={amount} checked={position === 1} disabled={index > 0} />
+            <input type="radio" name="amount" value={amount} checked={position === 2} disabled={index > 0} />
             <span>
-              {amount} {currency.toUpperCase()}
+              {amount} <small>{currency.toUpperCase()}</small>
             </span>
           </label>
         ))}
@@ -86,7 +86,7 @@ const defaultFrequency: Frequency = animal ? 'monthly' : 'once';
         group.hidden = !active;
         group.querySelectorAll('input').forEach((input, index) => {
           input.disabled = !active;
-          if (active && index === 1 && !group.querySelector('input:checked')) input.checked = true;
+          if (active && index === 2 && !group.querySelector('input:checked')) input.checked = true;
         });
       });
     };

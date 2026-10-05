@@ -2609,6 +2609,33 @@ fieldset[aria-invalid='true'] {
   font-weight: 600;
 }
 
+.amounts span {
+  white-space: nowrap;
+}
+
+.amounts small {
+  font-size: inherit;
+}
+
+/* Five suggested amounts stay on one row on a phone: the currency goes under the amount */
+@media (max-width: 719px) {
+  .amounts {
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+  }
+
+  .amounts span {
+    padding-inline: 0.15rem;
+    line-height: 1.25;
+  }
+
+  .amounts small {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+}
+
 .segmented--small span {
   padding-block: 0.35rem;
   font-size: 0.9rem;
