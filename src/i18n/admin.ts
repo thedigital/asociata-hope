@@ -118,13 +118,17 @@ export type AdminUi = {
     temporaryHelp: string;
     goal: string;
     currency: string;
+    currencyHelp: string;
     endsOn: string;
     endsOnHelp: string;
+    received: string;
+    byCard: string;
     offline: string;
     offlineHelp: string;
+    total: string;
+    /** Total converted to one currency, and the rates used: "1 EUR = 5,3488 RON = 1,1225 USD". */
+    approxTotal: (amount: string, rates: string) => string;
     raised: string;
-    card: string;
-    cardNone: string;
     cardOff: string;
     image: string;
     addImage: string;
@@ -357,17 +361,20 @@ const ro: AdminUi = {
     permanent: 'Permanentă',
     permanentHelp: 'fără termen și fără sumă de atins; donații unice sau lunare, în orice monedă.',
     temporary: 'Temporară',
-    temporaryHelp: 'se închide în ultima zi sau când suma este atinsă; donații unice, în moneda campaniei.',
+    temporaryHelp: 'se închide în ultima zi sau când suma este atinsă; donații unice, în orice monedă.',
     goal: 'Suma de atins',
     currency: 'Moneda',
+    currencyHelp: 'Moneda sumei de atins. Donațiile sunt primite în orice monedă.',
     endsOn: 'Ultima zi',
     endsOnHelp: 'Campania primește donații până la sfârșitul acestei zile, ora României.',
-    offline: 'Donații primite în afara site-ului',
-    offlineHelp: 'Virament, PayPal, numerar: suma totală, de actualizat manual. Se adaugă la donațiile cu cardul.',
+    received: 'Donații primite',
+    byCard: 'Cu cardul (număr de donații)',
+    offline: 'În afara site-ului',
+    offlineHelp: 'În afara site-ului: virament, PayPal, numerar. Treceți suma totală primită în fiecare monedă și actualizați-o manual; se adaugă la donațiile cu cardul.',
+    total: 'Total',
+    approxTotal: (amount, rates) => `Total aproximativ: ${amount}, cu cursurile înregistrate la crearea campaniei (${rates}). Site-ul afișează acest total în moneda fiecărei limbi: RON în română, EUR în franceză și germană, USD în engleză.`,
     raised: 'Strâns',
-    card: 'Donații cu cardul înregistrate:',
-    cardNone: 'niciuna',
-    cardOff: 'Înregistrarea automată a donațiilor cu cardul nu este configurată pe server (STRIPE_WEBHOOK_SECRET): până atunci, treceți toate donațiile în câmpul de mai sus.',
+    cardOff: 'Înregistrarea automată a donațiilor cu cardul nu este configurată pe server (STRIPE_WEBHOOK_SECRET): până atunci, treceți toate donațiile în coloana „În afara site-ului”.',
     image: 'Imagine',
     addImage: 'Adaugă o imagine',
     replaceImage: 'Înlocuiește imaginea',
@@ -615,17 +622,20 @@ const fr: AdminUi = {
     permanent: 'Permanente',
     permanentHelp: 'sans fin ni montant à atteindre ; dons uniques ou mensuels, dans toutes les devises.',
     temporary: 'Temporaire',
-    temporaryHelp: 'se ferme le dernier jour ou quand le montant est atteint ; dons uniques, dans la devise de la collecte.',
+    temporaryHelp: 'se ferme le dernier jour ou quand le montant est atteint ; dons uniques, dans toutes les devises.',
     goal: 'Montant à atteindre',
     currency: 'Devise',
+    currencyHelp: 'La devise du montant à atteindre. Les dons sont reçus dans toutes les devises.',
     endsOn: 'Dernier jour',
     endsOnHelp: 'La collecte reçoit des dons jusqu’à la fin de ce jour, heure de Roumanie.',
-    offline: 'Dons reçus hors du site',
-    offlineHelp: 'Virement, PayPal, espèces : le total, à mettre à jour à la main. Il s’ajoute aux dons par carte.',
+    received: 'Dons reçus',
+    byCard: 'Par carte (nombre de dons)',
+    offline: 'Hors du site',
+    offlineHelp: 'Hors du site : virement, PayPal, espèces. Indiquez le total reçu dans chaque devise et mettez-le à jour à la main ; il s’ajoute aux dons par carte.',
+    total: 'Total',
+    approxTotal: (amount, rates) => `Total approximatif : ${amount}, avec les taux enregistrés à la création de la collecte (${rates}). Le site affiche ce total dans la devise de chaque langue : RON en roumain, EUR en français et en allemand, USD en anglais.`,
     raised: 'Collecté',
-    card: 'Dons par carte enregistrés :',
-    cardNone: 'aucun',
-    cardOff: 'L’enregistrement automatique des dons par carte n’est pas configuré sur le serveur (STRIPE_WEBHOOK_SECRET) : en attendant, reportez tous les dons dans le champ ci-dessus.',
+    cardOff: 'L’enregistrement automatique des dons par carte n’est pas configuré sur le serveur (STRIPE_WEBHOOK_SECRET) : en attendant, reportez tous les dons dans la colonne « Hors du site ».',
     image: 'Image',
     addImage: 'Ajouter une image',
     replaceImage: 'Remplacer l’image',

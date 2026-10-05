@@ -544,7 +544,7 @@ textarea {
 }
 
 /* Campaign form: the fields of a temporary campaign and of an animal campaign show only when they apply. */
-.form:has(input[name='kind'][value='permanent']:checked) [data-kind='temporary'] label:not(:has([name='offlineAmount'])),
+.form:has(input[name='kind'][value='permanent']:checked) [data-kind='temporary'],
 .form:not(:has(select[name='scope'] option[value='animal']:checked)) [data-scope='animal'] {
   display: none;
 }

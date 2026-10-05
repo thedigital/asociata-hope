@@ -24,6 +24,8 @@ const PASSWORD = 'correct horse battery';
 const SECRET = generateSecret();
 const PDF = Buffer.from('%PDF-1.7\n%test\n');
 const WEBHOOK_SECRET = 'whsec_server_test';
+// The exchange rates stored with a new campaign are read from this address instead of the ECB: 1 EUR = 5 RON = 1.25 USD.
+const RATES_URL = `data:text/xml,${encodeURIComponent("<Cube currency='USD' rate='1.25'/><Cube currency='RON' rate='5'/>")}`;
 
 let server: ChildProcess;
 let origin = '';
@@ -57,7 +59,7 @@ before(async () => {
   const port = await freePort();
   origin = `http://127.0.0.1:${port}`;
   const { STRIPE_SECRET_KEY: _stripe, SMTP_URL: _smtp, SITE_URL: _site, ...env } = process.env;
-  server = spawn(process.execPath, [ENTRY], { env: { ...env, HOST: '127.0.0.1', PORT: String(port), STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET }, stdio: ['ignore', 'ignore', 'inherit'] });
+  server = spawn(process.execPath, [ENTRY], { env: { ...env, HOST: '127.0.0.1', PORT: String(port), STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET, EXCHANGE_RATES_URL: RATES_URL }, stdio: ['ignore', 'ignore', 'inherit'] });
   for (let attempt = 0; attempt < 100; attempt++) {
     if (await fetch(`${origin}/robots.txt`).then((r) => r.ok, () => false)) return;
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -429,7 +431,7 @@ describe('admin sign-in', () => {
     assert.equal((await request('/campanii/hrana')).status, 404);
 
     const endsOn = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
-    const fields = { title_ro: 'Hrană pentru iarnă', title_fr: 'Des croquettes pour l’hiver', summary_ro: 'O tonă de hrană uscată.', description_ro: 'Primul paragraf.\n\nAl doilea.', slug: 'hrana', scope: 'need', status: 'published', kind: 'temporary', goalAmount: '1000', currency: 'ron', endsOn, offlineAmount: '100' };
+    const fields = { title_ro: 'Hrană pentru iarnă', title_fr: 'Des croquettes pour l’hiver', summary_ro: 'O tonă de hrană uscată.', description_ro: 'Primul paragraf.\n\nAl doilea.', slug: 'hrana', scope: 'need', status: 'published', kind: 'temporary', goalAmount: '1000', currency: 'ron', endsOn, offline_ron: '100' };
     assert.equal((await request('/admin/campaigns/new', { form: { ...fields, goalAmount: '' }, headers: { cookie }, multipart: true })).status, 422);
     const created = await request('/admin/campaigns/new', { form: fields, headers: { cookie }, multipart: true });
     assert.equal(created.status, 303);
@@ -443,6 +445,9 @@ describe('admin sign-in', () => {
     assert.match(html, /<title>Des croquettes pour l’hiver \| Collectes \| Hope<\/title>/);
     assert.match(html, /<link rel="canonical" href="https:\/\/www\.adoptii-animale-hope\.org\/fr\/campanii\/hrana"/);
     assert.match(html, /<progress max="100" value="10"/);
+    // 100 RON of 1000, shown in euros to a French reader with the rates stored at creation (1 EUR = 5 RON).
+    assert.match(html, /≈\s20\s€<\/strong> collectés sur ≈\s200\s€/);
+    assert.match(await (await request('/campanii/hrana')).text(), /<strong>100\sRON<\/strong> strânși din 1\.000\sRON/);
     assert.match(html, /name="campaign" value="hrana"/);
     assert.ok(!/\sstyle="/.test(html), 'public pages have no style attribute');
     assert.match(await (await request('/fr/campanii/hrana?cancelled=1')).text(), /noindex, follow/);

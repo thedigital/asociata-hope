@@ -1,13 +1,20 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
 import { DEFAULT_LOCALE, type Locale } from '../i18n/config.ts';
-import type { Currency } from './stripe.ts';
+import { convert, type Rates } from './exchange-rates.ts';
+import { CURRENCIES, type Currency } from './stripe.ts';
 import { COLLECTION_PATHS, type CampaignScope } from './taxonomy.ts';
 
 const { animals, animalPhotos, campaigns, campaignDonations, campaignTranslations } = schema;
 
 /** URL segment of the campaigns, the same in every language: /campanii and /campanii/{slug}. */
 export const CAMPAIGNS_PATH = 'campanii';
+
+/** Currency in which each language shows the amounts of a campaign. */
+export const LOCALE_CURRENCIES: Record<Locale, Currency> = { ro: 'ron', en: 'usd', fr: 'eur', de: 'eur' };
+
+/** An amount in whole units, as it is written on a page; `approximate` when it comes from a conversion. */
+export type ShownAmount = { amount: number; currency: Currency; approximate: boolean };
 
 /**
  * `open`: gifts are accepted. A temporary campaign stops when its goal is `reached` or when its
@@ -23,12 +30,15 @@ export type Campaign = {
   /** A temporary campaign has a goal and a last day; a permanent one has neither. */
   temporary: boolean;
   goalAmount: number | null;
+  /** Currency of the goal. Gifts are accepted in every currency. */
   currency: Currency;
   endsOn: string | null;
   /** Whole days left, the last day included; null for a permanent campaign. */
   daysLeft: number | null;
-  /** Card donations in the currency of the campaign plus the gifts entered by hand, in whole units. */
+  /** Card donations plus the gifts entered by hand, converted to the currency of the goal with the rates of the campaign. */
   raised: number;
+  /** The same and the goal, in the currency of the language of the page. */
+  shown: { raised: ShownAmount; goal: ShownAmount | null };
   /** Share of the goal, from 0 to 100; null for a permanent campaign. */
   percent: number | null;
   state: CampaignState;
@@ -53,17 +63,32 @@ export function campaignState(campaign: { goalAmount: number | null; endsOn: str
   return 'open';
 }
 
-/** Amounts given by card to each campaign, in whole units of the currency of the campaign. */
-export function raisedByCard(ids: number[]): Map<number, number> {
-  if (!ids.length) return new Map();
+/** Amounts given by card to each campaign, per currency, in whole units. */
+export function raisedByCard(ids: number[]): Map<number, Partial<Record<Currency, number>>> {
+  const byCampaign = new Map<number, Partial<Record<Currency, number>>>();
+  if (!ids.length) return byCampaign;
   const rows = db
-    .select({ id: campaignDonations.campaignId, total: sql<number>`sum(${campaignDonations.amount})` })
+    .select({ id: campaignDonations.campaignId, currency: campaignDonations.currency, total: sql<number>`sum(${campaignDonations.amount})` })
     .from(campaignDonations)
-    .innerJoin(campaigns, eq(campaigns.id, campaignDonations.campaignId))
-    .where(and(inArray(campaignDonations.campaignId, ids), eq(campaignDonations.currency, campaigns.currency)))
-    .groupBy(campaignDonations.campaignId)
+    .where(inArray(campaignDonations.campaignId, ids))
+    .groupBy(campaignDonations.campaignId, campaignDonations.currency)
     .all();
-  return new Map(rows.map((row) => [row.id, row.total / 100]));
+  for (const row of rows) byCampaign.set(row.id, { ...byCampaign.get(row.id), [row.currency]: row.total / 100 });
+  return byCampaign;
+}
+
+/**
+ * What a campaign received: the real amounts per currency (card donations plus gifts entered by
+ * hand), and `total`, which converts them to one currency with the rates stored at its creation.
+ */
+export function campaignTotals(campaign: { offlineAmounts: Partial<Record<Currency, number>>; rates: Rates }, card: Partial<Record<Currency, number>> = {}) {
+  const received = Object.fromEntries(CURRENCIES.map((c) => [c, (card[c] ?? 0) + (campaign.offlineAmounts[c] ?? 0)])) as Record<Currency, number>;
+  const total = (currency: Currency): ShownAmount => ({
+    amount: CURRENCIES.reduce((sum, c) => sum + convert(received[c], c, currency, campaign.rates), 0),
+    currency,
+    approximate: CURRENCIES.some((c) => c !== currency && received[c] > 0),
+  });
+  return { received, total };
 }
 
 function build(rows: (typeof campaigns.$inferSelect)[], locale: Locale, now = new Date()): Campaign[] {
@@ -81,7 +106,9 @@ function build(rows: (typeof campaigns.$inferSelect)[], locale: Locale, now = ne
     const text = own?.title ? own : texts.find((t) => t.campaignId === row.id && t.locale === DEFAULT_LOCALE);
     const animal = linked.find((a) => a.id === row.animalId);
     const photo = animal && photos.find((p) => p.animalId === animal.id);
-    const raised = row.offlineAmount + (byCard.get(row.id) ?? 0);
+    const { total } = campaignTotals(row, byCard.get(row.id));
+    const raised = total(row.currency).amount;
+    const shownIn = LOCALE_CURRENCIES[locale];
     return {
       id: row.id,
       slug: row.slug,
@@ -93,6 +120,10 @@ function build(rows: (typeof campaigns.$inferSelect)[], locale: Locale, now = ne
       endsOn: row.endsOn,
       daysLeft: row.endsOn ? Math.max(0, Math.round((Date.parse(row.endsOn) - today) / 86_400_000) + 1) : null,
       raised,
+      shown: {
+        raised: total(shownIn),
+        goal: row.goalAmount === null ? null : { amount: convert(row.goalAmount, row.currency, shownIn, row.rates), currency: shownIn, approximate: shownIn !== row.currency },
+      },
       percent: row.goalAmount ? Math.min(100, Math.floor((raised / row.goalAmount) * 100)) : null,
       state: campaignState(row, raised, now),
       image: row.image ? { kind: 'campaigns', file: row.image } : photo ? { kind: 'animals', file: photo.file } : null,
@@ -140,6 +171,9 @@ export function listCampaignPaths(): { path: string; updatedAt: Date }[] {
 /** "1.500 RON", "€1,500": a whole amount in the way of the language. */
 export const formatMoney = (amount: number, currency: Currency, locale: Locale) =>
   new Intl.NumberFormat(locale, { style: 'currency', currency: currency.toUpperCase(), maximumFractionDigits: 0 }).format(Math.floor(amount));
+
+/** The same for an amount that may come from a conversion: "≈ 1 500 €". */
+export const formatShown = (shown: ShownAmount, locale: Locale) => `${shown.approximate ? '≈\u00a0' : ''}${formatMoney(shown.amount, shown.currency, locale)}`;
 
 /** "24 decembrie 2026": the last day of a campaign, in the language of the page. */
 export const formatDay = (isoDate: string, locale: Locale) => new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${isoDate}T00:00:00Z`));

@@ -3,9 +3,10 @@ import { useAdminUi } from '../../../i18n/admin.ts';
 import { ENABLED_LOCALES, LOCALES, LOCALE_NAMES, localizePath } from '../../../i18n/config.ts';
 import Admin from '../../../layouts/Admin.astro';
 import { CAMPAIGN_SUMMARY_MAX, CAMPAIGN_TITLE_MAX, deleteCampaign, getCampaignForEdit, listAnimalsForCampaign, parseCampaignForm, saveCampaign, setCampaignImage, type CampaignFormError } from '../../../lib/admin-campaigns.ts';
-import { CAMPAIGNS_PATH, formatMoney } from '../../../lib/campaigns.ts';
+import { CAMPAIGNS_PATH, formatMoney, formatShown } from '../../../lib/campaigns.ts';
+import { fetchRates } from '../../../lib/exchange-rates.ts';
 import { imageUrl } from '../../../lib/media.ts';
-import { CURRENCIES, isStripeWebhookConfigured } from '../../../lib/stripe.ts';
+import { CURRENCIES, isStripeWebhookConfigured, type Currency } from '../../../lib/stripe.ts';
 import { CAMPAIGN_SCOPES, CAMPAIGN_STATUSES } from '../../../lib/taxonomy.ts';
 
 const user = Astro.locals.user!;
@@ -30,7 +31,7 @@ if (Astro.request.method === 'POST') {
   submitted = parseCampaignForm(form);
   errors = submitted.errors;
   if (!errors.length) {
-    const result = saveCampaign(id, submitted);
+    const result = saveCampaign(id, submitted, id ? undefined : await fetchRates());
     if ('error' in result) errors = [result.error];
     else {
       const image = form.get('image');
@@ -41,12 +42,14 @@ if (Astro.request.method === 'POST') {
   Astro.response.status = 422;
 }
 
-const values = submitted?.data ?? existing?.campaign ?? { slug: '', scope: 'need' as const, status: 'draft' as const, animalId: null, goalAmount: null, currency: 'ron' as const, endsOn: null, offlineAmount: 0 };
+const values = submitted?.data ?? existing?.campaign ?? { slug: '', scope: 'need' as const, status: 'draft' as const, animalId: null, goalAmount: null, currency: 'ron' as const, endsOn: null, offlineAmounts: {} as Partial<Record<Currency, number>> };
 const temporary = submitted ? submitted.temporary : values.goalAmount !== null;
 const text = (locale: string) => (submitted?.texts ?? existing?.texts ?? []).find((tr) => tr.locale === locale);
 const title = isNew ? c.add : text('ro')?.title || values.slug;
 const animals = listAnimalsForCampaign();
 const query = Astro.url.searchParams;
+const number = (value: number) => value.toLocaleString(user.locale, { maximumFractionDigits: 4 });
+const rates = existing ? `1 EUR = ${CURRENCIES.filter((v) => v !== 'eur').map((v) => `${number(existing.campaign.rates[v])} ${v.toUpperCase()}`).join(' = ')}` : '';
 ---
 
 <Admin title={title}>
@@ -114,27 +117,47 @@ const query = Astro.url.searchParams;
           <select name="currency">
             {CURRENCIES.map((v) => <option value={v} selected={v === values.currency}>{v.toUpperCase()}</option>)}
           </select>
+          <small>{c.currencyHelp}</small>
         </label>
         <label>
           {c.endsOn}
           <input type="date" name="endsOn" value={values.endsOn ?? ''} />
           <small>{c.endsOnHelp}</small>
         </label>
-        <label>
-          {c.offline}
-          <input type="text" name="offlineAmount" inputmode="numeric" pattern="[0-9]{1,8}" value={values.offlineAmount ?? 0} />
-          <small>{c.offlineHelp}</small>
-        </label>
       </div>
-      {
-        existing && (
-          <p class="notice">
-            {c.card}{' '}
-            {existing.card.length ? existing.card.map((row) => `${formatMoney(row.total, row.currency, user.locale)} (${row.count})`).join(', ') : c.cardNone}
-            {!isStripeWebhookConfigured() && <><br />{c.cardOff}</>}
-          </p>
-        )
-      }
+    </fieldset>
+
+    <fieldset class="card">
+      <legend>{c.received}</legend>
+      <small>{c.offlineHelp}</small>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{c.currency}</th>
+            <th>{c.byCard}</th>
+            <th>{c.offline}</th>
+            <th>{c.total}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            CURRENCIES.map((v) => (
+              <tr>
+                <td class="table__main">{v.toUpperCase()}</td>
+                <td data-label={c.byCard}>
+                  {formatMoney(existing?.card[v].total ?? 0, v, user.locale)} ({existing?.card[v].count ?? 0})
+                </td>
+                <td data-label={c.offline}>
+                  <input type="text" name={`offline_${v}`} inputmode="numeric" pattern="[0-9]{1,8}" value={values.offlineAmounts[v] ?? 0} aria-label={`${c.offline}, ${v.toUpperCase()}`} />
+                </td>
+                <td data-label={c.total}>{formatMoney(existing?.received[v] ?? 0, v, user.locale)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      {existing && <p class="notice">{c.approxTotal(formatShown(existing.total(existing.campaign.currency), user.locale), rates)}</p>}
+      {!isStripeWebhookConfigured() && <p class="notice">{c.cardOff}</p>}
     </fieldset>
 
     <fieldset class="card">

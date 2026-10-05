@@ -3,12 +3,16 @@ import { useAdminUi } from '../../../i18n/admin.ts';
 import { LOCALE_NAMES } from '../../../i18n/config.ts';
 import Admin from '../../../layouts/Admin.astro';
 import { listCampaignsForAdmin } from '../../../lib/admin-campaigns.ts';
-import { CAMPAIGNS_PATH, formatDay, formatMoney } from '../../../lib/campaigns.ts';
+import { CAMPAIGNS_PATH, formatDay, formatMoney, formatShown } from '../../../lib/campaigns.ts';
+import { CURRENCIES } from '../../../lib/stripe.ts';
 
 const user = Astro.locals.user!;
 const t = useAdminUi(user.locale);
 const c = t.campaigns;
 const rows = listCampaignsForAdmin();
+/** What was really received, per currency: "150 RON + 50 €". */
+const breakdown = (row: (typeof rows)[number]) =>
+  CURRENCIES.filter((v) => row.received[v] > 0).map((v) => formatMoney(row.received[v], v, user.locale)).join(' + ') || formatMoney(0, row.currency, user.locale);
 ---
 
 <Admin title={t.nav.campaigns}>
@@ -56,8 +60,8 @@ const rows = listCampaignsForAdmin();
               <td>{c.scopes[row.scope]}</td>
               <td>{row.goalAmount === null ? c.permanent : `${c.temporary}, ${formatDay(row.endsOn!, user.locale)}`}</td>
               <td data-label={c.raised}>
-                {formatMoney(row.raised, row.currency, user.locale)}
-                {row.goalAmount !== null && ` / ${formatMoney(row.goalAmount, row.currency, user.locale)}`}
+                {row.goalAmount === null ? breakdown(row) : `${formatShown(row.raised, user.locale)} / ${formatMoney(row.goalAmount, row.currency, user.locale)}`}
+                {row.goalAmount !== null && row.raised.approximate && <div><small>{breakdown(row)}</small></div>}
               </td>
               <td>
                 <span class={`badge badge--${row.status}`}>{c.statuses[row.status]}</span>

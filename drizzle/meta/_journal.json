@@ -43,6 +43,20 @@
       "when": 1791195598211,
       "tag": "0005_known_vertigo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1791198650464,
+      "tag": "0006_common_doorman",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1791198656541,
+      "tag": "0007_furry_franklin_richards",
+      "breakpoints": true
     }
   ]
 }

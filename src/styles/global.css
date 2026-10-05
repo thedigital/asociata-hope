@@ -2563,6 +2563,11 @@ fieldset[aria-invalid='true'] {
     width: auto;
   }
 
+  /* A temporary campaign has no choice of frequency: the currencies take the row. */
+  .donate-form__options > :only-child {
+    grid-column: 1 / -1;
+  }
+
   .donate-form__options .segmented--small span {
     display: grid;
     place-items: center;

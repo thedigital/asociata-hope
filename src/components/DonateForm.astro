@@ -1,8 +1,8 @@
 ---
 import type { Locale } from '../i18n/config.ts';
 import { useFormsUi } from '../i18n/forms.ts';
-import type { Campaign } from '../lib/campaigns.ts';
-import { AMOUNTS, CURRENCIES, FREQUENCIES, type Currency, type Frequency } from '../lib/stripe.ts';
+import { LOCALE_CURRENCIES, type Campaign } from '../lib/campaigns.ts';
+import { AMOUNTS, CURRENCIES, FREQUENCIES, type Frequency } from '../lib/stripe.ts';
 
 interface Props {
   locale: Locale;
@@ -10,7 +10,7 @@ interface Props {
   animal: string | null;
   error: string | null;
   cancelled: boolean;
-  /** Campaign the donation is for. A temporary one counts towards a goal: one-off gifts, in its currency. */
+  /** Campaign the donation is for. A temporary one has a last day: one-off gifts only. */
   campaign?: Campaign | null;
 }
 
@@ -18,7 +18,8 @@ const { locale, animal, error, cancelled, campaign = null } = Astro.props;
 const t = useFormsUi(locale).donate;
 const message = error && error in t.errors ? t.errors[error as keyof typeof t.errors] : null;
 const frequencies: readonly Frequency[] = campaign?.temporary ? ['once'] : FREQUENCIES;
-const currencies: readonly Currency[] = campaign?.temporary ? [campaign.currency] : CURRENCIES;
+// The page of a campaign shows its amounts in the currency of the language: the form starts with the same one.
+const defaultCurrency = campaign ? LOCALE_CURRENCIES[locale] : CURRENCIES[0];
 // A sponsorship is a monthly gift by nature.
 const defaultFrequency: Frequency = animal ? 'monthly' : 'once';
 ---
@@ -33,43 +34,40 @@ const defaultFrequency: Frequency = animal ? 'monthly' : 'once';
 
   {campaign && <input type="hidden" name="campaign" value={campaign.slug} />}
   {frequencies.length === 1 && <input type="hidden" name="frequency" value={frequencies[0]} />}
-  {currencies.length === 1 && <input type="hidden" name="currency" value={currencies[0]} />}
 
-  {
-    (frequencies.length > 1 || currencies.length > 1) && (
-      <div class="donate-form__options">
-        {frequencies.length > 1 && (
-          <div class="segmented" role="radiogroup" aria-label={t.frequency.once + ' / ' + t.frequency.monthly}>
-            {frequencies.map((frequency) => (
-              <label>
-                <input type="radio" name="frequency" value={frequency} checked={frequency === defaultFrequency} />
-                <span>{t.frequency[frequency]}</span>
-              </label>
-            ))}
-          </div>
-        )}
+  <div class="donate-form__options">
+    {
+      frequencies.length > 1 && (
+        <div class="segmented" role="radiogroup" aria-label={t.frequency.once + ' / ' + t.frequency.monthly}>
+          {frequencies.map((frequency) => (
+            <label>
+              <input type="radio" name="frequency" value={frequency} checked={frequency === defaultFrequency} />
+              <span>{t.frequency[frequency]}</span>
+            </label>
+          ))}
+        </div>
+      )
+    }
 
-        {currencies.length > 1 && (
-          <div class="segmented segmented--small" role="radiogroup" aria-label={t.currency}>
-            {currencies.map((currency, index) => (
-              <label>
-                <input type="radio" name="currency" value={currency} checked={index === 0} />
-                <span>{t.currencies[currency]}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
+    <div class="segmented segmented--small" role="radiogroup" aria-label={t.currency}>
+      {
+        CURRENCIES.map((currency) => (
+          <label>
+            <input type="radio" name="currency" value={currency} checked={currency === defaultCurrency} />
+            <span>{t.currencies[currency]}</span>
+          </label>
+        ))
+      }
+    </div>
+  </div>
 
   <p class="donate-form__label">{t.amount}</p>
   {
-    currencies.map((currency, index) => (
-      <div class="amounts" data-currency={currency} hidden={index > 0}>
+    CURRENCIES.map((currency) => (
+      <div class="amounts" data-currency={currency} hidden={currency !== defaultCurrency}>
         {AMOUNTS[currency].presets.map((amount, position) => (
           <label>
-            <input type="radio" name="amount" value={amount} checked={position === 2} disabled={index > 0} />
+            <input type="radio" name="amount" value={amount} checked={position === 2} disabled={currency !== defaultCurrency} />
             <span>
               {amount} <small>{currency.toUpperCase()}</small>
             </span>

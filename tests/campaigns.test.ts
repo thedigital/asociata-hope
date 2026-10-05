@@ -6,7 +6,8 @@ import type { APIContext } from 'astro';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/db/client.ts';
 import { deleteCampaign, getCampaignForEdit, listCampaignsForAdmin, parseCampaignForm, saveCampaign } from '../src/lib/admin-campaigns.ts';
-import { campaignForAnimal, campaignState, dateInRomania, formatMoney, getCampaign, listCampaignPaths, listCampaigns } from '../src/lib/campaigns.ts';
+import { campaignForAnimal, campaignState, dateInRomania, formatMoney, formatShown, getCampaign, listCampaignPaths, listCampaigns } from '../src/lib/campaigns.ts';
+import { FALLBACK_RATES, convert, fetchRates, parseRates } from '../src/lib/exchange-rates.ts';
 import { recordCampaignDonation, verifyStripeSignature } from '../src/lib/stripe-webhook.ts';
 import { POST as donate } from '../src/pages/donate.ts';
 import { POST as webhook } from '../src/pages/stripe/webhook.ts';
@@ -22,10 +23,12 @@ function form(fields: Record<string, string>): FormData {
 }
 const temporary = (fields: Record<string, string> = {}) =>
   form({ title_ro: 'Hrană pentru iarnă', scope: 'need', status: 'published', kind: 'temporary', goalAmount: '1000', currency: 'ron', endsOn: day(10), ...fields });
+/** Rates stored with the campaigns of these tests: 1 EUR = 5 RON = 1.25 USD. */
+const RATES = { ron: 5, eur: 1, usd: 1.25 };
 const create = (data: FormData) => {
   const parsed = parseCampaignForm(data);
   assert.deepEqual(parsed.errors, []);
-  const result = saveCampaign(null, parsed);
+  const result = saveCampaign(null, parsed, RATES);
   assert.ok('id' in result);
   return result.id;
 };
@@ -52,9 +55,9 @@ describe('campaignState', () => {
 
 describe('parseCampaignForm', () => {
   it('builds the address from the Romanian title and reads a temporary campaign', () => {
-    const { data, texts, errors } = parseCampaignForm(temporary({ offlineAmount: '250', summary_fr: '  Une   phrase ' }));
+    const { data, texts, errors } = parseCampaignForm(temporary({ offline_ron: '250', offline_eur: '40', summary_fr: '  Une   phrase ' }));
     assert.deepEqual(errors, []);
-    assert.deepEqual(data, { slug: 'hrana-pentru-iarna', scope: 'need', status: 'published', animalId: null, goalAmount: 1000, currency: 'ron', endsOn: day(10), offlineAmount: 250 });
+    assert.deepEqual(data, { slug: 'hrana-pentru-iarna', scope: 'need', status: 'published', animalId: null, goalAmount: 1000, currency: 'ron', endsOn: day(10), offlineAmounts: { ron: 250, eur: 40, usd: 0 } });
     assert.equal(texts.find((t) => t.locale === 'fr')!.summary, 'Une phrase');
   });
 
@@ -73,7 +76,7 @@ describe('parseCampaignForm', () => {
     assert.deepEqual(parseCampaignForm(temporary({ scope: 'animal', animalId: '999' })).errors, ['animal']);
     assert.deepEqual(parseCampaignForm(temporary({ slug: 'Not A Slug' })).errors, ['slug']);
     assert.deepEqual(parseCampaignForm(temporary({ scope: 'other' })).errors, ['invalid']);
-    assert.deepEqual(parseCampaignForm(temporary({ offlineAmount: '-5' })).errors, ['invalid']);
+    assert.deepEqual(parseCampaignForm(temporary({ offline_eur: '-5' })).errors, ['invalid']);
   });
 });
 
@@ -81,7 +84,7 @@ describe('a campaign', () => {
   let id = 0;
 
   it('is listed once published, with the Romanian texts where a translation is missing', () => {
-    id = create(temporary({ title_fr: 'Des croquettes pour l’hiver', summary_ro: 'O tonă de hrană.', offlineAmount: '250' }));
+    id = create(temporary({ title_fr: 'Des croquettes pour l’hiver', summary_ro: 'O tonă de hrană.', offline_ron: '250' }));
     create(form({ title_ro: 'Ciornă', scope: 'global', status: 'draft', kind: 'permanent', currency: 'ron' }));
     assert.deepEqual(listCampaigns('fr', NOW).map((c) => c.title), ['Des croquettes pour l’hiver']);
     const german = getCampaign('hrana-pentru-iarna', 'de', NOW)!;
@@ -94,18 +97,39 @@ describe('a campaign', () => {
 
   it('refuses an address already used, and redirects the old one when it changes', () => {
     assert.deepEqual(saveCampaign(null, parseCampaignForm(temporary())), { error: 'slugTaken' });
-    assert.deepEqual(saveCampaign(id, parseCampaignForm(temporary({ slug: 'iarna-2026', offlineAmount: '250' }))), { id });
+    assert.deepEqual(saveCampaign(id, parseCampaignForm(temporary({ slug: 'iarna-2026', offline_ron: '250' }))), { id });
     assert.deepEqual(db.select().from(redirects).where(eq(redirects.fromPath, '/fr/campanii/hrana-pentru-iarna')).get()?.toPath, '/fr/campanii/iarna-2026');
     assert.ok(getCampaign('iarna-2026', 'ro', NOW));
   });
 
-  it('counts the card donations made in its currency, once each', () => {
+  it('counts the card donations of every currency, once each, converted with its own rates', () => {
     assert.equal(recordCampaignDonation(paid('cs_1', id, 15_000)), true);
     assert.equal(recordCampaignDonation(paid('cs_1', id, 15_000)), false, 'the same event twice');
     assert.equal(recordCampaignDonation(paid('cs_2', id, 5_000, 'eur')), true);
     const campaign = getCampaign('iarna-2026', 'ro', NOW)!;
-    assert.deepEqual([campaign.raised, campaign.percent], [400, 40]);
-    assert.deepEqual(getCampaignForEdit(id)!.card.map((row) => [row.currency, row.count, row.total]).sort(), [['eur', 1, 50], ['ron', 1, 150]]);
+    // 150 RON by card, 250 RON by hand, and 50 EUR by card counted as 250 RON.
+    assert.deepEqual([campaign.raised, campaign.percent], [650, 65]);
+    assert.equal(db.select().from(schema.campaigns).where(eq(schema.campaigns.id, id)).get()!.rates.ron, 5, 'saving again keeps the rates of the creation');
+  });
+
+  it('shows the total and the goal in the currency of each language', () => {
+    const shown = (locale: 'ro' | 'en' | 'fr' | 'de') => {
+      const { raised, goal } = getCampaign('iarna-2026', locale, NOW)!.shown;
+      return [formatShown(raised, locale), formatShown(goal!, locale)].map((text) => text.replace(/\s/g, ' '));
+    };
+    assert.deepEqual(shown('ro'), ['≈ 650 RON', '1.000 RON']);
+    assert.deepEqual(shown('fr'), ['≈ 130 €', '≈ 200 €']);
+    assert.deepEqual(shown('de'), ['≈ 130 €', '≈ 200 €']);
+    assert.deepEqual(shown('en'), ['≈ $162', '≈ $250']);
+  });
+
+  it('gives the admin the real amounts per currency', () => {
+    const edit = getCampaignForEdit(id)!;
+    assert.deepEqual(edit.card, { ron: { count: 1, total: 150 }, eur: { count: 1, total: 50 }, usd: { count: 0, total: 0 } });
+    assert.deepEqual(edit.received, { ron: 400, eur: 50, usd: 0 });
+    assert.deepEqual(edit.total('ron'), { amount: 650, currency: 'ron', approximate: true });
+    const listed = listCampaignsForAdmin(NOW).find((c) => c.id === id)!;
+    assert.deepEqual([listed.received, listed.raised.amount], [{ ron: 400, eur: 50, usd: 0 }, 650]);
   });
 
   it('counts the later payments of a monthly gift, wherever Stripe puts the metadata', () => {
@@ -114,7 +138,7 @@ describe('a campaign', () => {
     assert.equal(recordCampaignDonation(invoice('in_1', 'subscription_create', { subscription_details: metadata })), false, 'the first payment is the Checkout session');
     assert.equal(recordCampaignDonation(invoice('in_2', 'subscription_cycle', { subscription_details: metadata })), true);
     assert.equal(recordCampaignDonation(invoice('in_3', 'subscription_cycle', { parent: { subscription_details: metadata } })), true);
-    assert.equal(getCampaign('iarna-2026', 'ro', NOW)!.raised, 450);
+    assert.equal(getCampaign('iarna-2026', 'ro', NOW)!.raised, 700);
   });
 
   it('ignores what is not a paid gift for a known campaign', () => {
@@ -129,7 +153,7 @@ describe('a campaign', () => {
 
   it('closes when the goal is reached, and is then listed after the open ones', () => {
     const other = create(form({ title_ro: 'Fond de urgențe', scope: 'global', status: 'published', kind: 'permanent', currency: 'ron' }));
-    recordCampaignDonation(paid('cs_8', id, 60_000));
+    recordCampaignDonation(paid('cs_8', id, 6_000, 'eur'));
     assert.equal(getCampaign('iarna-2026', 'ro', NOW)!.state, 'reached');
     assert.deepEqual(listCampaigns('ro', NOW).map((c) => [c.id, c.state]), [[other, 'open'], [id, 'reached']]);
     assert.equal(listCampaignsForAdmin(NOW).find((c) => c.id === id)!.state, 'reached');
@@ -152,6 +176,31 @@ describe('a campaign', () => {
   it('writes amounts in the way of each language', () => {
     assert.match(formatMoney(1500.9, 'ron', 'ro'), /^1\.500\sRON$/);
     assert.match(formatMoney(1500, 'eur', 'en'), /^€1,500$/);
+  });
+});
+
+describe('exchange rates', () => {
+  afterEach(() => mock.restoreAll());
+  const ECB = "<Cube time='2026-10-02'><Cube currency='USD' rate='1.1225'/><Cube currency='JPY' rate='170.1'/><Cube currency='RON' rate='5.3488'/></Cube>";
+
+  it('reads the rates of the day', async () => {
+    mock.method(globalThis, 'fetch', async () => new Response(ECB));
+    assert.deepEqual(await fetchRates(), { eur: 1, usd: 1.1225, ron: 5.3488 });
+    assert.equal(parseRates("<Cube currency='USD' rate='1.1225'/>"), null, 'a currency is missing');
+  });
+
+  it('falls back on fixed rates when they cannot be read', async () => {
+    mock.method(console, 'error', () => {});
+    mock.method(globalThis, 'fetch', async () => new Response('<html>', { status: 200 }));
+    assert.equal(await fetchRates(), FALLBACK_RATES);
+    mock.method(globalThis, 'fetch', async () => Promise.reject(new Error('offline')));
+    assert.equal(await fetchRates(), FALLBACK_RATES);
+  });
+
+  it('converts through the euro, and leaves an amount in its own currency untouched', () => {
+    assert.equal(convert(100, 'eur', 'ron', RATES), 500);
+    assert.equal(convert(500, 'ron', 'usd', RATES), 125);
+    assert.equal(convert(33.33, 'ron', 'ron', FALLBACK_RATES), 33.33);
   });
 });
 
@@ -187,8 +236,8 @@ describe('POST /donate for a campaign', () => {
     assert.match(params.cancel_url, /\/fr\/campanii\/craciun-2026\?cancelled=1#card$/);
   });
 
-  it('accepts only one-off gifts in the currency of a temporary campaign', async () => {
-    assert.equal((await post({ campaign: 'craciun-2026', locale: 'ro', currency: 'eur', frequency: 'once', amount: '50' })).location, '/campanii/craciun-2026?error=invalid#card');
+  it('accepts only one-off gifts for a temporary campaign, in any currency', async () => {
+    assert.equal((await post({ campaign: 'craciun-2026', locale: 'ro', currency: 'eur', frequency: 'once', amount: '50' })).location, 'https://checkout.stripe.com/c/pay/cs_test');
     assert.equal((await post({ campaign: 'craciun-2026', locale: 'ro', currency: 'ron', frequency: 'monthly', amount: '50' })).location, '/campanii/craciun-2026?error=invalid#card');
   });
 

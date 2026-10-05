@@ -19,8 +19,8 @@ export const POST: APIRoute = async ({ request, site, redirect }) => {
   if (campaignSlug && campaign?.state !== 'open') return back('campaign');
   const donation = parseDonationForm(form);
   if ('error' in donation) return back(donation.error);
-  // A temporary campaign counts towards its goal: one-off gifts, in its own currency.
-  if (campaign?.temporary && (donation.frequency !== 'once' || donation.currency !== campaign.currency)) return back('invalid');
+  // A temporary campaign has a last day: one-off gifts only, in any currency.
+  if (campaign?.temporary && donation.frequency !== 'once') return back('invalid');
   if (campaign?.animal) donation.animal = campaign.animal.name;
   if (!isStripeConfigured()) return back('unavailable');
 

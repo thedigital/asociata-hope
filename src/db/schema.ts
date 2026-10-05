@@ -1,7 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { ADMIN_LOCALES, LOCALES } from '../i18n/config.ts';
-import { CURRENCIES } from '../lib/stripe.ts';
+import { FALLBACK_RATES, type Rates } from '../lib/exchange-rates.ts';
+import { CURRENCIES, type Currency } from '../lib/stripe.ts';
 import { ADOPTION_TYPES, CAMPAIGN_SCOPES, CAMPAIGN_STATUSES, COLORS, SEXES, SIZES, SPECIES, STATUSES, TRAITS } from '../lib/taxonomy.ts';
 
 const timestamp = (name: string) => integer(name, { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`);
@@ -173,11 +174,14 @@ export const campaigns = sqliteTable('campaigns', {
   // The animal the money is for, when the scope is `animal`.
   animalId: integer('animal_id').references(() => animals.id, { onDelete: 'set null' }),
   // Temporary campaign only: amount to reach, in whole units of `currency`, and last day (ISO date, Romanian time).
+  // Gifts are accepted in every currency; `currency` is only the one of the goal.
   goalAmount: integer('goal_amount'),
   currency: text('currency', { enum: CURRENCIES }).notNull().default('ron'),
   endsOn: text('ends_on'),
-  // Gifts received outside the site (transfer, cash), entered by hand and added to the card donations.
-  offlineAmount: integer('offline_amount').notNull().default(0),
+  // Gifts received outside the site (transfer, cash), entered by hand per currency, in whole units, and added to the card donations.
+  offlineAmounts: text('offline_amounts', { mode: 'json' }).$type<Partial<Record<Currency, number>>>().notNull().default({}),
+  // Exchange rates of the day the campaign was created: gifts come in every currency, the total shown is approximate.
+  rates: text('rates', { mode: 'json' }).$type<Rates>().notNull().default(FALLBACK_RATES),
   // File name in `data/uploads/campaigns/`.
   image: text('image'),
   createdAt: timestamp('created_at'),
