@@ -2,12 +2,13 @@ import type { AdminLocale } from './config.ts';
 import type { FormError } from '../lib/admin-animals.ts';
 import type { IssueCode } from '../lib/animal-checks.ts';
 import type { AdoptionType, Species, Status } from '../lib/taxonomy.ts';
+import type { PatternId, ThemeId } from '../lib/themes.ts';
 
 /** Strings of the admin interface (Romanian and French). Taxonomy labels come from `ui.ts`. */
 export type AdminUi = {
   title: string;
   login: { title: string; email: string; password: string; code: string; codeHelp: string; submit: string; failed: string; locked: string };
-  nav: { animals: string; messages: string; redirects: string; site: string; logout: string };
+  nav: { animals: string; messages: string; redirects: string; theme: string; site: string; logout: string };
   messages: { intro: string; empty: string; pending: string; handled: string; all: string; markHandled: string; markPending: string; reply: string; confirmDelete: string; language: string; attachment: string };
   list: { add: string; search: string; all: string; empty: string; photo: string; name: string; age: string; status: string; order: string; up: string; down: string; edit: string; estimated: string };
   form: {
@@ -75,6 +76,19 @@ export type AdminUi = {
   adoptionType: Record<AdoptionType, string>;
   status: Record<Status, string>;
   redirects: { intro: string; from: string; to: string; toHelp: string; code: string; add: string; gone: string; empty: string; invalid: string };
+  theme: {
+    intro: string;
+    use: string;
+    active: string;
+    color: string;
+    pattern: string;
+    preview: string;
+    save: string;
+    reset: string;
+    tooLight: string;
+    names: Record<ThemeId, string>;
+    patterns: Record<PatternId, string>;
+  };
 };
 
 const ro: AdminUi = {
@@ -89,7 +103,7 @@ const ro: AdminUi = {
     failed: 'E-mail, parola sau cod incorecte.',
     locked: 'Prea multe incercari. Incercati din nou peste 15 minute.',
   },
-  nav: { animals: 'Animale', messages: 'Mesaje', redirects: 'Redirectionari', site: 'Vezi site-ul', logout: 'Deconectare' },
+  nav: { animals: 'Animale', messages: 'Mesaje', redirects: 'Redirectionari', theme: 'Tema', site: 'Vezi site-ul', logout: 'Deconectare' },
   messages: {
     intro: 'Mesajele trimise prin formularul de contact al site-ului.',
     empty: 'Niciun mesaj.',
@@ -214,6 +228,19 @@ const ro: AdminUi = {
     empty: 'Nicio redirectionare.',
     invalid: 'Adresele trebuie sa inceapa cu / si sa fie diferite.',
   },
+  theme: {
+    intro: 'Tema stabileste culoarea principala a site-ului (titluri, linkuri, butoane, fundaluri colorate) si motivul benzii de sub meniu si al subsolului, pe toate paginile.',
+    use: 'Foloseste aceasta tema',
+    active: 'Tema activa',
+    color: 'Culoare',
+    pattern: 'Motiv',
+    preview: 'Titlul paginii',
+    save: 'Salveaza',
+    reset: 'Revino la culoarea si motivul initiale',
+    tooLight: 'Culoarea aleasa este prea deschisa: textul alb al benzii nu s-ar mai citi. Alegeti o culoare mai inchisa.',
+    names: { classic: 'Clasic', christmas: 'Craciun', valentine: 'Sfantul Valentin', easter: 'Paste', summer: 'Vara', halloween: 'Halloween' },
+    patterns: { paws: 'Urme de labute', snowflakes: 'Fulgi de zapada', hearts: 'Inimi', eggs: 'Oua de Paste', beach: 'Plaja', pumpkins: 'Dovleci si lilieci', none: 'Fara motiv' },
+  },
 };
 
 const fr: AdminUi = {
@@ -228,7 +255,7 @@ const fr: AdminUi = {
     failed: 'E-mail, mot de passe ou code incorrect.',
     locked: 'Trop de tentatives. Réessayez dans 15 minutes.',
   },
-  nav: { animals: 'Animaux', messages: 'Messages', redirects: 'Redirections', site: 'Voir le site', logout: 'Déconnexion' },
+  nav: { animals: 'Animaux', messages: 'Messages', redirects: 'Redirections', theme: 'Thème', site: 'Voir le site', logout: 'Déconnexion' },
   messages: {
     intro: 'Les messages envoyés depuis le formulaire de contact du site.',
     empty: 'Aucun message.',
@@ -352,6 +379,19 @@ const fr: AdminUi = {
     gone: 'supprimée (410)',
     empty: 'Aucune redirection.',
     invalid: 'Les adresses doivent commencer par / et être différentes.',
+  },
+  theme: {
+    intro: 'Le thème fixe la couleur principale du site (titres, liens, boutons, fonds colorés) et le motif du bandeau sous le menu et du pied de page, sur toutes les pages.',
+    use: 'Utiliser ce thème',
+    active: 'Thème actif',
+    color: 'Couleur',
+    pattern: 'Motif',
+    preview: 'Titre de la page',
+    save: 'Enregistrer',
+    reset: 'Revenir à la couleur et au motif d’origine',
+    tooLight: 'La couleur choisie est trop claire : le texte blanc du bandeau ne serait plus lisible. Choisissez une couleur plus foncée.',
+    names: { classic: 'Classique', christmas: 'Noël', valentine: 'Saint-Valentin', easter: 'Pâques', summer: 'Été', halloween: 'Halloween' },
+    patterns: { paws: 'Empreintes de pattes', snowflakes: 'Flocons de neige', hearts: 'Cœurs', eggs: 'Œufs de Pâques', beach: 'Plage', pumpkins: 'Citrouilles et chauves-souris', none: 'Aucun motif' },
   },
 };
 

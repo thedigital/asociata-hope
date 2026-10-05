@@ -128,6 +128,12 @@ export const redirects = sqliteTable('redirects', {
   createdAt: timestamp('created_at'),
 });
 
+/** Site-wide settings changed from the admin, one JSON value per key (`theme`: see src/lib/themes.ts). */
+export const settings = sqliteTable('settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+});
+
 /** Messages sent through the public contact form. `answers` is the JSON of the cat adoption questionnaire. */
 export const contactMessages = sqliteTable(
   'contact_messages',

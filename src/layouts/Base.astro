@@ -10,6 +10,7 @@ import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, localizePath, 
 import { useUi } from '../i18n/ui.ts';
 import { LINE_ICONS } from '../lib/icons.ts';
 import { NAV, SITE, type PageKey } from '../lib/site.ts';
+import { activeThemeCss } from '../lib/themes.ts';
 
 interface Props {
   locale: Locale;
@@ -93,6 +94,7 @@ const cta = [
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style is:inline set:html={activeThemeCss()} />
     {jsonLd.map((data) => <script is:inline type="application/ld+json" set:html={JSON.stringify(data)} />)}
   </head>
   <body>

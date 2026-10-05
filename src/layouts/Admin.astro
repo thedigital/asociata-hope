@@ -46,6 +46,7 @@ const pending = user ? db.select({ n: count() }).from(schema.contactMessages).wh
               {pending > 0 && <span class="count">{pending}</span>}
             </a>
             <a href="/admin/redirects" aria-current={current === '/admin/redirects' ? 'page' : undefined}>{t.nav.redirects}</a>
+            <a href="/admin/theme" aria-current={current === '/admin/theme' ? 'page' : undefined}>{t.nav.theme}</a>
             <a href="/" target="_blank" rel="noopener">{t.nav.site} ↗</a>
           </nav>
           <form method="post" action="/admin/logout">

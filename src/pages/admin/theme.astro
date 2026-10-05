@@ -1,0 +1,107 @@
+---
+import { useAdminUi } from '../../i18n/admin.ts';
+import Admin from '../../layouts/Admin.astro';
+import { PATTERN_IDS, THEMES, THEME_IDS, getThemeSettings, isBandColor, isPatternId, isThemeId, patternStyles, saveThemeSettings, themeChoice, themeStyle, type ThemeChoice, type ThemeId } from '../../lib/themes.ts';
+
+const user = Astro.locals.user!;
+const t = useAdminUi(user.locale);
+const th = t.theme;
+const settings = getThemeSettings();
+let active = settings.active;
+const choices = Object.fromEntries(THEME_IDS.map((id) => [id, themeChoice(id, settings)])) as Record<ThemeId, ThemeChoice>;
+let error = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const chosen = form.get('active');
+  if (isThemeId(chosen)) active = chosen;
+  let valid = isThemeId(chosen);
+  for (const id of THEME_IDS) {
+    const color = String(form.get(`color-${id}`) ?? '').toLowerCase();
+    const pattern = form.get(`pattern-${id}`);
+    if (form.get('reset') === id) choices[id] = { color: THEMES[id].color, pattern: THEMES[id].pattern };
+    else if (isBandColor(color) && isPatternId(pattern)) choices[id] = { color, pattern };
+    else {
+      valid = false;
+      // Shown again as typed, so that the colour can be adjusted rather than chosen anew.
+      if (/^#[0-9a-f]{6}$/.test(color) && isPatternId(pattern)) choices[id] = { color, pattern };
+    }
+  }
+  if (valid) {
+    saveThemeSettings(active, choices);
+    return Astro.redirect('/admin/theme?saved', 303);
+  }
+  error = th.tooLight;
+  Astro.response.status = 422;
+}
+
+const patterns = patternStyles();
+---
+
+<Admin title={t.nav.theme}>
+  <div class="toolbar">
+    <h1>{t.nav.theme}</h1>
+    <!-- First submit button of the form, so that the Enter key saves instead of resetting a theme. -->
+    <button class="btn" type="submit" form="theme">{th.save}</button>
+  </div>
+  <p>{th.intro}</p>
+  {error && <p class="notice notice--error" role="alert">{error}</p>}
+  {!error && Astro.url.searchParams.has('saved') && <p class="notice notice--ok" role="status">{t.form.saved}</p>}
+
+  <form class="form" id="theme" method="post">
+    <div class="themes">
+      {
+        THEME_IDS.map((id) => (
+          <fieldset class="card theme" data-color={THEMES[id].color} data-gradient={THEMES[id].gradient.join(',')}>
+            <legend>{th.names[id]}</legend>
+            <div class="theme-preview" style={themeStyle(id, choices[id])} aria-hidden="true">
+              <strong>{th.preview}</strong>
+            </div>
+            <label class="check">
+              <input type="radio" name="active" value={id} checked={id === active} required />
+              {id === settings.active ? th.active : th.use}
+            </label>
+            <div class="grid">
+              <label>
+                {th.color}
+                <input type="color" name={`color-${id}`} value={choices[id].color} />
+              </label>
+              <label>
+                {th.pattern}
+                <select name={`pattern-${id}`}>
+                  {PATTERN_IDS.map((pattern) => (
+                    <option value={pattern} selected={pattern === choices[id].pattern} data-style={patterns[pattern]}>
+                      {th.patterns[pattern]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <button class="link" type="submit" name="reset" value={id}>{th.reset}</button>
+          </fieldset>
+        ))
+      }
+    </div>
+  </form>
+
+  <script is:inline>
+    // The preview follows the colour and the pattern as they are chosen; the server computes the same shades on save.
+    const shade = (hex, other, amount) =>
+      '#' + [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).map((c) => Math.round(c + (other - c) * amount).toString(16).padStart(2, '0')).join('');
+    document.querySelectorAll('.theme').forEach((theme) => {
+      const preview = theme.querySelector('.theme-preview');
+      const color = theme.querySelector('input[type=color]');
+      const pattern = theme.querySelector('select');
+      color.addEventListener('input', () => {
+        const stops = color.value === theme.dataset.color ? theme.dataset.gradient.split(',') : [shade(color.value, 0, 0.35), color.value, shade(color.value, 255, 0.1)];
+        ['from', 'middle', 'to'].forEach((name, i) => preview.style.setProperty(`--band-${name}`, stops[i]));
+      });
+      pattern.addEventListener('change', () => {
+        pattern.selectedOptions[0].dataset.style.split(/;(?=--)/).forEach((declaration) => {
+          const at = declaration.indexOf(':');
+          preview.style.setProperty(declaration.slice(0, at), declaration.slice(at + 1));
+        });
+      });
+    });
+  </script>
+</Admin>

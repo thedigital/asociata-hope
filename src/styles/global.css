@@ -1,7 +1,12 @@
 /* Palette carried over from the Wix site. */
 :root {
-  --teal: #104f55;
-  --teal-dark: #0b3a3f;
+  /* Main colour of the site (titles, links, buttons, coloured grounds): the colour of the theme chosen in the admin, teal in the classic one. */
+  --primary: var(--band-middle);
+  --primary-dark: var(--band-from);
+  /* Brighter shade of the main colour, computed from it: bars beside and under titles, link underlines, list markers. */
+  --primary-bright: color-mix(in oklab, var(--primary), #fff 30%);
+  /* Very light tint of the main colour, computed from it: soft grounds of lists, tiles, hovered and selected entries. */
+  --primary-pale: color-mix(in oklab, var(--primary), #fff 90%);
   --orange: #e4572e;
   --orange-dark: #c5431d;
   --green: #129912;
@@ -33,6 +38,13 @@
   --title-1: clamp(2.1rem, 1.3rem + 3.6vw, 3.6rem);
   /* Titles are set in Fredoka, a rounded face; only its 600 weight is loaded, so heavier title weights fall back to it. */
   --font-title: 'Fredoka', 'Poppins', system-ui, sans-serif;
+  /* The `--band-*` properties (ground of the title bands and the footer, accent and light on coloured grounds) come from the theme chosen in the admin (src/lib/themes.ts), written in the head of each page. */
+}
+
+@supports (color: oklch(from red l c h)) {
+  :root {
+    --primary-bright: oklch(from var(--primary) calc(l + 0.2) calc(c + 0.06) h);
+  }
 }
 
 *,
@@ -68,7 +80,7 @@ video {
 h1,
 h2,
 h3 {
-  color: var(--teal);
+  color: var(--primary);
   font-family: var(--font-title);
   font-weight: 600;
   line-height: 1.15;
@@ -85,7 +97,7 @@ p {
 }
 
 a {
-  color: var(--teal);
+  color: var(--primary);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
 }
@@ -100,7 +112,7 @@ a:hover {
 }
 
 ::selection {
-  background: var(--green);
+  background: var(--primary-bright);
   color: #fff;
 }
 
@@ -166,21 +178,21 @@ a:hover {
 }
 
 .button--teal {
-  background: var(--teal);
+  background: var(--primary);
 }
 
 .button--teal:hover {
-  background: var(--teal-dark);
+  background: var(--primary-dark);
 }
 
 .button--light {
   background: #fff;
-  color: var(--teal);
+  color: var(--primary);
 }
 
 .button--light:hover {
-  background: var(--green-pale);
-  color: var(--teal-dark);
+  background: var(--primary-pale);
+  color: var(--primary-dark);
 }
 
 .button--sand {
@@ -238,7 +250,7 @@ a:hover {
 
 .nav-toggle > summary:hover,
 .nav-toggle[open] > summary {
-  background: var(--green-pale);
+  background: var(--primary-pale);
 }
 
 .nav-toggle > summary::-webkit-details-marker {
@@ -248,7 +260,7 @@ a:hover {
 .nav-toggle > summary span {
   height: 2px;
   border-radius: 2px;
-  background: var(--teal);
+  background: var(--primary);
 }
 
 .site-nav {
@@ -285,11 +297,11 @@ a:hover {
 
 .site-nav a:hover,
 .site-nav button:hover {
-  color: var(--green-dark);
+  color: var(--primary);
 }
 
 .site-nav a[aria-current='page'] {
-  color: var(--green-dark);
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -307,7 +319,7 @@ a:hover {
 
 .site-nav__group ul {
   padding-left: 1rem;
-  border-left: 2px solid var(--green-pale);
+  border-left: 2px solid var(--primary-pale);
 }
 
 .flag {
@@ -330,7 +342,7 @@ a:hover {
 }
 
 .language-menu a[aria-current] {
-  color: var(--green-dark);
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -393,7 +405,7 @@ a:hover {
     inset: auto 0 0.55rem;
     height: 2px;
     border-radius: 2px;
-    background: var(--green);
+    background: var(--primary-bright);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.2s;
@@ -453,7 +465,7 @@ a:hover {
   }
 
   .site-nav__group ul a:hover {
-    background: var(--green-pale);
+    background: var(--primary-pale);
   }
 
   .site-nav__group:hover ul,
@@ -470,7 +482,7 @@ a:hover {
   overflow: hidden;
   padding: clamp(2.5rem, 7vw, 4.5rem) var(--gutter) calc(clamp(2.5rem, 7vw, 4.5rem) + var(--arc) / 2);
   border-radius: 0 0 50% 50% / 0 0 var(--arc) var(--arc);
-  background: linear-gradient(118deg, var(--teal-dark), var(--teal) 38%, var(--green-deep));
+  background: linear-gradient(118deg, var(--band-from), var(--band-middle) 38%, var(--band-to));
   text-align: center;
 }
 
@@ -484,7 +496,7 @@ a:hover {
   width: min(900px, 110%);
   aspect-ratio: 1.6;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(214 240 190 / 0.22), transparent);
+  background: radial-gradient(closest-side, rgb(var(--band-glow) / 0.22), transparent);
   translate: -50% 0;
 }
 
@@ -506,11 +518,11 @@ a:hover {
   height: 5px;
   margin: 1.1rem auto 0;
   border-radius: 5px;
-  background: var(--green);
+  background: var(--primary-bright);
 }
 
 .page-hero h1::after {
-  background: var(--sand);
+  background: var(--band-accent);
 }
 
 /* Sentence under the title of a page: what the page is about, in a few words. */
@@ -530,10 +542,10 @@ a:hover {
   overflow: hidden;
   padding: clamp(2rem, 5vw, 3.5rem) var(--gutter) calc(var(--arc) * 0.6);
   border-radius: 0 0 50% 50% / 0 0 var(--arc) var(--arc);
-  background: linear-gradient(118deg, var(--teal-dark), var(--teal) 38%, var(--green-deep));
+  background: linear-gradient(118deg, var(--band-from), var(--band-middle) 38%, var(--band-to));
 }
 
-/* Paw prints of the logo, lighter behind the title. Shared with the title band of the other pages and the footer. */
+/* Pattern of the theme (the paw prints of the logo by default), lighter behind the title. Shared with the title band of the other pages and the footer. */
 .hero::before,
 .page-hero::before,
 .site-footer::before {
@@ -541,12 +553,12 @@ a:hover {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='190' height='170' viewBox='0 0 190 170'%3E%3Cdefs%3E%3Cg id='p'%3E%3Cellipse cx='14' cy='28' rx='7' ry='9' transform='rotate(-20 14 28)'/%3E%3Cellipse cx='27' cy='16' rx='7' ry='9.5' transform='rotate(-6 27 16)'/%3E%3Cellipse cx='42' cy='17' rx='7' ry='9.5' transform='rotate(10 42 17)'/%3E%3Cellipse cx='53' cy='31' rx='6.5' ry='8.5' transform='rotate(24 53 31)'/%3E%3Cpath d='M32 30c-9 0-17 9-17 17 0 6 5 9 10 9 3 0 5-1 7-1s4 1 7 1c5 0 10-3 10-9 0-8-8-17-17-17Z'/%3E%3C/g%3E%3C/defs%3E%3Cg fill='%23fff'%3E%3Cuse href='%23p' transform='translate(14 10) rotate(-18 32 32) scale(.78)'/%3E%3Cuse href='%23p' transform='translate(112 92) rotate(24 32 32) scale(.56)'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 190px 170px;
-  opacity: 0.075;
+  background: var(--band-pattern);
+  opacity: var(--band-pattern-opacity);
   mask-image: linear-gradient(100deg, #000 0%, rgb(0 0 0 / 0.35) 45%, #000 100%);
 }
 
-/* The paw prints fade behind the title, which sits in the middle of the band. */
+/* The pattern fades behind the title, which sits in the middle of the band. */
 .page-hero::before {
   mask-image: radial-gradient(closest-side, rgb(0 0 0 / 0.25), #000);
 }
@@ -561,7 +573,7 @@ a:hover {
   width: 70%;
   aspect-ratio: 1.5;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(214 240 190 / 0.26), transparent);
+  background: radial-gradient(closest-side, rgb(var(--band-glow) / 0.26), transparent);
 }
 
 .hero__inner {
@@ -615,7 +627,7 @@ a:hover {
 .hero__stats li {
   max-width: 9.5rem;
   padding-left: clamp(0.6rem, 2vw, 0.9rem);
-  border-left: 3px solid var(--sand);
+  border-left: 3px solid var(--band-accent);
   color: rgb(255 255 255 / 0.85);
   font-size: var(--text-small);
   line-height: 1.35;
@@ -624,7 +636,7 @@ a:hover {
 
 .hero__stats-over {
   display: block;
-  color: var(--sand);
+  color: var(--band-accent);
 }
 
 .hero__stats strong {
@@ -720,7 +732,7 @@ a:hover {
 }
 
 .home-section--teal {
-  background: var(--teal);
+  background: var(--primary);
 }
 
 .home-section--orange {
@@ -734,7 +746,7 @@ a:hover {
 }
 
 .home-split h2::after {
-  background: var(--sand);
+  background: var(--band-accent);
 }
 
 .tiles {
@@ -950,7 +962,7 @@ a:hover {
 }
 
 .home-give__methods strong {
-  color: var(--teal);
+  color: var(--primary);
   font-size: 1.0625rem;
   font-weight: 600;
 }
@@ -1070,11 +1082,11 @@ a:hover {
   gap: 0.4rem;
   padding: 1.1rem 1.25rem 1.1rem 2.5rem;
   border-radius: var(--radius);
-  background: var(--green-pale);
+  background: var(--primary-pale);
 }
 
 .home-redirect li::marker {
-  color: var(--green);
+  color: var(--primary-bright);
 }
 
 @media (min-width: 900px) {
@@ -1109,7 +1121,7 @@ a:hover {
   display: grid;
   gap: 0.3rem;
   flex: 1 1 150px;
-  color: var(--teal);
+  color: var(--primary);
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -1150,8 +1162,8 @@ a:hover {
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 4px rgb(16 79 85 / 0.14);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
   outline: 0;
 }
 
@@ -1215,7 +1227,7 @@ a:hover {
 }
 
 .filters__options label:hover {
-  background: var(--green-pale);
+  background: var(--primary-pale);
 }
 
 .filters__options input {
@@ -1351,7 +1363,7 @@ a:hover {
 /* Animal page */
 .animal {
   padding: clamp(1.5rem, 4vw, 3rem) var(--gutter) clamp(2.5rem, 6vw, 4.5rem);
-  background: var(--teal);
+  background: var(--primary);
 }
 
 .animal__inner {
@@ -1370,7 +1382,7 @@ a:hover {
 }
 
 .animal__back:hover {
-  color: var(--sand);
+  color: var(--band-accent);
 }
 
 .animal__photo img {
@@ -1378,7 +1390,7 @@ a:hover {
   max-height: 80vh;
   object-fit: cover;
   border-radius: var(--radius);
-  background: var(--teal-dark);
+  background: var(--primary-dark);
 }
 
 .animal__thumbs {
@@ -1405,7 +1417,7 @@ a:hover {
 }
 
 .animal__thumbs a[aria-current] {
-  border-color: var(--sand);
+  border-color: var(--band-accent);
 }
 
 .animal__thumbs img {
@@ -1459,7 +1471,7 @@ a:hover {
 }
 
 .animal__card dt {
-  color: var(--teal);
+  color: var(--primary);
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -1548,7 +1560,7 @@ a:hover {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--line);
-  color: var(--teal);
+  color: var(--primary);
   font-size: var(--text-lead);
   font-weight: 500;
   line-height: 1.5;
@@ -1561,7 +1573,7 @@ a:hover {
 .prose h6 {
   font-family: var(--font-title);
   margin: 2.25em 0 0.7em;
-  color: var(--teal);
+  color: var(--primary);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -1570,7 +1582,7 @@ a:hover {
 
 .prose h2 {
   padding-left: 1rem;
-  border-left: 5px solid var(--green);
+  border-left: 5px solid var(--primary-bright);
   font-size: var(--title-2);
 }
 
@@ -1597,13 +1609,13 @@ a:hover {
 }
 
 .prose strong {
-  color: var(--teal-dark);
+  color: var(--primary-dark);
   font-weight: 600;
 }
 
 .prose a {
   font-weight: 500;
-  text-decoration-color: var(--green);
+  text-decoration-color: var(--primary-bright);
   text-decoration-thickness: 2px;
 }
 
@@ -1617,11 +1629,11 @@ a:hover {
   gap: 0.45em;
   padding: 1.1rem 1.25rem 1.1rem 2.5rem;
   border-radius: var(--radius);
-  background: var(--green-pale);
+  background: var(--primary-pale);
 }
 
 .prose li::marker {
-  color: var(--green);
+  color: var(--primary-bright);
   font-weight: 600;
 }
 
@@ -1667,7 +1679,7 @@ a:hover {
   font-family: var(--font-title);
   display: block;
   margin-bottom: 0.2rem;
-  color: var(--teal);
+  color: var(--primary);
   font-size: var(--title-2);
   font-weight: 700;
   line-height: 1.1;
@@ -1680,7 +1692,7 @@ a:hover {
   margin: 2rem 0;
   padding: 1.5rem 1.75rem 1.5rem 4.25rem;
   border-radius: var(--radius);
-  background: var(--teal);
+  background: var(--primary);
 }
 
 .prose blockquote::before {
@@ -1688,7 +1700,7 @@ a:hover {
   position: absolute;
   top: 0.55rem;
   left: 1.4rem;
-  color: var(--sand);
+  color: var(--band-accent);
   font-size: 4.5rem;
   font-weight: 700;
   line-height: 1;
@@ -1739,7 +1751,7 @@ a:hover {
 
 .prose .download__title {
   margin: 0 0 0.9rem;
-  color: var(--teal);
+  color: var(--primary);
   font-size: var(--title-3);
   font-weight: 700;
   line-height: 1.25;
@@ -1843,7 +1855,7 @@ a:hover {
 
 .prose .lead {
   margin-bottom: 1.75rem;
-  color: var(--teal);
+  color: var(--primary);
   font-size: var(--text-lead);
   font-weight: 500;
   line-height: 1.5;
@@ -1920,7 +1932,7 @@ a:hover {
 .prose .story-close blockquote {
   margin-bottom: 0;
   padding: clamp(3.75rem, 8vw, 4.5rem) clamp(1.5rem, 5vw, 3rem) clamp(1.75rem, 5vw, 2.75rem);
-  background: linear-gradient(118deg, var(--teal-dark), var(--teal) 45%, var(--green-deep));
+  background: linear-gradient(118deg, var(--band-from), var(--band-middle) 45%, var(--band-to));
 }
 
 .prose .story-close blockquote::before {
@@ -2061,7 +2073,7 @@ fieldset[aria-invalid='true'] {
   width: 100%;
   margin-bottom: 1.1rem;
   padding: 0;
-  color: var(--teal);
+  color: var(--primary);
   font-family: var(--font-title);
   font-size: var(--title-2);
   font-weight: 600;
@@ -2119,7 +2131,7 @@ fieldset[aria-invalid='true'] {
 
 .contact-reason strong {
   align-self: end;
-  color: var(--teal);
+  color: var(--primary);
   font-weight: 700;
 }
 
@@ -2130,19 +2142,19 @@ fieldset[aria-invalid='true'] {
 }
 
 .contact-reason:hover {
-  border-color: var(--teal);
+  border-color: var(--primary);
   box-shadow: var(--shadow);
   transform: translateY(-2px);
 }
 
 .contact-reason:has(:checked) {
-  border-color: var(--teal);
-  background: var(--green-pale);
-  box-shadow: 0 0 0 1.5px var(--teal);
+  border-color: var(--primary);
+  background: var(--primary-pale);
+  box-shadow: 0 0 0 1.5px var(--primary);
 }
 
 .contact-reason:has(:checked) .give-icon {
-  background: var(--teal);
+  background: var(--primary);
   stroke: #fff;
 }
 
@@ -2230,7 +2242,7 @@ fieldset[aria-invalid='true'] {
   width: 2.1rem;
   height: 2.1rem;
   border-radius: 50%;
-  background: var(--teal);
+  background: var(--primary);
   color: #fff;
   font-size: 1.05rem;
   letter-spacing: 0;
@@ -2334,18 +2346,18 @@ fieldset[aria-invalid='true'] {
 }
 
 .chips label:hover span {
-  border-color: var(--teal);
+  border-color: var(--primary);
 }
 
 .chips input:checked + span {
-  border-color: var(--teal);
-  background: var(--teal);
+  border-color: var(--primary);
+  background: var(--primary);
   color: #fff;
 }
 
 .chips input:checked + span::before {
   border-color: #fff;
-  box-shadow: inset 0 0 0 3px var(--teal);
+  box-shadow: inset 0 0 0 3px var(--primary);
 }
 
 .chips input:focus-visible + span {
@@ -2377,15 +2389,15 @@ fieldset[aria-invalid='true'] {
 }
 
 .dropzone strong {
-  color: var(--teal);
+  color: var(--primary);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
 
 .dropzone:hover,
 .dropzone--over {
-  border-color: var(--teal);
-  background: var(--green-pale);
+  border-color: var(--primary);
+  background: var(--primary-pale);
 }
 
 .dropzone--filled {
@@ -2589,7 +2601,7 @@ fieldset[aria-invalid='true'] {
 
 .segmented span:hover,
 .amounts span:hover {
-  border-color: var(--teal);
+  border-color: var(--primary);
 }
 
 .amounts span {
@@ -2604,8 +2616,8 @@ fieldset[aria-invalid='true'] {
 
 .segmented input:checked + span,
 .amounts input:checked + span {
-  border-color: var(--teal);
-  background: var(--teal);
+  border-color: var(--primary);
+  background: var(--primary);
   color: #fff;
 }
 
@@ -2648,7 +2660,7 @@ fieldset[aria-invalid='true'] {
 .give__lead {
   max-width: 46ch;
   margin: 0 auto 1.5rem;
-  color: var(--teal);
+  color: var(--primary);
   font-size: var(--text-lead);
   font-weight: 500;
   line-height: 1.5;
@@ -2662,9 +2674,9 @@ fieldset[aria-invalid='true'] {
   height: 48px;
   padding: 11px;
   border-radius: 50%;
-  background: var(--green-pale);
+  background: var(--primary-pale);
   fill: none;
-  stroke: var(--teal);
+  stroke: var(--primary);
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -2711,7 +2723,7 @@ fieldset[aria-invalid='true'] {
 
 .give-nav strong {
   align-self: end;
-  color: var(--teal);
+  color: var(--primary);
   font-weight: 700;
 }
 
@@ -2723,14 +2735,14 @@ fieldset[aria-invalid='true'] {
 
 .give-nav a:hover,
 .give-nav a:focus-visible {
-  border-color: var(--teal);
+  border-color: var(--primary);
   box-shadow: var(--shadow);
   transform: translateY(-2px);
 }
 
 .give-nav a:hover .give-icon,
 .give-nav a:focus-visible .give-icon {
-  background: var(--teal);
+  background: var(--primary);
   stroke: #fff;
 }
 
@@ -2774,7 +2786,7 @@ fieldset[aria-invalid='true'] {
   width: 56px;
   height: 56px;
   padding: 13px;
-  background: var(--teal);
+  background: var(--primary);
   stroke: #fff;
 }
 
@@ -2816,7 +2828,7 @@ fieldset[aria-invalid='true'] {
 
 .give-details dd {
   margin: 0;
-  color: var(--teal-dark);
+  color: var(--primary-dark);
   font-weight: 600;
   line-height: 1.4;
 }
@@ -2837,17 +2849,17 @@ fieldset[aria-invalid='true'] {
   align-items: center;
   padding: 0.8rem 1rem;
   border-radius: var(--radius-small);
-  background: var(--green-pale);
+  background: var(--primary-pale);
 }
 
 .give-accounts__currency b {
-  color: var(--teal);
+  color: var(--primary);
   font-weight: 700;
 }
 
 .give-copy__value {
   grid-column: 1;
-  color: var(--teal-dark);
+  color: var(--primary-dark);
   font-size: 1.05rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -2860,10 +2872,10 @@ fieldset[aria-invalid='true'] {
   min-width: 5.5rem;
   min-height: 40px;
   padding: 0.4rem 0.9rem;
-  border: 1.5px solid var(--teal);
+  border: 1.5px solid var(--primary);
   border-radius: 999px;
   background: var(--surface);
-  color: var(--teal);
+  color: var(--primary);
   font: inherit;
   font-size: 0.8rem;
   font-weight: 600;
@@ -2890,7 +2902,7 @@ fieldset[aria-invalid='true'] {
 
 .give-copy button:hover,
 .give-copy button.is-copied {
-  background: var(--teal);
+  background: var(--primary);
   color: #fff;
 }
 
@@ -2904,7 +2916,7 @@ fieldset[aria-invalid='true'] {
 .give-sms div {
   padding: 0.8rem 1rem;
   border-radius: var(--radius-small);
-  background: var(--green-pale);
+  background: var(--primary-pale);
 }
 
 /* Text and number side by side, the amount under them. */
@@ -2914,7 +2926,7 @@ fieldset[aria-invalid='true'] {
 
 .give-sms dd {
   margin: 0;
-  color: var(--teal);
+  color: var(--primary);
   font-size: var(--title-3);
   font-weight: 700;
   line-height: 1.3;
@@ -2988,7 +3000,7 @@ fieldset[aria-invalid='true'] {
 
 /* Each tile is one link: icon, title, sentence, then the action with its drawn arrow pushed to the bottom. */
 .cta-tiles__tile {
-  --tile-accent: var(--teal);
+  --tile-accent: var(--primary);
   position: relative;
   isolation: isolate;
   display: grid;
@@ -2998,7 +3010,7 @@ fieldset[aria-invalid='true'] {
   overflow: hidden;
   padding: clamp(1.4rem, 3vw, 1.9rem);
   border-radius: var(--radius);
-  background: var(--green-pale);
+  background: var(--primary-pale);
   color: var(--ink);
   text-decoration: none;
   transition: transform 0.25s, box-shadow 0.25s;
@@ -3025,12 +3037,12 @@ fieldset[aria-invalid='true'] {
 
 /* Giving is the tile that stands out: the ground of the title bands. */
 .cta-tiles__tile--give {
-  background: linear-gradient(140deg, var(--teal-dark), var(--teal) 45%, var(--green-deep));
+  background: linear-gradient(140deg, var(--band-from), var(--band-middle) 45%, var(--band-to));
   color: #fff;
 }
 
 .cta-tiles__tile--give::before {
-  background: rgb(214 240 190 / 0.14);
+  background: rgb(var(--band-glow) / 0.14);
 }
 
 .cta-tiles__icon {
@@ -3163,7 +3175,7 @@ fieldset[aria-invalid='true'] {
   margin-top: calc(-1 * var(--arc));
   padding: calc(clamp(2.5rem, 6vw, 4rem) + var(--arc) / 2) var(--gutter) 1.5rem;
   border-radius: 50% 50% 0 0 / var(--arc) var(--arc) 0 0;
-  background: linear-gradient(118deg, var(--teal-dark), var(--teal) 38%, var(--green-deep));
+  background: linear-gradient(118deg, var(--band-from), var(--band-middle) 38%, var(--band-to));
   color: rgb(255 255 255 / 0.85);
   font-size: 0.95rem;
 }
@@ -3182,7 +3194,7 @@ fieldset[aria-invalid='true'] {
   width: min(760px, 110%);
   aspect-ratio: 1.4;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(214 240 190 / 0.2), transparent);
+  background: radial-gradient(closest-side, rgb(var(--band-glow) / 0.2), transparent);
 }
 
 /* Small screens: the logo on its own row, then the link columns two by two. */
@@ -3218,7 +3230,7 @@ fieldset[aria-invalid='true'] {
 
 .site-footer h2 {
   margin: 0 0 0.9rem;
-  color: var(--sand);
+  color: var(--band-accent);
   font-family: inherit;
   font-size: 0.78rem;
   font-weight: 600;
@@ -3237,7 +3249,7 @@ fieldset[aria-invalid='true'] {
 
 /* The underline is drawn from the left when a link is pointed at. */
 .site-footer__inner > div > ul:not(.social-links) a {
-  background: linear-gradient(var(--sand), var(--sand)) 0 100% / 0 1px no-repeat;
+  background: linear-gradient(var(--band-accent), var(--band-accent)) 0 100% / 0 1px no-repeat;
   color: inherit;
   text-decoration: none;
   transition: background-size 0.25s, color 0.15s;
