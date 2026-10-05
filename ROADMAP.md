@@ -37,10 +37,13 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [x] `/confirmare-plata` et `/donation-thank-you-page` : `noindex` et hors sitemap (pages vues seulement après un paiement).
 - [x] Test automatique de parité : `pnpm seo:check` compare les 351 URL de la baseline à un serveur lancé.
 - [ ] **Anais** : seul écart restant de `pnpm seo:check` (3 URL). Dépend de la décision de l'association, voir « Données ».
+- [ ] **Comparaison complète des liens et du SEO entre la prod et le nouveau site.** Reprendre toutes les URL de https://www.adoptii-animale-hope.org/ (sitemaps en ligne et liens internes de chaque page, pas seulement les 351 URL de la baseline) et les comparer au nouveau site : statut HTTP, `title`, description, `h1`, canonical, hreflang, liens internes et externes. Tout doit être cohérent, voire mieux fait que sur Wix. **Toute URL de la prod absente du nouveau site doit recevoir une redirection 301** vers la page équivalente (`LEGACY_REDIRECTS` dans `src/lib/site.ts` ou table `redirects`). À refaire après le dernier import, juste avant la bascule.
 - [ ] Search Console : revalider la propriété (aucune balise de vérification dans le HTML de Wix, elle passe sans doute par Wix ou le DNS), soumettre le nouveau `/sitemap.xml`. Les anciens `en_en-sitemap.xml`, `fr_fr-sitemap.xml` et `pages-sitemap.xml` répondront 404.
 
 ### Fonctionnel
-- [ ] **Dons Stripe** : test réel avec les clés de l'association (`STRIPE_SECRET_KEY`), en paiement unique et mensuel.
+- [ ] **Dons Stripe, bac à sable** : créer un compte Stripe de test (sandbox) et y essayer les quatre cas du formulaire avec ses clés (`STRIPE_SECRET_KEY`) : paiement unique et paiement récurrent (mensuel), chacun en EUR et en RON. Vérifier à chaque fois le montant et la devise affichés par Stripe, le retour sur le site après paiement et après abandon, et pour le récurrent l'abonnement créé dans Stripe.
+- [ ] **Dons Stripe, tests unitaires automatiques** : couvrir `src/lib/stripe.ts` et la route `/donate` sans appeler Stripe : validation du formulaire (devise, fréquence, bornes de montant de `AMOUNTS` en RON et en EUR), paramètres de la session Checkout envoyés pour chacun des quatre cas (mode `payment` ou `subscription`, devise, montant), réponse quand `STRIPE_SECRET_KEY` manque.
+- [ ] **Dons Stripe, production** : une fois le bac à sable validé, test réel avec les clés de l'association, en paiement unique et mensuel.
 - [ ] **E-mail du formulaire de contact** : configurer `SMTP_URL`, `MAIL_FROM`, `CONTACT_TO` et tester un envoi réel.
 - [ ] Le site réel a un module de don directement sur la page d'accueil (une fois / mensuel, montant). En local l'accueil n'a qu'un lien vers `/doneaza`. À remettre ou à assumer.
 - [x] **Formulaire 230 (redirection de 3,5 %)** : le scan pré-rempli pour 2023 est remplacé par `/formular-230.pdf`, généré à partir du formulaire vierge d'ANAF avec la bonne année et les coordonnées de l'association, mis en cache par année. Le bouton vers le formulaire en ligne n'apparaît que du 1er janvier au 25 mai ; le reste de l'année, seul le formulaire papier est proposé, avec la date de réouverture.
@@ -56,6 +59,7 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [x] Redirection `adoptii-animale-hope.org` → `www.adoptii-animale-hope.org` et HTTP → HTTPS : dans la configuration nginx générée, avec la compression et HSTS. Restent `Cache-Control` sur le HTML et CSP.
 - [x] Sauvegarde automatique de la base, des uploads et des pièces jointes : `deploy/backup.sh`, chaque nuit par cron, 14 sauvegardes gardées.
 - [ ] Choisir la destination des sauvegardes hors du VPS (`BACKUP_REMOTE`, une destination rsync) : sans elle, tout reste sur le même disque.
+- [ ] **Migrer le domaine `adoptii-animale-hope.org`, aujourd'hui hébergé chez Wix, vers Cloudflare.** Le déploiement prévu (nginx derrière Cloudflare, qui porte le certificat public) en dépend. Avant de changer quoi que ce soit, relever tous les enregistrements DNS actuels chez Wix, en particulier ceux de la messagerie (MX, SPF, DKIM) et de vérification (Search Console), pour les recréer à l'identique dans Cloudflare.
 - [ ] Plan de bascule DNS : baisser le TTL avant, garder Wix actif quelques jours, puis surveiller les 404 et la Search Console.
 - [ ] `favicon.ico` répond 404 (seul `favicon.svg` existe) ; les navigateurs et robots le demandent quand même.
 
