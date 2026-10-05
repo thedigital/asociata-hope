@@ -23,6 +23,7 @@
     "seo:fill": "node scripts/fill-seo.ts",
     "seo:check": "node scripts/seo-parity.ts",
     "pages:check": "node scripts/check-pages.ts",
+    "pages:sync": "node scripts/sync-pages.ts",
     "test": "node --test \"tests/*.test.ts\"",
     "test:server": "pnpm build && node --test \"tests/server/*.test.ts\""
   },

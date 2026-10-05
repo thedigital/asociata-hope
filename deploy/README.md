@@ -62,7 +62,10 @@ hope-deploy --rollback   # revient à la version précédente
 
 La nouvelle version est construite à côté pendant que l'ancienne répond ; la bascule n'a lieu
 qu'après un build et des migrations réussis, et le script revient seul en arrière si le serveur
-ne répond pas. Le retour arrière ne touche pas à la base : si une migration doit être défaite,
+ne répond pas. Chaque déploiement réécrit aussi en base le texte des pages de contenu à partir des
+fichiers de `migration/translations/{langue}/pages/` (`pnpm pages:sync`) : une page se modifie donc
+dans son fichier, puis se déploie. Rien d'autre n'est touché (animaux, champs SEO de l'admin).
+Le retour arrière ne touche pas à la base : si une migration doit être défaite,
 restaurer une copie de `shared/backups/`.
 
 La bascule se fait sans coupure : PM2 fait tourner deux instances (mode cluster) et les remplace

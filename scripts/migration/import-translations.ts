@@ -2,7 +2,7 @@
  * Imports the hand-written translations kept in migration/translations/{locale}/:
  *
  *   animals*.md     one "### {collection}/{slug}" heading per animal, followed by its description
- *   pages/{slug}.html   body of a content page
+ *   pages/{slug}.html   body of a content page (`syncPageFiles`, which every deployment runs on its own: `pnpm pages:sync`)
  *
  *   node scripts/migration/import-translations.ts
  *
@@ -15,16 +15,16 @@ import { and, eq } from 'drizzle-orm';
 import { db, schema } from '../../src/db/client.ts';
 import { isLocale } from '../../src/i18n/config.ts';
 import { findCollection } from '../../src/lib/animals.ts';
+import { syncPageFiles } from './page-files.ts';
 
 const ROOT = join(import.meta.dirname, '../../migration/translations');
-const { animals, animalTranslations, pages, pageTranslations } = schema;
+const { animals, animalTranslations } = schema;
 const list = (dir: string) => readdir(dir).catch(() => [] as string[]);
 let problems = 0;
 
 for (const locale of await list(ROOT)) {
   if (!isLocale(locale)) continue;
   let animalCount = 0;
-  let pageCount = 0;
 
   for (const file of (await list(join(ROOT, locale))).filter((f) => /^animals.*\.md$/.test(f)).sort()) {
     const sections = (await readFile(join(ROOT, locale, file), 'utf8')).split(/^### +/m).slice(1);
@@ -48,24 +48,13 @@ for (const locale of await list(ROOT)) {
       animalCount++;
     }
   }
-
-  for (const file of (await list(join(ROOT, locale, 'pages'))).filter((f) => f.endsWith('.html'))) {
-    const slug = file.replace(/\.html$/, '');
-    const page = db.select({ id: pages.id }).from(pages).where(eq(pages.slug, slug)).get();
-    if (!page) {
-      console.log(`  ${locale}/pages/${file}: unknown page`);
-      problems++;
-      continue;
-    }
-    const body = (await readFile(join(ROOT, locale, 'pages', file), 'utf8')).trim();
-    db.insert(pageTranslations)
-      .values({ pageId: page.id, locale, title: slug, body })
-      .onConflictDoUpdate({ target: [pageTranslations.pageId, pageTranslations.locale], set: { body } })
-      .run();
-    pageCount++;
-  }
-  console.log(`${locale}: ${animalCount} animal description(s), ${pageCount} page(s)`);
+  console.log(`${locale}: ${animalCount} animal description(s)`);
 }
+const pageFiles = await syncPageFiles();
+for (const file of pageFiles.unknown) console.log(`  ${file}: unknown page`);
+problems += pageFiles.unknown.length;
+console.log(`${pageFiles.files} page file(s), ${pageFiles.changed} text(s) updated`);
+
 /**
  * Corrections to texts that come from Wix (fixes.json): animal names that its machine translation
  * altered or phrases it got wrong (`replace`, whole words only) and field labels pasted in front of a description (`startAt`).

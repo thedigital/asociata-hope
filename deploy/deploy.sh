@@ -107,6 +107,8 @@ deploy() {
     echo "No database yet at $database: the migrations create an empty one (send the real one with deploy/push-data.sh)."
   fi
   node --env-file="$ENV_FILE" scripts/migrate.ts
+  # The text of the content pages comes from the files of the repository, never from the admin.
+  node --env-file="$ENV_FILE" scripts/sync-pages.ts
 
   step "Switching to the new version"
   touch "$release/.complete"
