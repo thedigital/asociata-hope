@@ -2546,9 +2546,9 @@ fieldset[aria-invalid='true'] {
   margin-bottom: 0;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 800px) {
   .donate-form__options {
-    grid-template-columns: minmax(0, 1fr) 260px;
+    grid-template-columns: minmax(0, 1fr) 330px;
   }
 
   .donate-form__options .segmented--small {

@@ -2,7 +2,7 @@ import type { Locale } from '../i18n/config.ts';
 import { env } from './env.ts';
 
 /** Donations by card go through Stripe Checkout: card data never touches this server. */
-export const CURRENCIES = ['ron', 'eur'] as const;
+export const CURRENCIES = ['ron', 'eur', 'usd'] as const;
 export type Currency = (typeof CURRENCIES)[number];
 export const FREQUENCIES = ['once', 'monthly'] as const;
 export type Frequency = (typeof FREQUENCIES)[number];
@@ -11,6 +11,7 @@ export type Frequency = (typeof FREQUENCIES)[number];
 export const AMOUNTS: Record<Currency, { presets: number[]; min: number; max: number }> = {
   ron: { presets: [50, 100, 250], min: 10, max: 50_000 },
   eur: { presets: [10, 25, 50], min: 2, max: 10_000 },
+  usd: { presets: [10, 25, 50], min: 2, max: 10_000 },
 };
 
 export type Donation = { amount: number; currency: Currency; frequency: Frequency; animal: string | null };
