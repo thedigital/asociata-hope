@@ -422,7 +422,7 @@ const de: FormsUi = {
     orEmail: 'Sie können uns auch direkt schreiben an',
   },
   donate: {
-    lead: 'Mit deinem Beitrag hilfst du uns, ausgesetzten Tieren jeden Tag ein besseres Leben zu bieten.',
+    lead: 'Mit Ihrem Beitrag helfen Sie uns, ausgesetzten Tieren jeden Tag ein besseres Leben zu bieten.',
     pick: 'Spendenmöglichkeit wählen',
     methods: {
       card: { label: 'Karte', hint: 'Online, einmalig oder monatlich' },

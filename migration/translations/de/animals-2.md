@@ -41,7 +41,7 @@ Lacey ist ein Wunder von einer Hündin … ruhig, sanft, liebevoll … sie ist u
 Uns lässt sie dahinschmelzen mit ihrem warmen, klugen Blick, mit ihren zärtlichen Gesten, mit der Freude und Zartheit, die sie ausstrahlt, und wir hoffen, dass es irgendwo einen guten, liebevollen und verantwortungsvollen Menschen gibt, der ihr ein Zuhause schenkt.
 
 ### adoptii-caini/chelsy
-Mein Name ist Chelsy. Was ich euch über das Schicksal der Hunde erzähle, die auf Bauernhöfen geboren werden, ist nichts Neues … die Hündinnen werden nicht kastriert, und deshalb werden die Welpen auf den Feldern ausgesetzt.
+Mein Name ist Chelsy. Was ich euch über das Schicksal der Hunde erzähle, die auf dem Land in den Höfen geboren werden, ist nichts Neues … die Hündinnen werden nicht kastriert, und deshalb werden die Welpen auf den Feldern ausgesetzt.
 
 So ist es mir und meinen drei Schwestern ergangen.
 
@@ -73,7 +73,7 @@ Inzwischen bin ich groß geworden und habe die Menschen entdeckt, die mir Zuneig
 Ich bin überzeugt, dass ich eine liebevolle Hündin sein werde, wenn ich meine eigene Familie habe. Es braucht nur ein bisschen Geduld von dir, guter Mensch, damit ich mich an dich und die neue Umgebung gewöhne.
 
 ### adoptii-caini/mura
-Ich bin Mura, und ich überlege die ganze Zeit, was und wie ich es euch sagen soll, damit ihr euren Blick und euer Herz mir zuwendet … eine schwere Aufgabe, aber ich werde mein Möglichstes tun. Es gibt so viele Hunde auf dieser Welt, die eine Familie brauchen … Hunde aller Arten, Altersstufen und Sorten … viele Hunde … manche haben Glück und werden schneller adoptiert, andere warten länger, manche warten ihr ganzes Leben, und wieder andere haben gar nicht die Möglichkeit zu warten, denn es gibt auch die Hundefänger.
+Ich bin Mura, und ich überlege die ganze Zeit, was und wie ich es euch sagen soll, damit ihr euren Blick und euer Herz mir zuwendet … eine schwere Aufgabe, aber ich werde mein Möglichstes tun. Es gibt so viele Hunde auf dieser Welt, die eine Familie brauchen … Hunde aller Arten, Altersstufen und Sorten … viele Hunde … manche haben Glück und werden schneller adoptiert, andere warten länger, manche warten ihr ganzes Leben, und wieder andere haben gar nicht die Möglichkeit zu warten, denn es gibt auch die Henker der Hunde.
 
 Ich bin einer dieser glücklichen Hunde, die „dem Beil der Henker“ entkommen sind. Jetzt träume ich davon, noch einen Schritt weiter zu gehen und nicht zu den Hunden zu gehören, die ein Leben lang auf eine Familie warten. Warum ich das sage? Ich bin ein erwachsener, schwarzer, mittelgroßer Hund … leider ist das alles, was die Menschen in mir sehen. Interessiert es jemanden, dass ich viel zu geben habe? Dass ich eine Hündin bin, die Menschen liebt, freundlich, folgsam und verträglich mit anderen Hunden? Oder dass ich ein ruhiges und ausgeglichenes Wesen habe? Ja, ich bin Mura, eine wunderbare Hündin, und ich warte auf den Menschen, der mir eine Familie schenken möchte und über die Farbe meines Fells hinweg meine schöne Seele sieht.
 

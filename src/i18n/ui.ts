@@ -19,7 +19,10 @@ export type Ui = {
   /** `lists`: description of a collection list when it has its own, otherwise `description` is used. */
   /** Short sentence under the title of a content page; the about page shows `homePage.lead` there. */
   pageLeads: Record<Exclude<ContentPage, 'despre-noi'>, string>;
-  seo: { homeTitle: string; description: string; lists?: Partial<Record<PageKey, string>> };
+  /** Alternative text of the photos shown by the templates, by file name in `data/uploads/pages`. */
+  photoAlts: Record<string, string>;
+  /** `description` is the default; `descriptions` gives a page its own (Romanian keeps the Wix ones). */
+  seo: { homeTitle: string; description: string; descriptions?: Partial<Record<PageKey, string>> };
   homePage: {
     h1: string;
     adoptions: string;
@@ -161,10 +164,19 @@ const ro: Ui = {
     'donation-thank-you-page': 'Sprijinul dumneavoastră schimbă viața animalelor de care avem grijă.',
     'confirmare-plata': 'Datorită dumneavoastră, putem continua să le hrănim și să le îngrijim.',
   },
+  photoAlts: {
+    '313291_9419d3ada2c44ed7a96a12b568a4523b_mv2.jpg': 'Câine alb cu blană lungă, cu gura deschisă a zâmbet',
+    '23c494_793de495bdea4797a48a44f4619b418b_mv2.jpg': 'Pisică tărcată cu alb, așezată, care privește în sus',
+    '313291_079206781e9a4fb7b249e7f0bebe6f31_mv2.jpg': 'Pisică albă cu pete tărcate, așezată pe podea',
+    '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg': 'Câine negru cu alb, așezat în țarcul său',
+    '23c494_b230480b309a4402bfc3e96f472913dc_mv2.png': 'Trei câini și trei pisici ale asociației HOPE',
+    '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg': 'Câini pe aleea sanctuarului, între iarbă și copaci',
+    '313291_8712b4a1e5f1447f9dc063ff9ccaee48_mv2.webp': 'Câine alb cu negru, cu blană lungă, așezat',
+  },
   seo: {
     homeTitle: 'Adoptii caini pisici | Bucuresti | Asociatia protectia animalelor HOPE',
     description: 'Asociatia protectia animalelor HOPE : Adoptii caini, pui si adulti',
-    lists: { 'adoptii-virtuale-caini': 'Adopta un caine virtual cu asociația Hope' },
+    descriptions: { 'adoptii-virtuale-caini': 'Adopta un caine virtual cu asociația Hope' },
   },
   homePage: {
     h1: 'Asociatia pentru protectia animalelor HOPE',
@@ -336,9 +348,36 @@ const en: Ui = {
     'donation-thank-you-page': 'Your support changes the lives of the animals in our care.',
     'confirmare-plata': 'Thanks to you, we can keep feeding and treating them.',
   },
+  photoAlts: {
+    '313291_9419d3ada2c44ed7a96a12b568a4523b_mv2.jpg': 'White long-haired dog with a happy open mouth',
+    '23c494_793de495bdea4797a48a44f4619b418b_mv2.jpg': 'Tabby and white cat sitting and looking up',
+    '313291_079206781e9a4fb7b249e7f0bebe6f31_mv2.jpg': 'White cat with tabby patches sitting on the floor',
+    '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg': 'Black and white dog sitting in its enclosure',
+    '23c494_b230480b309a4402bfc3e96f472913dc_mv2.png': 'Three dogs and three cats of the HOPE association',
+    '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg': 'Dogs on the path of the sanctuary, among grass and trees',
+    '313291_8712b4a1e5f1447f9dc063ff9ccaee48_mv2.webp': 'Black and white long-haired dog sitting',
+  },
   seo: {
     homeTitle: 'Dog and cat adoption | Bucharest | HOPE Animal Protection Association',
     description: 'HOPE Animal Protection Association: dogs and cats for adoption in Bucharest, puppies and adults.',
+    descriptions: {
+      'despre-noi': 'HOPE is an animal protection association founded in Bucharest in 2016: we rescue, care for and rehome stray dogs and cats.',
+      'adoptii-caini': 'Dogs for adoption in Bucharest: puppies and adult dogs rescued by the HOPE association, each waiting for a family.',
+      'adoptii-pisici': 'Cats for adoption in Bucharest: kittens and adult cats rescued by the HOPE association, each waiting for a family.',
+      'adoptii-virtuale-caini': 'Sponsor a dog of the HOPE association: you support its food and care from a distance, and it stays in our care.',
+      'adoptii-virtuale-pisici': 'Sponsor a cat of the HOPE association: you support its food and care from a distance, and it stays in our care.',
+      redirectioneaza: 'Redirect 3.5% of your Romanian income tax to the HOPE association: it costs you nothing and helps feed and treat rescued animals.',
+      'proiect-2022': 'The story of the HOPE sanctuary: four years of work to build a safe shelter for our dogs, with the help of our donors.',
+      'ai-gasit-un-animal': 'Found a stray dog or cat? What to do first, before looking for a family for it: the advice of the HOPE association.',
+      'cum-pot-adopta': 'How to adopt a dog or a cat from the HOPE association: the steps and the conditions of a responsible adoption.',
+      'raport-2024': 'Activity report of the HOPE association for 2024: a summary of our work for stray dogs and cats, with key figures.',
+      'ghid-de-crestere-si-ingrijire-pisici': 'Cat care guide of the HOPE association: the golden rules, from neutering to safe windows and balconies, food and toxic plants.',
+      'in-memoriam': 'In memory of the dogs and cats of the HOPE association who are no longer with us. They were part of our family.',
+      voluntariat: 'Volunteer with the HOPE association in Bucharest: give a little of your time to dogs and cats without a home.',
+      contact: 'Contact the HOPE association in Bucharest: adopting a dog or a cat, sponsorship, volunteering or any other question.',
+      doneaza: 'Donate to the HOPE association: by card, bank transfer, PayPal, SMS or by redirecting 3.5% of your income tax.',
+      'termeni-si-conditii': 'Terms and conditions for using the website of the HOPE Animal Protection Association.',
+    },
   },
   homePage: {
     h1: 'HOPE Animal Protection Association',
@@ -510,9 +549,36 @@ const fr: Ui = {
     'donation-thank-you-page': 'Votre soutien change la vie des animaux dont nous prenons soin.',
     'confirmare-plata': 'Grâce à vous, nous pouvons continuer à les nourrir et à les soigner.',
   },
+  photoAlts: {
+    '313291_9419d3ada2c44ed7a96a12b568a4523b_mv2.jpg': 'Chien blanc à poil long, la gueule ouverte comme un sourire',
+    '23c494_793de495bdea4797a48a44f4619b418b_mv2.jpg': 'Chat tigré et blanc assis, qui regarde vers le haut',
+    '313291_079206781e9a4fb7b249e7f0bebe6f31_mv2.jpg': 'Chat blanc à taches tigrées assis sur le sol',
+    '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg': 'Chien noir et blanc assis dans son enclos',
+    '23c494_b230480b309a4402bfc3e96f472913dc_mv2.png': 'Trois chiens et trois chats de l’association HOPE',
+    '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg': 'Des chiens sur l’allée du sanctuaire, entre l’herbe et les arbres',
+    '313291_8712b4a1e5f1447f9dc063ff9ccaee48_mv2.webp': 'Chien noir et blanc à poil long, assis',
+  },
   seo: {
     homeTitle: 'Adoption de chiens et de chats | Bucarest | Association de protection des animaux HOPE',
     description: 'Association de protection des animaux HOPE : chiens et chats à adopter à Bucarest, jeunes et adultes.',
+    descriptions: {
+      'despre-noi': 'HOPE est une association de protection des animaux fondée à Bucarest en 2016 : nous recueillons, soignons et faisons adopter chiens et chats errants.',
+      'adoptii-caini': 'Chiens à adopter à Bucarest : chiots et chiens adultes recueillis par l’association HOPE, qui attendent chacun une famille.',
+      'adoptii-pisici': 'Chats à adopter à Bucarest : chatons et chats adultes recueillis par l’association HOPE, qui attendent chacun une famille.',
+      'adoptii-virtuale-caini': 'Parrainez un chien de l’association HOPE : vous financez à distance sa nourriture et ses soins, et il reste sous notre garde.',
+      'adoptii-virtuale-pisici': 'Parrainez un chat de l’association HOPE : vous financez à distance sa nourriture et ses soins, et il reste sous notre garde.',
+      redirectioneaza: 'Redirigez 3,5 % de votre impôt sur le revenu roumain vers l’association HOPE : un geste gratuit qui aide à nourrir et soigner les animaux.',
+      'proiect-2022': 'L’histoire du sanctuaire de l’association HOPE : quatre ans de travail pour construire un refuge sûr pour nos chiens, grâce à nos donateurs.',
+      'ai-gasit-un-animal': 'Vous avez trouvé un chien ou un chat errant ? Ce qu’il faut faire avant de lui chercher une famille : les conseils de l’association HOPE.',
+      'cum-pot-adopta': 'Comment adopter un chien ou un chat de l’association HOPE : les étapes et les conditions d’une adoption responsable.',
+      'raport-2024': 'Rapport d’activité 2024 de l’association HOPE : le bilan de notre travail pour les chiens et les chats errants, avec les chiffres clés.',
+      'ghid-de-crestere-si-ingrijire-pisici': 'Guide de soins du chat de l’association HOPE : les règles d’or, de la stérilisation aux fenêtres et balcons, à l’alimentation et aux plantes toxiques.',
+      'in-memoriam': 'À la mémoire des chiens et des chats de l’association HOPE qui nous ont quittés. Ils ont fait partie de notre famille.',
+      voluntariat: 'Devenez bénévole de l’association HOPE à Bucarest : donnez un peu de votre temps aux chiens et aux chats sans foyer.',
+      contact: 'Contactez l’association HOPE à Bucarest : adoption d’un chien ou d’un chat, parrainage, bénévolat ou toute autre question.',
+      doneaza: 'Faites un don à l’association HOPE : par carte, virement, PayPal, SMS ou en redirigeant 3,5 % de votre impôt sur le revenu.',
+      'termeni-si-conditii': 'Conditions générales d’utilisation du site de l’association de protection des animaux HOPE.',
+    },
   },
   homePage: {
     h1: 'Association pour la protection des animaux HOPE',
@@ -666,7 +732,7 @@ const de: Ui = {
     voluntariat: 'Ehrenamt',
     contact: 'Kontakt',
     doneaza: 'Spenden',
-    'termeni-si-conditii': 'Allgemeine Geschäftsbedingungen',
+    'termeni-si-conditii': 'Nutzungsbedingungen',
     'donation-thank-you-page': 'Danke für Ihre Spende',
     'confirmare-plata': 'Zahlungsbestätigung',
   },
@@ -684,9 +750,36 @@ const de: Ui = {
     'donation-thank-you-page': 'Ihre Unterstützung verändert das Leben der Tiere in unserer Obhut.',
     'confirmare-plata': 'Dank Ihnen können wir sie weiter füttern und versorgen.',
   },
+  photoAlts: {
+    '313291_9419d3ada2c44ed7a96a12b568a4523b_mv2.jpg': 'Weißer langhaariger Hund mit fröhlich geöffnetem Maul',
+    '23c494_793de495bdea4797a48a44f4619b418b_mv2.jpg': 'Getigerte Katze mit Weiß, die sitzt und nach oben schaut',
+    '313291_079206781e9a4fb7b249e7f0bebe6f31_mv2.jpg': 'Weiße Katze mit getigerten Flecken, die auf dem Boden sitzt',
+    '313291_e05ab76e725f4fd481f29bddd0e83c61_mv2.jpg': 'Schwarz-weißer Hund, der in seinem Gehege sitzt',
+    '23c494_b230480b309a4402bfc3e96f472913dc_mv2.png': 'Drei Hunde und drei Katzen des Tierschutzvereins HOPE',
+    '23c494_92f4e22fa9db4ce5b1a853d2850a5388_mv2.jpeg': 'Hunde auf dem Weg des Gnadenhofs, zwischen Gras und Bäumen',
+    '313291_8712b4a1e5f1447f9dc063ff9ccaee48_mv2.webp': 'Schwarz-weißer langhaariger Hund, sitzend',
+  },
   seo: {
     homeTitle: 'Hunde und Katzen adoptieren | Bukarest | Tierschutzverein HOPE',
     description: 'Tierschutzverein HOPE: Hunde und Katzen zur Adoption in Bukarest, Jungtiere und erwachsene Tiere.',
+    descriptions: {
+      'despre-noi': 'HOPE ist ein 2016 in Bukarest gegründeter Tierschutzverein: Wir retten, versorgen und vermitteln herrenlose Hunde und Katzen.',
+      'adoptii-caini': 'Hunde zur Adoption in Bukarest: Welpen und erwachsene Hunde, gerettet vom Tierschutzverein HOPE, warten auf eine Familie.',
+      'adoptii-pisici': 'Katzen zur Adoption in Bukarest: Kätzchen und erwachsene Katzen, gerettet vom Tierschutzverein HOPE, warten auf eine Familie.',
+      'adoptii-virtuale-caini': 'Übernehmen Sie die Patenschaft für einen Hund des Tierschutzvereins HOPE: Sie unterstützen Futter und Pflege, er bleibt in unserer Obhut.',
+      'adoptii-virtuale-pisici': 'Übernehmen Sie die Patenschaft für eine Katze des Tierschutzvereins HOPE: Sie unterstützen Futter und Pflege, sie bleibt in unserer Obhut.',
+      redirectioneaza: 'Leiten Sie 3,5 % Ihrer rumänischen Einkommensteuer an den Tierschutzverein HOPE um: kostenlos für Sie, eine Hilfe für Futter und Pflege der Tiere.',
+      'proiect-2022': 'Die Geschichte des Gnadenhofs von HOPE: vier Jahre Arbeit, um unseren Hunden eine sichere Zuflucht zu bauen, dank unserer Spender.',
+      'ai-gasit-un-animal': 'Sie haben einen herrenlosen Hund oder eine Katze gefunden? Was zu tun ist, bevor Sie ein Zuhause suchen: die Ratschläge des Tierschutzvereins HOPE.',
+      'cum-pot-adopta': 'So adoptieren Sie einen Hund oder eine Katze vom Tierschutzverein HOPE: die Schritte und Bedingungen einer verantwortungsvollen Adoption.',
+      'raport-2024': 'Tätigkeitsbericht 2024 des Tierschutzvereins HOPE: unsere Arbeit für herrenlose Hunde und Katzen im Überblick, mit den wichtigsten Zahlen.',
+      'ghid-de-crestere-si-ingrijire-pisici': 'Ratgeber zur Katzenpflege des Tierschutzvereins HOPE: die goldenen Regeln, von der Kastration über sichere Fenster und Balkone bis zu Futter und giftigen Pflanzen.',
+      'in-memoriam': 'In Erinnerung an die Hunde und Katzen des Tierschutzvereins HOPE, die nicht mehr bei uns sind. Sie waren Teil unserer Familie.',
+      voluntariat: 'Helfen Sie ehrenamtlich beim Tierschutzverein HOPE in Bukarest: Schenken Sie Hunden und Katzen ohne Zuhause ein wenig Ihrer Zeit.',
+      contact: 'Kontakt zum Tierschutzverein HOPE in Bukarest: Adoption eines Hundes oder einer Katze, Patenschaft, Ehrenamt oder jede andere Frage.',
+      doneaza: 'Spenden Sie an den Tierschutzverein HOPE: per Karte, Überweisung, PayPal, SMS oder durch Umleitung von 3,5 % Ihrer Einkommensteuer.',
+      'termeni-si-conditii': 'Nutzungsbedingungen der Website des Tierschutzvereins HOPE.',
+    },
   },
   homePage: {
     h1: 'Tierschutzverein HOPE',

@@ -79,11 +79,11 @@ else if (animal && collection) {
   if (animal.photos[0]) image = imageUrl('animals', animal.photos[0].file, 1200);
 } else if (animals || isContact) {
   title = titleOf(ui.pages[key]);
-  description = ui.seo.lists?.[key] || description;
+  description = ui.seo.descriptions?.[key] || description;
 }
 else if (page) {
   title = page.seoTitle || titleOf(ui.pages[key]);
-  description = page.seoDescription || description;
+  description = page.seoDescription || ui.seo.descriptions?.[key] || description;
 }
 const query = Astro.url.searchParams;
 
@@ -176,7 +176,7 @@ const jsonLd = !found || filtered || unlisted ? [] : [
           <div class="container page-split">
             <div class="page-split__photos">
               {splitPhotos.map(({ file, size }) => (
-                <img class="page-split__image" src={imageUrl('pages', file, 800)} srcset={srcset('pages', file, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt="" width={size?.width} height={size?.height} />
+                <img class="page-split__image" src={imageUrl('pages', file, 800)} srcset={srcset('pages', file, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt={ui.photoAlts[file] ?? ''} width={size?.width} height={size?.height} />
               ))}
             </div>
             {segments[0] === 'redirectioneaza' ? (

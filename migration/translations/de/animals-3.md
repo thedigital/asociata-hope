@@ -100,7 +100,7 @@ Mit seinem schwarz-weißen Fell, das wie von einem detailverliebten Künstler ge
 Jerry liebt die einfachen Momente: die Stille eines Zimmers, einen Sonnenstrahl auf dem Boden, einen sanften Blick, eine Hand, die ohne Eile streichelt. Er ist die Art Gefährte, die schweigend an deiner Seite ist, dein Zuhause aber mit einer ruhigen, verlässlichen Gegenwart erfüllt.
 
 Er sucht nicht nach Perfektion. Er sucht einen Menschen. Ein Zuhause, in dem er jeden Tag aufs Neue gewählt und so geliebt wird, wie er ist: zart, sensibel, treu.
-Wenn du es zulässt, wird Jerry nicht nur deine Katze sein – er wird ein Teil deiner Geschichte 🤍
+Wenn du es zulässt, wird Jerry nicht nur dein Kater sein – er wird ein Teil deiner Geschichte 🤍
 
 🐾 Adoptionsbedingungen:
 – Adoption nur in Bukarest
@@ -173,7 +173,7 @@ Javier – der Letzte aus der Geschichte der 11 geretteten Kätzchen
 
 Vor dreieinhalb Jahren haben wir an einem einzigen Wochenende 11 Kätzchen von Feldern und aus der Umgebung von Wohnblocks gerettet. Alle wurden adoptiert, eines nach dem anderen … nur Javier nicht. Er ist als Einziger ohne Familie geblieben, und das schmerzt uns sehr.
 
-Javier ist ein sanfter, anhänglicher Kater, der es gewohnt ist, mit anderen Katzen zusammenzuleben. Zu seinem Glück suchen wir eine Familie, die bereits eine oder sogar zwei Katzen hat, damit Javier einen Gefährten zum Spielen und fürs Leben bekommt.
+Javier ist ein sanfter, anhänglicher Kater, der es gewohnt ist, mit anderen Katzen zusammenzuleben. Damit er glücklich wird, suchen wir eine Familie, die bereits eine oder sogar zwei Katzen hat, damit Javier einen Gefährten zum Spielen und fürs Leben bekommt.
 
 Er ist entwurmt, geimpft und kastriert und bereit, sich endlich vom Tierheim zu verabschieden und seinen Platz in einem liebevollen Zuhause zu finden.
 
@@ -347,7 +347,7 @@ Sie ist die Art Katze, die Bewegung, Spiel und Interaktion liebt, aber auch ruhi
 
 Lemonade hat eine fröhliche und offene Persönlichkeit, passt sich leicht an und bringt gute Laune, Schwung und aufrichtige Zuneigung mit. Sie ist die ideale Gefährtin für eine Familie, die sich eine aktive, gesellige Katze voller Leben wünscht, die jeden Tag ein bisschen schöner macht.
 
-🍊 Lemonade ist nicht nur eine Katze – sie ist ein Schuss tägliche Freude.
+🍊 Lemonade ist nicht nur eine Katze – sie ist ein Quäntchen Freude für jeden Tag.
 🐾 Adoptionsbedingungen:
 – Adoption nur in Bukarest
 – Wohnung

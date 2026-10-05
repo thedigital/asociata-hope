@@ -70,7 +70,7 @@ Für Orange kann mit einer Spende über unsere Spendenseite eine Patenschaft üb
 ### adoptii-virtuale-pisici/shary
 Shary ist ein sehr ängstlicher Kater. Obwohl wir uns um ihn kümmern, seit er ein Kätzchen von 3 Monaten war, lässt er weder Streicheln noch die Nähe von Menschen zu. Er hat Traumata erlitten, als er niemandem gehörte, außerdem war er sehr krank und musste viele Behandlungen und Spritzen ertragen. Er ist ein ängstlicher Kater geblieben, der Menschen nicht vertraut.
 
-Deshalb kann Shary nicht wirklich adoptiert werden, aber ihr könnt ihn mit einer Spende über unsere Spendenseite unterstützen. Vielen Dank!
+Deshalb kann Shary nicht in ein Zuhause vermittelt werden, aber ihr könnt ihn mit einer Spende über unsere Spendenseite unterstützen. Vielen Dank!
 
 ### adoptii-virtuale-pisici/toto
 Ein Schneebällchen zum Adoptieren und Liebhaben!
@@ -143,4 +143,4 @@ Er ist freundlich, anschmiegsam und immer bereit, dir ein Lächeln ins Gesicht z
 Ziggy sucht eine liebevolle Familie, in der er verwöhnt wird und seine Freude mit Menschen und am liebsten auch mit einem Katzengefährten teilen kann. ❤️
 
 ### adoptii-virtuale-pisici/zapp
-Zapp ist ein sehr ängstlicher Kater. Obwohl wir uns um ihn kümmern, seit er ein Kätzchen von 3 Monaten war, lässt er weder Streicheln noch die Nähe von Menschen zu. Er hat Traumata erlitten, als er niemandem gehörte, außerdem war er sehr krank und musste viele Behandlungen und Spritzen ertragen. Er ist ein ängstlicher Kater geblieben, der Menschen nicht vertraut. Deshalb kann Zapp nicht wirklich adoptiert werden, aber ihr könnt ihn mit einer Spende über unsere Spendenseite unterstützen. Vielen Dank!
+Zapp ist ein sehr ängstlicher Kater. Obwohl wir uns um ihn kümmern, seit er ein Kätzchen von 3 Monaten war, lässt er weder Streicheln noch die Nähe von Menschen zu. Er hat Traumata erlitten, als er niemandem gehörte, außerdem war er sehr krank und musste viele Behandlungen und Spritzen ertragen. Er ist ein ängstlicher Kater geblieben, der Menschen nicht vertraut. Deshalb kann Zapp nicht in ein Zuhause vermittelt werden, aber ihr könnt ihn mit einer Spende über unsere Spendenseite unterstützen. Vielen Dank!

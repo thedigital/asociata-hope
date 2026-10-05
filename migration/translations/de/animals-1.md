@@ -34,7 +34,7 @@ Er ist ein Jahr und ein paar Monate alt, mittelgroß, sanft, herzlich und übera
 💔 Bitte lasst ihn nicht im Tierheim alt werden.
 Marley verdient die Chance zu erfahren, was „Zuhause“ bedeutet, und nicht nur Zäune und Warten.
 
-🙏 Jedes Teilen kann ihn seiner Familie näherbringen. Manchmal ist ein einfaches Teilen alles, was zwischen einem Hund und einem besseren Leben steht.
+🙏 Jedes Mal, wenn dieser Beitrag geteilt wird, kann ihn das seiner Familie näherbringen. Manchmal ist ein einfaches Teilen alles, was zwischen einem Hund und einem besseren Leben steht.
 
 🏡 Wir suchen für ihn eine verantwortungsvolle Familie in Bukarest oder Umgebung, die ihm Sicherheit, Stabilität und Liebe schenkt.
 
@@ -47,7 +47,7 @@ Vielleicht bist genau du der Mensch, der sein Schicksal verändert 🤍
 Luke verlangt nicht viel – nur eine Familie, einen Ort, den er „Zuhause“ nennen kann. Leider vergeht die Zeit, und er wartet noch immer …
 💔 Bitte lasst ihn nicht im Tierheim alt werden.
 
-Jedes Teilen ist eine weitere Chance für Luke, gesehen, ins Herz geschlossen und ausgewählt zu werden. Manchmal kann ein einfaches Teilen ein Schicksal verändern.
+Jedes Mal, wenn dieser Beitrag geteilt wird, ist das eine weitere Chance für Luke, gesehen, ins Herz geschlossen und ausgewählt zu werden. Manchmal kann ein einfaches Teilen ein Schicksal verändern.
 
 🏡 Wir suchen für ihn eine verantwortungsvolle Familie in Bukarest oder Umgebung, die ihm Sicherheit, Geduld und Liebe schenkt.
 
@@ -56,7 +56,7 @@ Vielleicht bist genau du der Mensch, auf den er wartet 🤍
 
 ### adoptii-caini/ava
 Ava ist ein mutiges und ausgeglichenes Mädchen – diejenige, die den ersten Schritt macht, wenn etwas Neues auftaucht. Obwohl ihr Leben nicht leicht begonnen hat, ist Ava zu einer sanften, aufmerksamen Hündin herangewachsen, die Nähe sucht.
-Sie ist etwa 8 Monate alt, mittelgroß (≈15 kg) und bereit für den Umzug nach Hause: entwurmt, geimpft und kastriert.
+Sie ist etwa 8 Monate alt, mittelgroß (≈15 kg) und bereit für ihr neues Zuhause: entwurmt, geimpft und kastriert.
 Ava sucht ihren Menschen – einen, der ihr Sicherheit, Geduld und einen Ort schenkt, den sie „Zuhause“ nennen kann.
 
 📍 Adoption in Bukarest oder Umgebung
@@ -70,8 +70,8 @@ Gretel ist freundlich, sanft und liebt Streicheleinheiten, die Art Hündin, die 
 💔 Gretel wartet auf die Chance auf ein besseres Leben.
 Kein Tierheim. Kein endloses Warten. Sondern ein Zuhause, ein eigener Platz, ein Mensch, der sich für sie entscheidet.
 
-🙏 Ihr könnt ihr diese Chance mit einem einfachen Teilen schenken.
-Ein Teilen kann der Schritt sein, der sie aus der Anonymität holt und nach Hause bringt.
+🙏 Ihr könnt ihr diese Chance schenken, indem ihr diesen Beitrag einfach teilt.
+Das kann der Schritt sein, der sie aus der Anonymität holt und nach Hause bringt.
 
 🏡 Die Adoption ist in Bukarest und Umgebung möglich, für eine verantwortungsvolle Familie, die ihr Stabilität, Sicherheit und Liebe bietet.
 
@@ -121,7 +121,7 @@ Nur ein Zuhause. Eine sanfte Hand. Einen Menschen, der sie ansieht und sagt:
 „Bleib. Ab heute gehörst du zu mir.“ ❤️
 
 Wenn dein Herz beim Lesen dieser Zeilen einen Sprung gemacht hat, wartet vielleicht einer von ihnen auf dich.
-Und wenn du nicht adoptieren kannst, kann ein Teilen ihr Schicksal verändern.
+Und wenn du nicht adoptieren kannst, kann schon das Teilen dieses Beitrags ihr Schicksal verändern.
 
 ### adoptii-caini/lizzie
 🐾 Ich bin Lizzie und warte noch immer auf meine Familie … 🐾

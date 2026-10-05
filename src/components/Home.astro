@@ -79,7 +79,7 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
       </ul>
     </div>
     <div class="hero__photo">
-      <img src={imageUrl('pages', HERO, 800)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 900px) 620px, 100vw" alt="" width={heroSize?.width} height={heroSize?.height} fetchpriority="high" />
+      <img src={imageUrl('pages', HERO, 800)} srcset={srcset('pages', HERO, [400, 800, 1200])} sizes="(min-width: 900px) 620px, 100vw" alt={ui.photoAlts[HERO]} width={heroSize?.width} height={heroSize?.height} fetchpriority="high" />
     </div>
   </div>
 </section>
@@ -92,7 +92,7 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
       adoptions.map((tile) => (
         <li>
           <a href={tile.href}>
-            <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 700px) 480px, 100vw" alt="" width="800" height="800" loading="lazy" />
+            <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 700px) 480px, 100vw" alt={ui.photoAlts[tile.file]} width="800" height="800" loading="lazy" />
             <span>{tile.label}</span>
           </a>
         </li>
@@ -122,7 +122,7 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
         sponsorships.map((tile) => (
           <li>
             <a href={tile.href}>
-              <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 900px) 320px, (min-width: 700px) 480px, 100vw" alt="" width="800" height="800" loading="lazy" />
+              <img src={imageUrl('pages', tile.file, 800)} srcset={srcset('pages', tile.file, [400, 800])} sizes="(min-width: 900px) 320px, (min-width: 700px) 480px, 100vw" alt={ui.photoAlts[tile.file]} width="800" height="800" loading="lazy" />
               <span>{tile.label}</span>
             </a>
           </li>
@@ -155,7 +155,7 @@ const methods = DONATION_METHODS.filter((method) => method !== 'redirect');
 </section>
 
 <section class="home-section home-redirect">
-  <img src={imageUrl('pages', SANCTUARY, 800)} srcset={srcset('pages', SANCTUARY, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt="" width={sanctuarySize?.width} height={sanctuarySize?.height} loading="lazy" />
+  <img src={imageUrl('pages', SANCTUARY, 800)} srcset={srcset('pages', SANCTUARY, [400, 800])} sizes="(min-width: 900px) 460px, 100vw" alt={ui.photoAlts[SANCTUARY]} width={sanctuarySize?.width} height={sanctuarySize?.height} loading="lazy" />
   <div>
     <RedirectSummary locale={locale} />
   </div>

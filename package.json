@@ -22,7 +22,8 @@
     "import:translations": "node scripts/migration/import-translations.ts",
     "seo:fill": "node scripts/fill-seo.ts",
     "seo:check": "node scripts/seo-parity.ts",
-    "pages:check": "node scripts/check-pages.ts"
+    "pages:check": "node scripts/check-pages.ts",
+    "test": "node --test \"tests/**/*.test.ts\""
   },
   "dependencies": {
     "@astrojs/node": "^11.1.6",
