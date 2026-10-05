@@ -120,8 +120,8 @@ Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et fra
 | Sections 7 et 9 | « Cautati pe google si veti gasi mai multe » / « liste intregi de plante » | Absent |
 | Section 7, aliments toxiques | Une phrase : « ciocolata, strugurii, ceapa, usturoiul sunt cateva dintre ele » | Une liste à puces (chocolat, raisins, oignon, ail) |
 
-- [ ] **Question 3.** Le français doit-il reprendre le texte complet, critique des vétérinaires comprise, ou la version adoucie est-elle un choix ? Dans le second cas, faut-il adoucir aussi les autres langues ?
-- [ ] Une fois les réponses connues, aligner les langues concernées. Les textes roumain et anglais du guide du chat et l'anglais de « Comment adopter » sont dans `migration/translations/{ro,en}/pages/` ; le français de ces deux pages vient du crawl Wix et demandera un fichier dans `migration/translations/fr/pages/`.
+- [x] **Question 3**, tranchée le 5 octobre 2026 : le français reprend le texte complet des autres langues, critique des vétérinaires comprise (`migration/translations/fr/pages/ghid-de-crestere-si-ingrijire-pisici.html`, traduit du roumain). Seul écart voulu : le français dit « magasins spécialisés (type bricolage) » là où le roumain, l'anglais et l'allemand citent Hornbach. Le tableau ci-dessus décrit l'ancien texte français de Wix.
+- [ ] Une fois les réponses connues, aligner les langues concernées. Les textes roumain et anglais du guide du chat et l'anglais de « Comment adopter » sont dans `migration/translations/{ro,en}/pages/` ; le français de « Comment adopter » est dans `migration/translations/fr/pages/` ; il ne reste à aligner que « Comment adopter » (questions 1 et 2).
 - [ ] Les titres des dix sections du guide du chat en roumain, anglais et allemand (« 1. Sterilizarea », « 6. Geamuri si balcoane »…) ont été ajoutés lors de la refonte pour aligner la présentation sur le français : à faire valider.
 
 ### SEO, finitions
