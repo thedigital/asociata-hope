@@ -76,6 +76,19 @@ deploy() {
   step "Installing dependencies"
   pnpm install --frozen-lockfile
 
+  # The prebuilt binary of better-sqlite3 needs a recent C library (glibc 2.33). Where it does not
+  # load, the module is compiled here and its prebuilt binary removed, so the compiled one is used.
+  if ! node -e "new (require('better-sqlite3'))(':memory:')" 2>/dev/null; then
+    step "Compiling better-sqlite3 for this system"
+    (
+      cd "$(node -p "path.dirname(require.resolve('better-sqlite3/package.json'))")"
+      pnpm dlx node-gyp@10 rebuild --release --force_build=1 >/dev/null 2>&1 \
+        || fail "better-sqlite3 could not be compiled (build-essential and python3 are needed)."
+      rm -f -- "$(node -p "require('./lib/binding.js').getPrebuildPath()")"
+    )
+    node -e "new (require('better-sqlite3'))(':memory:')"
+  fi
+
   step "Building"
   # SITE_URL is the only setting read at build time (hosts accepted behind the proxy, astro.config.ts).
   SITE_URL="$(setting SITE_URL)" pnpm build
@@ -109,7 +122,7 @@ deploy() {
   fi
 
   step "Cleaning up"
-  releases | grep -vxF "$release" | head -n -"$((KEEP_RELEASES - 1))" | xargs -r rm -rf --
+  releases | { grep -vxF "$release" || true; } | head -n -"$((KEEP_RELEASES - 1))" | xargs -r rm -rf --
 
   echo
   echo "Deployed $(basename "$release") ($sha)."

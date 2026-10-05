@@ -83,6 +83,17 @@ après l'avoir changé, redéployer.
   temps la rafraîchit.
 - Un domaine autre que `www.adoptii-animale-hope.org` est servi avec `X-Robots-Tag: noindex` :
   la copie de test ne peut pas concurrencer le site Wix dans les moteurs.
+- **Mot de passe pour une version en validation** : quand `/etc/nginx/hope.htpasswd` existe,
+  tout le site le demande (authentification HTTP « basic »). Le créer (en root), puis relancer
+  `setup-nginx.sh` ; le supprimer et relancer le script ouvre le site. Tant qu'il est là, le
+  webhook Stripe est refusé lui aussi.
+
+  ```bash
+  printf 'hope:%s\n' "$(openssl passwd -apr1)" > /etc/nginx/hope.htpasswd
+  chown root:www-data /etc/nginx/hope.htpasswd && chmod 640 /etc/nginx/hope.htpasswd
+  ```
+- **Serveur partagé** : si d'autres sites sont activés dans nginx, `setup-nginx.sh` n'écrit que
+  le site du domaine ; le serveur par défaut de nginx et les autres sites ne sont pas touchés.
 - Ne pas activer « Cache Everything » : les pages HTML dépendent du cookie de langue (redirection
   de première visite) et de la session admin.
 - Cloudflare refuse les envois de plus de 100 Mo (offres Free et Pro). Les limites du site en
