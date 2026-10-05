@@ -14,6 +14,7 @@ import Base from '../layouts/Base.astro';
 import { findCollection, getAnimal, isDeceased, listAnimals, listDeceased } from '../lib/animals.ts';
 import { CONTACT_MAX_BYTES, REASONS, emptyContact, isRateLimited, notifyContactMessage, parseContactForm, saveContactMessage, type ContactField } from '../lib/contact.ts';
 import { imageSize } from '../lib/image-size.ts';
+import { breadcrumbLd, organizationLd, webPageLd, websiteLd, type Crumb } from '../lib/json-ld.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
 import { splitClosingPhoto, structureBody } from '../lib/page-body.ts';
 import { CONTENT_PAGES, PAGE_ILLUSTRATIONS, REMOVED_PATHS, STORY_PAGES, SITE, UNLISTED_PAGES, type ContentPage, type PageKey } from '../lib/site.ts';
@@ -67,17 +68,6 @@ const key = segments[0] as PageKey;
 // Every content page has a sentence under its title; the about page states the mission, with the sentence of the home hero.
 const contentPage = segments[0] as ContentPage;
 const heroLead = page ? (contentPage === 'despre-noi' ? ui.homePage.lead : ui.pageLeads[contentPage]) : null;
-const organization = {
-  '@context': 'https://schema.org',
-  '@type': 'AnimalShelter',
-  name: SITE.legalName,
-  url: Astro.site!.origin,
-  logo: `${Astro.site!.origin}/logo.webp`,
-  email: SITE.email,
-  address: { '@type': 'PostalAddress', addressCountry: 'RO', addressLocality: 'București' },
-  sameAs: Object.values(SITE.social),
-};
-
 let title = titleOf(ui.notFound.title);
 let description = ui.seo.description;
 let image: string | undefined;
@@ -132,9 +122,21 @@ const isDonation = page !== null && segments[0] === 'doneaza';
 // Pages reached with parameters (filters, pre-filled forms, form results) are not indexed.
 const filtered = (animals !== null || isContact || isDonation) && [...Astro.url.searchParams.values()].some(Boolean);
 const unlisted = page !== null && UNLISTED_PAGES.includes(segments[0] as ContentPage);
+
+// Structured data: indexable pages only. The home page describes the association and the site,
+// the others give their place under it.
+const origin = Astro.site!.origin;
+const crumbs: Crumb[] = animal && collection
+  ? [{ name: ui.pages[collection.path as PageKey], path: `/${collection.path}` }, { name: animal.name, path }]
+  : [{ name: ui.pages[key], path }];
+const jsonLd = !found || filtered || unlisted ? [] : [
+  ...(isHome ? [organizationLd(origin, locale, ui), websiteLd(origin, locale, ui)] : []),
+  webPageLd(origin, locale, { path, title, description, image, list: animals !== null }),
+  ...(isHome ? [] : [breadcrumbLd(origin, locale, ui, crumbs)]),
+];
 ---
 
-<Base locale={enabled ? locale : DEFAULT_LOCALE} path={path} title={title} description={description} image={image} noindex={!found || filtered || unlisted} alternates={Boolean(found)} jsonLd={isHome ? [organization] : []}>
+<Base locale={enabled ? locale : DEFAULT_LOCALE} path={path} title={title} description={description} image={image} noindex={!found || filtered || unlisted} alternates={Boolean(found)} jsonLd={jsonLd}>
   {isHome && <Home locale={locale} />}
   {animals && collection && <AnimalList collection={collection} animals={animals} locale={locale} filters={Astro.url.searchParams} />}
   {animal && collection && <AnimalDetail collection={collection} animal={animal} locale={locale} />}

@@ -121,8 +121,7 @@ Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et fra
 - [ ] Les titres des dix sections du guide du chat en roumain, anglais et allemand (« 1. Sterilizarea », « 6. Geamuri si balcoane »…) ont été ajoutés lors de la refonte pour aligner la présentation sur le français : à faire valider.
 
 ### SEO, finitions
-- [ ] Balises Twitter : seule `twitter:card` est présente ; Wix envoie aussi `twitter:title`, `twitter:description` et `twitter:image`.
-- [ ] JSON-LD de l'accueil : Wix a `LocalBusiness` + `WebSite`, le local a `AnimalShelter` seul. Ajouter `WebSite`.
+- [x] JSON-LD (`src/lib/json-ld.ts`), dans la langue de chaque page. Accueil : `AnimalShelter` complété (nom traduit en variante, mission, année de fondation, code fiscal) et `WebSite`, comme le `LocalBusiness` + `WebSite` de Wix. Toutes les pages indexables des quatre langues : la page elle-même (`WebPage`, `CollectionPage` pour les listes, `AboutPage`, `ContactPage`) et son fil d'Ariane (`BreadcrumbList`), absents de Wix. Rien sur les pages en `noindex`.
 - [ ] Icônes Facebook et Instagram du pied de page remplacées par des liens texte ; lien « Acasa » absent du menu (le logo y mène). À valider avec l'association.
 - [ ] Bandeau cookies : Wix en affiche un, le local non. Il n'en faut pas tant qu'aucun outil de mesure n'est ajouté ; à revoir si on installe des statistiques.
 - [ ] Statistiques de fréquentation : rien en local. Choisir un outil (de préférence sans cookie) pour suivre le trafic après la bascule.
@@ -155,3 +154,4 @@ Ces différences sont sorties de la comparaison mais sont des améliorations ass
 - **Vidéos** : les fiches locales ont un lecteur ou un lien vidéo dans le HTML ; Wix n'en expose aucun dans le sien (il les charge sans doute en JavaScript, non vérifié).
 - **Images** : deux de moins par page, ce sont les icônes Facebook et Instagram du pied de page.
 - **Allemand** : entièrement nouveau.
+- **Balises Twitter** : Wix envoie `twitter:title`, `twitter:description` et `twitter:image` ; le local n'a que `twitter:card`. L'association n'a pas de compte, et X reprend de toute façon les balises Open Graph quand ces trois-là manquent.
