@@ -42,7 +42,7 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
   - Liens externes : tous valides. Un contrôle automatique reçoit 400 de la page Facebook (filtrage des robots) et 403 d'adoptiicaini.ro et d'adoptiipisici.ro (challenge Cloudflare) : ce sont des faux positifs, confirmés à la main.
   - Redirections ajoutées : `/ro` et `/ro/…` vers l'URL sans préfixe (Wix le fait aussi), les anciens sitemaps Wix (`*-sitemap.xml`) vers `/sitemap.xml`, et l'ancien formulaire 230 en un seul saut au lieu de deux.
   - Liens de la prod absents du nouveau site, voulus : le formulaire en ligne de redirectioneaza.ro (affiché du 1er janvier au 25 mai seulement) et le scan du formulaire 230 de 2023 (remplacé par `/formular-230.pdf`).
-- [ ] `/en/despre-noi` : sur Wix, le texte anglais contient un lien vers un profil Facebook personnel (`facebook.com/emil.pruna`), absent du roumain et du français. Il n'est pas repris. À confirmer avec l'association.
+- [x] `/en/despre-noi` : sur Wix, le texte anglais contient un lien vers un profil Facebook personnel (`facebook.com/emil.pruna`), absent du roumain et du français. Il n'est pas repris, et c'est voulu (confirmé le 5 octobre 2026).
 - [ ] Search Console : revalider la propriété (aucune balise de vérification dans le HTML de Wix, elle passe sans doute par Wix ou le DNS), soumettre le nouveau `/sitemap.xml`. Les anciens sitemaps Wix (`en_en-sitemap.xml`, `fr_fr-sitemap.xml`, `pages-sitemap.xml`…) y redirigent en 301 ; les retirer de la Search Console.
 
 ### Fonctionnel
@@ -88,18 +88,18 @@ Les listes d'animaux, les textes, les photos des fiches et les documents à tél
 - [x] Trois erreurs de l'original roumain corrigées au passage, dans les trois langues : la fiche de Bach citait Magnolia dans ses conditions d'adoption, celle d'Aramis parlait d'Athos, celle de Roa l'appelait « Runa ».
 - [x] Page de remerciement après un don (`/donation-thank-you-page`, où Stripe renvoie le donateur) : en roumain, anglais et français elle affichait le modèle Wix non rempli (« Merci Nom du donateur… don de 0 RON… n° 1000 »). Remplacée par un vrai texte, comme en allemand.
 - [x] Relecture complète de l'allemand (5 octobre 2026), faite par Claude contre l'original roumain, pas par un locuteur natif : les 95 fiches d'animaux, les 13 pages et les textes de l'interface. La traduction était fidèle ; 13 retouches dans les fiches (un contresens sur Javier, « nicht wirklich adoptiert » pour Shary et Zapp, tournures maladroites autour de « Teilen », « Hundefänger » puis « Henker » dans la même phrase pour Mura) et 5 dans les pages et l'interface : « Nutzungsbedingungen » au lieu de « Allgemeine Geschäftsbedingungen » (le site ne vend rien), « Gnadenhof » partout pour le sanctuaire, une phrase coupée en deux dans le guide du chat, vouvoiement sur la page de don.
-- [ ] Faire relire l'allemand par un germanophone reste souhaitable avant de communiquer sur cette version. À noter : les pages « Comment adopter » et « Bénévolat » tutoient, comme l'original roumain, alors que l'interface et les autres pages vouvoient.
+- [x] Allemand validé tel quel, sans relecture par un germanophone (décidé le 5 octobre 2026). Les pages « Comment adopter » et « Bénévolat » sont passées au vouvoiement, comme l'interface et les autres pages. Restent au tutoiement, volontairement : les fiches d'animaux (le ton familier de l'original) et les passages de `/proiect-2022` qui s'adressent aux donateurs au pluriel.
 - [x] Une description par page en anglais, en français et en allemand (5 octobre 2026) : les 16 pages indexables hors accueil (`seo.descriptions` dans `src/i18n/ui.ts`). Le roumain garde les descriptions de Wix, identiques d'une page à l'autre : c'est la règle de parité que vérifie `pnpm seo:check`.
 - [ ] Décider si le roumain reçoit lui aussi une description par page : il faudrait alors assouplir `pnpm seo:check`, qui exige aujourd'hui la description de Wix.
 - [x] `alt` des 6 images de la page d'accueil, des 4 photos de `/proiect-2022` et de la photo placée à côté du texte des pages de contenu, dans les quatre langues (5 octobre 2026) : `photoAlts` dans `src/i18n/ui.ts`, par nom de fichier, et les fichiers de page de `/proiect-2022`.
 - [x] **Lien vers redirectioneaza.ro** sur `/redirectioneaza` et `/doneaza` : corrigé à l'affichage dans les quatre langues (`fixRedirectFormLink`, `src/lib/page-body.ts`), l'adresse est partout `https://redirectioneaza.ro/asociatia-pentru-protectia-animalelor-hope/`. Sur Wix, le lien français pointait vers une adresse tronquée (404), le texte du lien était tronqué partout, plusieurs langues portaient un paramètre de suivi Facebook (`?fbclid=…`) et `/en/doneaza` n'avait que l'adresse tronquée en texte, sans lien.
-- [ ] Signaler à l'association le lien cassé de `/fr/redirectioneaza` sur Wix (404), pour qu'elle le corrige tant que Wix est en ligne. Le message est rédigé (5 octobre 2026), il reste à l'envoyer.
+- [x] Lien cassé de `/fr/redirectioneaza` sur Wix (404, le même sur l'accueil anglais `/en`) : laissé tel quel sur Wix, décidé le 5 octobre 2026. Il est corrigé sur le nouveau site, rien à signaler à l'association.
 
-### Écarts de contenu entre langues, à faire trancher par l'association
+### Écarts de contenu entre langues, tranchés
 
-Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et française en ligne sur Wix. Rien n'a été perdu à la migration : ces écarts existent déjà sur Wix et le nouveau site les reproduit tels quels. L'allemand, traduit depuis le roumain, suit le roumain. Aucun texte n'a été modifié en attendant la décision.
+Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et française en ligne sur Wix. Rien n'a été perdu à la migration : ces écarts existent déjà sur Wix et le nouveau site les reproduit tels quels. L'allemand, traduit depuis le roumain, suit le roumain. Tous ont été tranchés le 5 octobre 2026 et les textes alignés : les deux tableaux ci-dessous décrivent les textes de Wix, pas ceux du nouveau site.
 
-**`/cum-pot-adopta` (Comment adopter)** : le roumain (original), le français et l'allemand concordent ; l'anglais en dit plus.
+**`/cum-pot-adopta` (Comment adopter)** : sur Wix, le roumain (original) et le français concordent ; l'anglais en dit plus.
 
 | Passage | Roumain, français, allemand | Anglais |
 |---|---|---|
@@ -107,10 +107,10 @@ Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et fra
 | Section 4, étapes | « Vizită la domiciliu » | « Home visit (if required) » |
 | Section 10, liens | Voir les animaux, Nous contacter | Ajoute « Submit Adoption Application » |
 
-- [ ] **Question 1.** La demande de don à l'adoption et la visite à domicile « si nécessaire » sont-elles voulues, ou est-ce un ancien texte resté en anglais ? Selon la réponse : retirer ces passages de l'anglais, ou les ajouter au roumain, au français et à l'allemand.
-- [ ] **Question 2.** Le lien « Submit Adoption Application » doit-il exister (vers le formulaire de contact) dans toutes les langues, ou disparaître de l'anglais ?
+- [x] **Question 1**, tranchée le 5 octobre 2026 : il n'y a pas de frais d'adoption et la visite à domicile est systématique avant l'adoption. La demande de don et « (if required) » sont retirés de l'anglais (`migration/translations/en/pages/cum-pot-adopta.html`), qui dit maintenant la même chose que les trois autres langues.
+- [x] **Question 2**, tranchée le 5 octobre 2026 : la ligne « 👉 Submit Adoption Application » de la section 10 est gardée et ajoutée au roumain, au français et à l'allemand. Le roumain a pour cela son propre fichier (`migration/translations/ro/pages/cum-pot-adopta.html`, le texte de Wix avec cette ligne en plus). Comme sur Wix, les lignes de cette section sont du texte simple, sans lien. Formulation roumaine (« Trimite cererea de adopție ») validée le 5 octobre 2026. Les dix titres de section, écrits avec des chiffres en émoji sur Wix (« 1️⃣ … »), sont des titres numérotés ordinaires (« 1. … ») dans les quatre langues, comme ceux du guide du chat.
 
-**`/ghid-de-crestere-si-ingrijire-pisici` (Guide de soins du chat)** : le roumain, l'anglais et l'allemand concordent ; le français est une réécriture plus courte et plus douce.
+**`/ghid-de-crestere-si-ingrijire-pisici` (Guide de soins du chat)** : sur Wix, le roumain et l'anglais concordent ; le français est une réécriture plus courte et plus douce.
 
 | Passage | Roumain, anglais, allemand | Français |
 |---|---|---|
@@ -120,9 +120,9 @@ Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et fra
 | Sections 7 et 9 | « Cautati pe google si veti gasi mai multe » / « liste intregi de plante » | Absent |
 | Section 7, aliments toxiques | Une phrase : « ciocolata, strugurii, ceapa, usturoiul sunt cateva dintre ele » | Une liste à puces (chocolat, raisins, oignon, ail) |
 
-- [x] **Question 3**, tranchée le 5 octobre 2026 : le français reprend le texte complet des autres langues, critique des vétérinaires comprise (`migration/translations/fr/pages/ghid-de-crestere-si-ingrijire-pisici.html`, traduit du roumain). Seul écart voulu : le français dit « magasins spécialisés (type bricolage) » là où le roumain, l'anglais et l'allemand citent Hornbach. Le tableau ci-dessus décrit l'ancien texte français de Wix.
-- [ ] Une fois les réponses connues, aligner les langues concernées. Les textes roumain et anglais du guide du chat et l'anglais de « Comment adopter » sont dans `migration/translations/{ro,en}/pages/` ; le français de « Comment adopter » est dans `migration/translations/fr/pages/` ; il ne reste à aligner que « Comment adopter » (questions 1 et 2).
-- [ ] Les titres des dix sections du guide du chat en roumain, anglais et allemand (« 1. Sterilizarea », « 6. Geamuri si balcoane »…) ont été ajoutés lors de la refonte pour aligner la présentation sur le français : à faire valider.
+- [x] **Question 3**, tranchée le 5 octobre 2026 : le français reprend le texte complet des autres langues, critique des vétérinaires comprise (`migration/translations/fr/pages/ghid-de-crestere-si-ingrijire-pisici.html`, traduit du roumain). Seul écart voulu : le français dit « magasins spécialisés (type bricolage) » là où le roumain, l'anglais et l'allemand citent Hornbach.
+- [x] Langues alignées (5 octobre 2026) : « Comment adopter » dit la même chose dans les quatre langues, le guide du chat aussi, à l'exception voulue de Hornbach en français.
+- [x] Les titres des dix sections du guide du chat en roumain, anglais et allemand (« 1. Sterilizarea », « 6. Geamuri si balcoane »…) ont été ajoutés lors de la refonte pour aligner la présentation sur le français : validés le 5 octobre 2026.
 
 ### SEO, finitions
 - [x] JSON-LD (`src/lib/json-ld.ts`), dans la langue de chaque page. Accueil : `AnimalShelter` complété (nom traduit en variante, mission, année de fondation, code fiscal) et `WebSite`, comme le `LocalBusiness` + `WebSite` de Wix. Toutes les pages indexables des quatre langues : la page elle-même (`WebPage`, `CollectionPage` pour les listes, `AboutPage`, `ContactPage`) et son fil d'Ariane (`BreadcrumbList`), absents de Wix. Rien sur les pages en `noindex`.
@@ -137,13 +137,13 @@ Constatés le 4 octobre 2026 en comparant les versions roumaine, anglaise et fra
 
 ### Design
 - [x] Refonte fidèle à la charte Wix (4 octobre 2026) : titres plus marqués, texte plus lisible, composants harmonisés, bandeau d'accueil en vert profond, photo à côté du texte sur six pages, photos réparties dans le texte sur `/proiect-2022`, même présentation dans les quatre langues.
-- [ ] Choisir la direction graphique définitive : cinq pistes sont présentées dans un artefact (https://claude.ai/artifact/XW2oNzJxWH2QzAgKUpDuA8, privé, à partager depuis la page). La piste 1 est celle du code.
+- [x] Direction graphique définitive validée (5 octobre 2026) : la piste 1, celle du code. Les quatre autres pistes restent dans l'artefact (https://claude.ai/artifact/XW2oNzJxWH2QzAgKUpDuA8, privé) et ne sont pas retenues.
 - [x] **Système de thèmes modifiable depuis l'admin** (5 octobre 2026). Le rendu actuel est le thème « classic » (identifiant `classic`), qui reste le thème par défaut ; cinq thèmes de saison sont fournis : `christmas` (rouge, flocons), `valentine` (rose, cœurs), `easter` (lilas, œufs), `summer` (bleu mer, plage), `halloween` (orange citrouille, citrouilles et chauves-souris). Un thème fixe la couleur principale du site (titres, liens, boutons, fonds colorés) et le motif du bandeau de titre et du pied de page ; `/admin/theme` permet de choisir le thème actif et de modifier la couleur et le motif de chacun. Les traits des titres, les puces, le soulignement des liens et les fonds pâles sont des teintes calculées en CSS à partir de la couleur principale ; seuls les états « c'est fait » des formulaires restent verts. La base demande `pnpm db:migrate` (nouvelle table `settings`).
 - [x] Thème classique validé (5 octobre 2026) : les traits et les puces en bleu-vert clair et les fonds pâles en gris-bleu très clair, calculés depuis le vert sarcelle, remplacent le vert du logo.
 - [x] Thèmes : contrôle visuel sur mobile fait (5 octobre 2026).
 - [ ] Thèmes, contrôle visuel restant : Saint-Valentin, Pâques et Été n'ont été vus qu'en partie (accueil ou une page), et l'aperçu en direct de `/admin/theme` n'a pas été essayé dans un navigateur. En Halloween, le bouton orange du bandeau d'accueil et la section « Faire un don » de l'accueil se détachent peu de la couleur du thème.
-- [ ] Thèmes : activation automatique sur une période (Noël du 1er décembre au 6 janvier, par exemple, de même pour les autres thèmes de saison), aujourd'hui le changement se fait à la main dans l'admin.
-- [ ] Faire valider par l'association les photos d'illustration choisies pour les six pages de texte (`PAGE_ILLUSTRATIONS` dans `src/lib/site.ts`).
+- [x] Thèmes : pas d'activation automatique sur une période, décidé le 5 octobre 2026. Le thème de saison se choisit à la main dans `/admin/theme`.
+- [x] Photos d'illustration des six pages de texte (`PAGE_ILLUSTRATIONS` dans `src/lib/site.ts`) : validées le 5 octobre 2026.
 - [ ] Contrôle visuel restant : contact, in memoriam, listes de chats et de parrainages, et l'ensemble du site sur mobile (seules quelques pages ont été vues en largeur mobile).
 
 ## 3. Écarts voulus (rien à faire)
