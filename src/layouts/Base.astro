@@ -35,11 +35,13 @@ const origin = Astro.site!.origin;
 const absolute = (target: Locale) => absoluteUrl(origin, path, target);
 const href = (page: string) => localizePath(page, locale);
 const isCurrent = (page: string) => path === page || path.startsWith(`${page}/`);
+// The campaigns are linked, in the menu and in the footer, while at least one is published.
+const hasCampaigns = listCampaignPaths().length > 0;
+const menu = NAV.map((item) => ('group' in item ? { ...item, items: item.items.filter((page) => page !== 'campanii' || hasCampaigns) } : item));
 // Footer link columns: every page of the menu, grouped by what the visitor wants to do.
 const footerLinks: { title: string; pages: PageKey[] }[] = [
-  { title: ui.footer.adopt, pages: ['adoptii-caini', 'adoptii-pisici', 'adoptii-virtuale-caini', 'adoptii-virtuale-pisici', 'cum-pot-adopta'] },
-  // The campaigns are linked while at least one is published.
-  { title: ui.footer.help, pages: ['doneaza', ...(listCampaignPaths().length ? (['campanii'] as const) : []), 'redirectioneaza', 'voluntariat', 'ai-gasit-un-animal'] },
+  { title: ui.nav.adopt, pages: ['adoptii-caini', 'adoptii-pisici', 'adoptii-virtuale-caini', 'adoptii-virtuale-pisici', 'cum-pot-adopta'] },
+  { title: ui.nav.help, pages: ['doneaza', ...(hasCampaigns ? (['campanii'] as const) : []), 'redirectioneaza', 'voluntariat', 'ai-gasit-un-animal'] },
   { title: ui.nav.info, pages: ['despre-noi', 'proiect-2022', 'raport-2024', 'ghid-de-crestere-si-ingrijire-pisici', 'in-memoriam'] },
 ];
 const cta = [
@@ -114,7 +116,7 @@ const cta = [
           <nav class="site-nav" aria-label={ui.menu}>
             <ul>
               {
-                NAV.map((item) =>
+                menu.map((item) =>
                   'page' in item ? (
                     <li>
                       <a href={href(`/${item.page}`)} aria-current={isCurrent(`/${item.page}`) ? 'page' : undefined}>
@@ -122,7 +124,7 @@ const cta = [
                       </a>
                     </li>
                   ) : (
-                    <li class="site-nav__group">
+                    <li class:list={['site-nav__group', { 'is-current': item.items.some((page) => isCurrent(`/${page}`)) }]}>
                       <button type="button" aria-haspopup="true">
                         {ui.nav[item.group]}
                       </button>
@@ -141,9 +143,9 @@ const cta = [
               }
             </ul>
             <div class="site-nav__group language-menu">
-              <button type="button" aria-haspopup="true">
+              <button type="button" aria-haspopup="true" aria-label={LOCALE_NAMES[locale]}>
                 <Flag locale={locale} />
-                {LOCALE_NAMES[locale]}
+                {locale.toUpperCase()}
               </button>
               <ul>
                 {
@@ -237,6 +239,11 @@ const cta = [
           if (group === toggled) group.classList.toggle('is-open');
           else if (group !== inside) group.classList.remove('is-open');
         }
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        for (const group of document.querySelectorAll('.site-nav__group')) group.classList.remove('is-open');
+        if (document.activeElement.closest('.site-nav__group')) document.activeElement.blur();
       });
     </script>
   </body>

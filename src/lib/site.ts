@@ -81,17 +81,20 @@ export const HOME_PAGE = 'home';
 export const SEO_PAGES = [HOME_PAGE, 'adoptii-caini', 'adoptii-pisici', 'adoptii-virtuale-caini', 'adoptii-virtuale-pisici', 'campanii', 'contact', ...CONTENT_PAGES] as const satisfies readonly (PageKey | typeof HOME_PAGE)[];
 export type SeoPage = (typeof SEO_PAGES)[number];
 
-type NavItem = { page: PageKey } | { group: 'virtual' | 'info'; items: PageKey[] };
+/** Groups of the header menu; their names are `ui.nav`. */
+export const NAV_GROUPS = ['adopt', 'virtual', 'help', 'info'] as const;
+export type NavGroup = (typeof NAV_GROUPS)[number];
+type NavItem = { page: PageKey } | { group: NavGroup; items: PageKey[] };
 
-/** Same order and grouping as the Wix menu. */
+/**
+ * Header menu, grouped by what the visitor wants to do: four groups and the contact page, where Wix had
+ * eight entries. `campanii` is only shown while a campaign is published.
+ */
 export const NAV: NavItem[] = [
-  { page: 'despre-noi' },
-  { group: 'virtual', items: ['adoptii-virtuale-pisici', 'adoptii-virtuale-caini'] },
-  { page: 'adoptii-caini' },
-  { page: 'adoptii-pisici' },
-  { page: 'redirectioneaza' },
-  { group: 'info', items: ['proiect-2022', 'ai-gasit-un-animal', 'cum-pot-adopta', 'raport-2024', 'ghid-de-crestere-si-ingrijire-pisici', 'in-memoriam'] },
-  { page: 'voluntariat' },
+  { group: 'adopt', items: ['adoptii-caini', 'adoptii-pisici', 'cum-pot-adopta', 'ghid-de-crestere-si-ingrijire-pisici'] },
+  { group: 'virtual', items: ['adoptii-virtuale-caini', 'adoptii-virtuale-pisici'] },
+  { group: 'help', items: ['doneaza', 'campanii', 'redirectioneaza', 'voluntariat', 'ai-gasit-un-animal'] },
+  { group: 'info', items: ['despre-noi', 'proiect-2022', 'raport-2024', 'in-memoriam'] },
   { page: 'contact' },
 ];
 
