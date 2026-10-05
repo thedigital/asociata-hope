@@ -6,7 +6,8 @@ import type { APIContext } from 'astro';
 import { eq } from 'drizzle-orm';
 import { db, schema } from '../src/db/client.ts';
 import { deleteCampaign, getCampaignForEdit, listCampaignsForAdmin, parseCampaignForm, saveCampaign } from '../src/lib/admin-campaigns.ts';
-import { campaignForAnimal, campaignState, dateInRomania, formatMoney, formatShown, getCampaign, listCampaignPaths, listCampaigns } from '../src/lib/campaigns.ts';
+import { findCollection, listAnimals } from '../src/lib/animals.ts';
+import { animalsWithCampaign, campaignForAnimal, campaignState, dateInRomania, formatMoney, formatShown, getCampaign, listCampaignPaths, listCampaigns } from '../src/lib/campaigns.ts';
 import { FALLBACK_RATES, convert, fetchRates, parseRates } from '../src/lib/exchange-rates.ts';
 import { recordCampaignDonation, verifyStripeSignature } from '../src/lib/stripe-webhook.ts';
 import { POST as donate } from '../src/pages/donate.ts';
@@ -165,6 +166,10 @@ describe('a campaign', () => {
     const campaign = campaignForAnimal(animalId, 'ro', NOW)!;
     assert.deepEqual([campaign.title, campaign.animal], ['Operație pentru Rex', { name: 'Rex', path: '/adoptii-virtuale-caini/rex' }]);
     assert.equal(campaignForAnimal(animalId, 'ro', new Date(NOW.getTime() + 5 * 86_400_000)), null);
+    // Its card is marked in the lists, where the campaign is also a filter.
+    assert.deepEqual([...animalsWithCampaign(NOW)], [animalId]);
+    assert.equal(animalsWithCampaign(new Date(NOW.getTime() + 5 * 86_400_000)).size, 0);
+    assert.deepEqual(listAnimals(findCollection('adoptii-virtuale-caini')!).map((a) => [a.name, a.campaign]), [['Rex', true]]);
   });
 
   it('is deleted with its donations', async () => {

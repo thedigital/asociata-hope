@@ -446,8 +446,11 @@ describe('admin sign-in', () => {
     assert.match(html, /<link rel="canonical" href="https:\/\/www\.adoptii-animale-hope\.org\/fr\/campanii\/hrana"/);
     assert.match(html, /<progress max="100" value="10"/);
     // 100 RON of 1000, shown in euros to a French reader with the rates stored at creation (1 EUR = 5 RON).
-    assert.match(html, /≈\s20\s€<\/strong> collectés sur ≈\s200\s€/);
-    assert.match(await (await request('/campanii/hrana')).text(), /<strong>100\sRON<\/strong> strânși din 1\.000\sRON/);
+    assert.match(html, /<strong>20\s€<\/strong> collectés sur 200\s€/);
+    assert.ok(html.includes('Montants approximatifs, convertis en EUR'));
+    const romanian = await (await request('/campanii/hrana')).text();
+    assert.match(romanian, /<strong>100\sRON<\/strong> strânși din 1\.000\sRON/);
+    assert.ok(!romanian.includes('campaign-progress__note'), 'nothing is converted for a Romanian reader');
     assert.match(html, /name="campaign" value="hrana"/);
     assert.ok(!/\sstyle="/.test(html), 'public pages have no style attribute');
     assert.match(await (await request('/fr/campanii/hrana?cancelled=1')).text(), /noindex, follow/);
@@ -463,7 +466,7 @@ describe('admin sign-in', () => {
     const signature = `t=${timestamp},v1=${createHmac('sha256', WEBHOOK_SECRET).update(`${timestamp}.${payload}`).digest('hex')}`;
     const hook = (headers: Record<string, string>) => request('/stripe/webhook', { body: payload, headers: { 'content-type': 'application/json', ...headers } });
     assert.equal((await hook({})).status, 400);
-    assert.equal((await hook({ 'stripe-signature': signature.replace(/.$/, '0') })).status, 400);
+    assert.equal((await hook({ 'stripe-signature': signature.replace(/.$/, (last) => (last === '0' ? '1' : '0')) })).status, 400);
     assert.deepEqual(await (await hook({ 'stripe-signature': signature })).json(), { received: true, recorded: true });
     assert.deepEqual(await (await hook({ 'stripe-signature': signature })).json(), { received: true, recorded: false });
     assert.equal((await fetch(`${origin}/stripe/webhook`)).status, 404);

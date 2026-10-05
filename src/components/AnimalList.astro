@@ -35,8 +35,11 @@ const matches = (a: Card) =>
   (!selected.color.length || (a.color !== null && selected.color.includes(a.color))) &&
   (!selected.trait.length || a.traits.some((trait) => selected.trait.includes(trait))) &&
   (!selected.age.length || (a.ageMonths !== null && ageGroup(a.ageMonths) === selected.age[0]));
-const visible = animals.filter(matches);
-const filtered = Object.values(selected).some((values) => values.length);
+// Offered when an animal of this collection has an open campaign.
+const campaignOffered = animals.some((a) => a.campaign);
+const campaignOnly = campaignOffered && filters.get('campaign') === '1';
+const visible = animals.filter((a) => matches(a) && (!campaignOnly || a.campaign));
+const filtered = campaignOnly || Object.values(selected).some((values) => values.length);
 
 const fields = [
   { name: 'sex', label: ui.animal.sex, values: options.sex.map((v) => [v, ui.sex[v]]) },
@@ -89,6 +92,14 @@ const fields = [
             </select>
           </label>
         ),
+      )
+    }
+    {
+      campaignOffered && (
+        <label class="filters__check">
+          <input type="checkbox" name="campaign" value="1" checked={campaignOnly} />
+          {ui.filters.withCampaign}
+        </label>
       )
     }
     <noscript><button class="button button--small" type="submit">{ui.filters.apply}</button></noscript>

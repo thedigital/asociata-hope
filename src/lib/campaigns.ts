@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
 import { DEFAULT_LOCALE, type Locale } from '../i18n/config.ts';
 import { convert, type Rates } from './exchange-rates.ts';
@@ -158,6 +158,14 @@ export function campaignForAnimal(animalId: number, locale: Locale, now = new Da
   return build(rows, locale, now).find((campaign) => campaign.state === 'open') ?? null;
 }
 
+/** Animals that have an open campaign: marked on their cards, and a filter of the lists. */
+export function animalsWithCampaign(now = new Date()): Set<number> {
+  const rows = db.select().from(campaigns).where(and(eq(campaigns.scope, 'animal'), eq(campaigns.status, 'published'), isNotNull(campaigns.animalId))).all();
+  const byCard = raisedByCard(rows.map((row) => row.id));
+  const open = rows.filter((row) => campaignState(row, campaignTotals(row, byCard.get(row.id)).total(row.currency).amount, now) === 'open');
+  return new Set(open.map((row) => row.animalId!));
+}
+
 /** Every published campaign URL path (without language prefix), for the sitemap. */
 export function listCampaignPaths(): { path: string; updatedAt: Date }[] {
   return db
@@ -172,7 +180,7 @@ export function listCampaignPaths(): { path: string; updatedAt: Date }[] {
 export const formatMoney = (amount: number, currency: Currency, locale: Locale) =>
   new Intl.NumberFormat(locale, { style: 'currency', currency: currency.toUpperCase(), maximumFractionDigits: 0 }).format(Math.floor(amount));
 
-/** The same for an amount that may come from a conversion: "≈ 1 500 €". */
+/** The same for an amount that may come from a conversion, in the admin: "≈ 1 500 €". */
 export const formatShown = (shown: ShownAmount, locale: Locale) => `${shown.approximate ? '≈\u00a0' : ''}${formatMoney(shown.amount, shown.currency, locale)}`;
 
 /** "24 decembrie 2026": the last day of a campaign, in the language of the page. */

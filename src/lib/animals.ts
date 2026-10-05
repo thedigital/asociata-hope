@@ -1,6 +1,7 @@
 import { and, asc, eq, inArray } from 'drizzle-orm';
 import { db, schema } from '../db/client.ts';
 import { DEFAULT_LOCALE, type Locale } from '../i18n/config.ts';
+import { animalsWithCampaign } from './campaigns.ts';
 import { ageInMonths, COLLECTION_PATHS, type AdoptionType, type Species, type Trait } from './taxonomy.ts';
 
 const { animals, animalPhotos, animalTraits, animalTranslations } = schema;
@@ -8,7 +9,8 @@ const { animals, animalPhotos, animalTraits, animalTranslations } = schema;
 export type Collection = { species: Species; adoptionType: AdoptionType; path: string };
 export type Animal = typeof animals.$inferSelect;
 export type Photo = typeof animalPhotos.$inferSelect;
-export type AnimalCard = Animal & { photo: Photo | null; traits: Trait[]; ageMonths: number | null };
+/** `campaign`: a fundraising campaign for this animal is open. */
+export type AnimalCard = Animal & { photo: Photo | null; traits: Trait[]; ageMonths: number | null; campaign: boolean };
 
 export const COLLECTIONS: Collection[] = (['dog', 'cat'] as const).flatMap((species) =>
   (['real', 'virtual'] as const).map((adoptionType) => ({ species, adoptionType, path: COLLECTION_PATHS[species][adoptionType] })),
@@ -41,11 +43,13 @@ export function listAnimals({ species, adoptionType }: Collection): AnimalCard[]
     ? db.select().from(animalPhotos).where(and(inArray(animalPhotos.animalId, ids), eq(animalPhotos.sortOrder, 0))).all()
     : [];
   const traits = traitsByAnimal(ids);
+  const withCampaign = animalsWithCampaign();
   return rows.map((row) => ({
     ...row,
     photo: photos.find((p) => p.animalId === row.id) ?? null,
     traits: traits.get(row.id) ?? [],
     ageMonths: row.birthDate ? ageInMonths(row.birthDate) : null,
+    campaign: withCampaign.has(row.id),
   }));
 }
 
@@ -84,7 +88,7 @@ export function listDeceased(): AnimalCard[] {
   const photos = ids.length
     ? db.select().from(animalPhotos).where(and(inArray(animalPhotos.animalId, ids), eq(animalPhotos.sortOrder, 0))).all()
     : [];
-  return rows.map((row) => ({ ...row, photo: photos.find((p) => p.animalId === row.id) ?? null, traits: [], ageMonths: null }));
+  return rows.map((row) => ({ ...row, photo: photos.find((p) => p.animalId === row.id) ?? null, traits: [], ageMonths: null, campaign: false }));
 }
 
 /** True when the URL belongs to an animal that has died: its page moves to "In memoriam". */

@@ -3,6 +3,7 @@ import type { Locale } from '../i18n/config.ts';
 import { localizePath } from '../i18n/config.ts';
 import { formatAge, useUi } from '../i18n/ui.ts';
 import type { AnimalCard } from '../lib/animals.ts';
+import { LINE_ICONS } from '../lib/icons.ts';
 import { imageUrl, srcset } from '../lib/media.ts';
 import { COLLECTION_PATHS } from '../lib/taxonomy.ts';
 
@@ -14,16 +15,19 @@ interface Props {
   priority?: boolean;
   /** Level of the name, under the title of the block that holds the card. */
   heading?: 'h2' | 'h3';
+  /** False for an animal without a page (in memoriam): photo and name only. */
+  link?: boolean;
 }
 
-const { animal, locale, eager = false, priority = false, heading: Heading = 'h3' } = Astro.props;
+const { animal, locale, eager = false, priority = false, heading: Heading = 'h3', link = true } = Astro.props;
+const Body = link ? 'a' : 'div';
 const ui = useUi(locale);
 const url = localizePath(`/${COLLECTION_PATHS[animal.species][animal.adoptionType]}/${animal.slug}`, locale);
 const details = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMonths), animal.sex ? ui.sex[animal.sex] : null].filter(Boolean);
 ---
 
 <li class="animal-card">
-  <a href={url}>
+  <Body class="animal-card__body" href={link ? url : undefined}>
     {
       animal.photo && (
         <img
@@ -39,8 +43,16 @@ const details = [animal.ageMonths === null ? null : formatAge(ui, animal.ageMont
         />
       )
     }
-    <Heading>{animal.name}</Heading>
-    <p>{details.join(' · ')}</p>
-    <span class="animal-card__more">{ui.animal.learnMore}</span>
-  </a>
+    {
+      animal.campaign && (
+        <span class="animal-card__campaign">
+          <svg viewBox="0 0 24 24" aria-hidden="true" set:html={LINE_ICONS.heart} />
+          {ui.campaigns.badge}
+        </span>
+      )
+    }
+    <Heading class="animal-card__name">{animal.name}</Heading>
+    {link && <p>{details.join(' · ')}</p>}
+    {link && <span class="animal-card__more">{ui.animal.learnMore}</span>}
+  </Body>
 </li>

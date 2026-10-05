@@ -821,7 +821,7 @@ a:hover {
   margin: clamp(2.5rem, 6vw, 4rem) auto 0;
 }
 
-.home-waiting h3 {
+.home-waiting > h3 {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -829,8 +829,8 @@ a:hover {
   font-size: var(--title-2);
 }
 
-.home-waiting h3::before,
-.home-waiting h3::after {
+.home-waiting > h3::before,
+.home-waiting > h3::after {
   content: '';
   flex: 1;
   height: 2px;
@@ -1241,6 +1241,22 @@ a:hover {
   min-height: 48px;
 }
 
+/* Filter that is on or off: a checkbox at the height of the selects */
+.filters__check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 48px;
+  cursor: pointer;
+}
+
+.filters__check input {
+  flex: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--green-deep);
+}
+
 .filters__reset {
   padding-block: 0.7rem;
   font-size: 0.9rem;
@@ -1280,8 +1296,9 @@ a:hover {
   }
 }
 
-.animal-card a,
-.animal-card__static {
+/* The card of an animal is one component (AnimalCard.astro): it looks the same wherever it is shown. */
+.animal-card__body {
+  position: relative;
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   height: 100%;
@@ -1295,7 +1312,7 @@ a:hover {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.animal-card a:hover {
+a.animal-card__body:hover {
   box-shadow: var(--shadow-raised);
   transform: translateY(-4px);
 }
@@ -1309,12 +1326,16 @@ a:hover {
   transition: transform 0.5s;
 }
 
-.animal-card a:hover img {
+a.animal-card__body:hover img {
   transform: scale(1.04);
 }
 
-.animal-card :is(h2, h3) {
+/* The name, between two lines */
+.animal-card__name {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   margin: 0;
   padding: 1rem 0.75rem 0;
   background: var(--surface);
@@ -1323,7 +1344,48 @@ a:hover {
   overflow-wrap: anywhere;
 }
 
-.animal-card__static h2 {
+.animal-card__name::before,
+.animal-card__name::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+/* An open campaign for this animal: a label over the top of the photo */
+.animal-card__campaign {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: calc(100% - 1.2rem);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--primary-dark);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.animal-card__campaign svg {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  fill: var(--call);
+  stroke: var(--call);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+/* Card without a link (in memoriam): the name closes it */
+div.animal-card__body .animal-card__name {
   padding-bottom: 1.1rem;
 }
 
@@ -1356,7 +1418,7 @@ a:hover {
   transition: background-color 0.2s, color 0.2s;
 }
 
-.animal-card a:hover .animal-card__more {
+a.animal-card__body:hover .animal-card__more {
   background: var(--call);
   color: #fff;
 }
@@ -3208,6 +3270,13 @@ fieldset[aria-invalid='true'] {
   color: var(--muted);
   font-size: var(--text-small);
   font-weight: 500;
+  line-height: 1.4;
+}
+
+.campaign-progress__note {
+  margin: 0.3rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
   line-height: 1.4;
 }
 

@@ -1,5 +1,6 @@
 ---
 import { and, eq } from 'drizzle-orm';
+import AnimalCard from '../components/AnimalCard.astro';
 import AnimalDetail from '../components/AnimalDetail.astro';
 import AnimalList from '../components/AnimalList.astro';
 import CampaignDetail from '../components/CampaignDetail.astro';
@@ -167,24 +168,7 @@ const jsonLd = !found || filtered || unlisted ? [] : [
         {memoriam ? (
           <div class="container memoriam">
             <ul class="animal-grid">
-              {memoriam.map((item) => (
-                <li class="animal-card">
-                  <div class="animal-card__static">
-                    {item.photo && (
-                      <img
-                        src={imageUrl('animals', item.photo.file, 400)}
-                        srcset={srcset('animals', item.photo.file, [400, 800])}
-                        sizes="(min-width: 1100px) 300px, (min-width: 700px) 33vw, 50vw"
-                        alt={item.photo.alt || item.name}
-                        width="400"
-                        height="400"
-                        loading="lazy"
-                      />
-                    )}
-                    <h2>{item.name}</h2>
-                  </div>
-                </li>
-              ))}
+              {memoriam.map((item) => <AnimalCard animal={item} locale={locale} heading="h2" link={false} />)}
             </ul>
           </div>
         ) : isDonation ? (

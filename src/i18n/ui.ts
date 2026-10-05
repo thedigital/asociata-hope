@@ -102,6 +102,8 @@ export type Ui = {
     senior: string;
     apply: string;
     reset: string;
+    /** Checkbox: only the animals that have an open campaign. */
+    withCampaign: string;
     none: string;
     count: (n: number) => string;
   };
@@ -125,11 +127,15 @@ export type Ui = {
     permanent: string;
     /** Follows the amount collected: "raised of 3,000 RON". */
     raisedOf: (goal: string) => string;
+    /** Under the amounts when gifts or the goal were converted to the currency of the language ("EUR"). */
+    converted: (currency: string) => string;
     /** Days left, the last one included. */
     daysLeft: (n: number) => string;
     until: (date: string) => string;
     reached: string;
     ended: string;
+    /** On the card of an animal that has an open campaign. */
+    badge: string;
     see: string;
     give: string;
     giveHint: string;
@@ -286,6 +292,7 @@ const ro: Ui = {
     youngAdult: '1 – 3 ani',
     adult: '4 – 7 ani',
     senior: '8 ani si peste',
+    withCampaign: 'Animale cu o campanie',
     apply: 'Filtreaza',
     reset: 'Sterge filtrele',
     none: 'Niciun animal nu corespunde filtrelor alese.',
@@ -342,10 +349,12 @@ const ro: Ui = {
     scopes: { global: 'Pentru asociație', need: 'Nevoie concretă', animal: 'Pentru un animal', event: 'Eveniment' },
     permanent: 'Campanie permanentă',
     raisedOf: (goal) => `strânși din ${goal}`,
+    converted: (currency) => `Sume aproximative, convertite în ${currency}`,
     daysLeft: (n) => (n === 1 ? 'Ultima zi' : `Încă ${roCount(n, 'zi', 'zile')}`),
     until: (date) => `Până pe ${date}`,
     reached: 'Obiectiv atins. Vă mulțumim!',
     ended: 'Campanie încheiată',
+    badge: 'Campanie în desfășurare',
     see: 'Vezi campania',
     give: 'Donează pentru această campanie',
     giveHint: 'Online, cu cardul',
@@ -514,6 +523,7 @@ const en: Ui = {
     youngAdult: '1 – 3 years',
     adult: '4 – 7 years',
     senior: '8 years and over',
+    withCampaign: 'Animals with a fundraiser',
     apply: 'Filter',
     reset: 'Clear filters',
     none: 'No animal matches the selected filters.',
@@ -570,10 +580,12 @@ const en: Ui = {
     scopes: { global: 'For the association', need: 'A specific need', animal: 'For one animal', event: 'Event' },
     permanent: 'Ongoing campaign',
     raisedOf: (goal) => `raised of ${goal}`,
+    converted: (currency) => `Approximate amounts, converted to ${currency}`,
     daysLeft: (n) => (n === 1 ? 'Last day' : `${n} days left`),
     until: (date) => `Until ${date}`,
     reached: 'Goal reached. Thank you!',
     ended: 'Campaign ended',
+    badge: 'Fundraiser in progress',
     see: 'See the campaign',
     give: 'Donate to this campaign',
     giveHint: 'Online, by card',
@@ -742,6 +754,7 @@ const fr: Ui = {
     youngAdult: '1 à 3 ans',
     adult: '4 à 7 ans',
     senior: '8 ans et plus',
+    withCampaign: 'Animaux avec une collecte',
     apply: 'Filtrer',
     reset: 'Effacer les filtres',
     none: 'Aucun animal ne correspond aux filtres choisis.',
@@ -798,10 +811,12 @@ const fr: Ui = {
     scopes: { global: 'Pour l’association', need: 'Un besoin précis', animal: 'Pour un animal', event: 'Événement' },
     permanent: 'Collecte permanente',
     raisedOf: (goal) => `collectés sur ${goal}`,
+    converted: (currency) => `Montants approximatifs, convertis en ${currency}`,
     daysLeft: (n) => (n === 1 ? 'Dernier jour' : `Encore ${n} jours`),
     until: (date) => `Jusqu’au ${date}`,
     reached: 'Objectif atteint. Merci !',
     ended: 'Collecte terminée',
+    badge: 'Collecte en cours',
     see: 'Voir la collecte',
     give: 'Donner pour cette collecte',
     giveHint: 'En ligne, par carte',
@@ -970,6 +985,7 @@ const de: Ui = {
     youngAdult: '1 bis 3 Jahre',
     adult: '4 bis 7 Jahre',
     senior: '8 Jahre und älter',
+    withCampaign: 'Tiere mit Spendenaktion',
     apply: 'Filtern',
     reset: 'Filter zurücksetzen',
     none: 'Kein Tier entspricht den gewählten Filtern.',
@@ -1026,10 +1042,12 @@ const de: Ui = {
     scopes: { global: 'Für den Verein', need: 'Konkreter Bedarf', animal: 'Für ein Tier', event: 'Anlass' },
     permanent: 'Dauerhafte Spendenaktion',
     raisedOf: (goal) => `von ${goal} gesammelt`,
+    converted: (currency) => `Ungefähre Beträge, in ${currency} umgerechnet`,
     daysLeft: (n) => (n === 1 ? 'Letzter Tag' : `Noch ${n} Tage`),
     until: (date) => `Bis zum ${date}`,
     reached: 'Ziel erreicht. Vielen Dank!',
     ended: 'Spendenaktion beendet',
+    badge: 'Spendenaktion läuft',
     see: 'Zur Spendenaktion',
     give: 'Für diese Aktion spenden',
     giveHint: 'Online, mit Karte',
