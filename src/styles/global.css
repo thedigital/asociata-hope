@@ -237,8 +237,10 @@ a:hover {
   margin-inline: auto;
 }
 
+/* Under 480px the header shows the paw and the name only (`logo-compact.svg`), at the same height. */
 .site-header__logo img {
-  width: 149px;
+  width: auto;
+  height: 37px;
 }
 
 .nav-toggle {
@@ -3738,16 +3740,13 @@ fieldset[aria-invalid='true'] {
   grid-column: 1 / -1;
 }
 
-/* The logo has dark letters: it keeps a white plate on the dark ground. */
+/* The white version of the logo, straight on the dark ground. */
 .site-footer__logo {
   display: block;
-  padding: 0.8rem 1.1rem;
-  border-radius: var(--radius-small);
-  background: var(--surface);
-  box-shadow: 0 10px 30px rgb(4 26 14 / 0.25);
 }
 
 .site-footer__logo img {
+  width: 253px;
   max-width: none;
 }
 
@@ -3834,7 +3833,7 @@ fieldset[aria-invalid='true'] {
   text-align: center;
 }
 
-/* From 860px the four link columns share one row under the logo; from 1100px the logo joins them. */
+/* From 860px the four link columns share one row under the logo; from 1280px the logo joins them. */
 @media (min-width: 860px) {
   .site-footer__inner {
     grid-template-columns: repeat(4, auto);
@@ -3842,7 +3841,7 @@ fieldset[aria-invalid='true'] {
   }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1280px) {
   .site-footer__inner {
     grid-template-columns: repeat(5, auto);
   }

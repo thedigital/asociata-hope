@@ -5,8 +5,10 @@ import '@fontsource/poppins/600.css';
 import '@fontsource/poppins/700.css';
 import '@fontsource/fredoka/600.css';
 import '../styles/global.css';
-// The logo at twice its displayed size, served from a file whose name changes with its content (cached for good).
-import logo from '../assets/logo.webp';
+// The logo, as outlines, served from files whose names change with their content (cached for good): the compact one (paw and name) is for narrow screens, the white one stands on the footer.
+import logo from '../assets/logo.svg';
+import logoCompact from '../assets/logo-compact.svg';
+import logoWhite from '../assets/logo-white.svg';
 import Flag from '../components/Flag.astro';
 import Icon from '../components/Icon.astro';
 import { DEFAULT_LOCALE, ENABLED_LOCALES, HREFLANG, LOCALE_NAMES, absoluteUrl, localizePath, type Locale } from '../i18n/config.ts';
@@ -108,7 +110,10 @@ const cta = [
     <header class="site-header">
       <div class="site-header__inner">
         <a class="site-header__logo" href={href('/')} aria-label={ui.home}>
-          <img src={logo.src} alt={SITE.legalName} width="149" height="55" />
+          <picture>
+            <source media="(max-width: 479.98px)" srcset={logoCompact.src} width="118" height="37" />
+            <img src={logo.src} alt={SITE.legalName} width="253" height="37" />
+          </picture>
         </a>
 
         <details class="nav-toggle">
@@ -189,7 +194,7 @@ const cta = [
       <div class="site-footer__inner">
         <div class="site-footer__brand">
           <a class="site-footer__logo" href={href('/')} aria-label={ui.home}>
-            <img src={logo.src} alt={SITE.legalName} width="149" height="55" loading="lazy" />
+            <img src={logoWhite.src} alt={SITE.legalName} width="253" height="37" loading="lazy" />
           </a>
           <ul class="social-links" aria-label={ui.footer.socials}>
             <li>
